@@ -1,0 +1,33 @@
+options:
+  connection: globocam_classic
+  type: INNODB
+  collate: utf8_unicode_ci
+  charset: utf8 
+
+detect_relations: true
+
+Errorlog:
+  actAs:
+    Timestampable:
+  columns:
+    errno: integer
+    errstr: string(5000)
+    errfile: string(1024)
+    errline: integer
+    request: string(255)
+  indexes:
+    errno_index:
+      fields:
+        errno: []
+    errline_index:
+      fields:
+        errline: []
+    errstr_index:
+      fields:
+        errstr:
+          length: 250
+    errfile_index:
+      fields:
+        errfile:
+          length: 250
+  

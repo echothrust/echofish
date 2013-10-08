@@ -1,0 +1,41 @@
+options:
+  connection: globocam_classic
+  type: INNODB
+  collate: utf8_unicode_ci
+  charset: utf8 
+
+detect_relations: true
+
+
+Configuration:
+  columns:
+    name: string(50)
+    is_default: boolean
+    records_per_page: integer
+    theme: string(50)
+  indexes:
+    name_index:
+      fields:
+        name: []
+      type: unique
+      
+Module:
+  columns:
+    name: string(50)
+    description: string(150)
+    container: string(50)
+    version: integer
+    category:
+     type: enum
+     length: 6
+     default: 'SYSTEM'
+     values: ['SYSTEM', 'USER']
+  indexes:
+    name_index:
+      fields:
+        name: []
+      type: unique
+    container_index:
+      fields:
+        container: []
+

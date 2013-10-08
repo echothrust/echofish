@@ -1,0 +1,118 @@
+options:
+  connection: globocam_classic
+  type: INNODB
+  collate: utf8_unicode_ci
+  charset: utf8 
+
+detect_relations: true
+
+User:
+  actAs:
+    Timestampable:
+  columns:
+    username: 
+      type: string(40)
+      notnull: true
+    password: string(40)
+    email: string(255)
+    telephone: string(30)
+    firstname: string(50)
+    lastname: string(50)
+  relations:
+    Groups:
+      class: Group
+      local: user_id
+      foreign: group_id
+      refClass: UserGroup
+      foreignAlias: Users
+      onDelete: CASCADE
+      onUpdate: CASCADE
+    Online:
+      class: Online
+      local: id
+      foreign: user_id
+      foreignAlias: Online
+      foreignType: one
+      type: one
+      onDelete: CASCADE
+      onUpdate: CASCADE
+  indexes:
+    username_index:
+      fields:
+        username: []
+      type: unique
+    email_index:
+      fields:
+        email: []
+    firstname_index:
+      fields:
+        firstname: []
+    lastname_index:
+      fields:
+        lastname: []
+
+Group:
+  tableName: groups
+  columns:
+    name: string(255)
+    perm:
+     type: enum
+     length: 6
+     default: 'admin'
+     values: ['admin', 'writer', 'viewer','guest']
+  indexes:
+    name_index:
+      fields:
+        name: []
+      type: unique
+    perm_index:
+      fields:
+        perm: []
+     
+     
+UserGroup:
+  columns:
+    user_id:
+      type: integer
+      primary: true
+    group_id:
+      type: integer
+      primary: true
+  relations:
+    User:
+      foreignAlias: User
+      onDelete: CASCADE
+      onUpdate: CASCADE
+    Group:
+      foreignAlias: Group
+      onDelete: CASCADE
+      onUpdate: CASCADE
+
+Online:
+  actAs: [ Timestampable ]
+  columns:
+    user_id:
+      type: integer
+    session:
+      string(45)
+    ip: 
+      type: integer 
+      unsigned: true
+  indexes:
+    login_index:
+      fields:
+        user_id:
+          primary: true
+        session: []
+        ip: []
+      type: unique
+  relations:
+    User:
+      onDelete: CASCADE
+      onUpdate: CASCADE
+      class: User
+      local: user_id
+      foreign: id
+      foreignAlias: User
+      foreignType: one
+      type: one

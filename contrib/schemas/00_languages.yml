@@ -1,0 +1,13 @@
+options:
+  connection: globocam_classic
+  type: INNODB
+  collate: utf8_unicode_ci
+  charset: utf8 
+
+detect_relations: true
+
+
+Language:
+  columns:
+    name: string(255)
+    code: string(50)
