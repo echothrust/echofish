@@ -13,4 +13,4 @@ On top of that, you can create triggers that allow you to achieve certain explic
   * Issue an alert if the ssh logins on the servers are not from the admin's IP
 
 
-You can find configration samples, installation recipies and other usefull information on the docs folder.
+You can find configuration samples, installation recipies and other usefull information on the docs folder.
