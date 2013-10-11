@@ -1,5 +1,7 @@
-# How To Install Echofish With Nginx On Ubuntu 12.04 
- * Install mysql: `sudo apt-get install mysql-server libapache2-mod-auth-mysql php5-mysql`
+# STILL DRAFT NOTES.
+
+## How To Install Echofish With Nginx On Ubuntu 12.04 
+ * Install mysql: `sudo apt-get install mysql-server php5-mysql`
  * activate mysql: `sudo mysql_install_db`
  * secure mysql: `sudo mysql_secure_installation`
  * Install nginx: `sudo apt-get install nginx`
@@ -11,10 +13,13 @@
 ```
 sudo nano /etc/syslog-ng/syslog-ng.conf
 at the "source s_src" block add:
-udp(port(514));   
+udp(port(514));
 ```
+
+## XXX: we need mysql output also for syslog-ng
+
  * Restart syslog-ng: `sudo service sylog-ng restart`
- * Check that syslog-ng is listening to udp 514: `netstat -an | grep 514`
+ * Check that syslog-ng is listening to udp 514: `netstat -aun | grep 514`
  * Configure php:
 
 ```
