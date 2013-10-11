@@ -1,7 +1,12 @@
-Install Echofish On OpenBSD 5.3+Syslog-ng+nginx+php_fpm
-=
+# DRAFT FOR Echofish-yii
+
+## Install Echofish On OpenBSD 5.3
+
 The following guide walks you through the installation of Echofish on OpenBSD 5.3. 
 
+### Required packages
+
+* Syslog-ng+mysql+nginx+php_fpm
 
 ```
 export PKG_PATH=ftp://ftp.openbsd.org/pub/OpenBSD/$(uname -r)/packages/$(uname -m)
@@ -11,6 +16,9 @@ mysql_install_db
 ```
 
   * Start mysql `/etc/rc.d/mysqld -f start`
+ 
+### Yii Framework
+
   * Download and extract [Yii Framework](https://github.com/yiisoft/yii/releases/download/1.1.14/yii-1.1.14.f0fee9.tar.gz)
 
 ```
@@ -18,6 +26,8 @@ ftp https://github.com/yiisoft/yii/releases/download/1.1.14/yii-1.1.14.f0fee9.ta
 tar zxf  yii-1.1.14.f0fee9.tar.gz -C /var/www/
 ln -sf yii-1.1.14.f0fee9 /var/www/yii
 ```
+
+### Echofish web-ui
 
   * Download and extract echofish into your desired folder (the following example extracts into /var/www/htdocs
 
@@ -78,6 +88,9 @@ $yii=dirname(__FILE__).'/../../yii/framework/yii.php';
         #    include        fastcgi_params;
         #}
 ``` 
+
+### Configure startup services
+
 
   * Now make sure the required services are started at system boot by updating the file `/etc/rc.conf.local` to include the newly installed package daemons
 
