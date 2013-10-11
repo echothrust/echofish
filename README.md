@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 Echofish - syslog web console for small networks
 =
 
@@ -48,4 +47,3 @@ On top of that, you can create triggers that allow you to achieve certain explic
 
 
 You can find configuration samples, installation recipies and other usefull information on the docs folder.
->>>>>>> upstream/master
