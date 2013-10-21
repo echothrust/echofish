@@ -1,1 +1,0 @@
-{include file="CONTENT/$CONTAINER/$MODULE_NAME/add.tpl"}
