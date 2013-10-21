@@ -13,7 +13,7 @@ Through a simple dashboard, Echofish provides a single view for the
 administrators to monitor system and application events. Echofish allows the 
 creation of whitelists and filters to provide administrators with a unique and 
 customized view of their systems' event messages. Through detailed reports, 
-alerting and notifications, EchoFish is able to deliver new levels of 
+alerting and notifications, Echofish is able to deliver new levels of 
 visibility and insight on your business IT infrastructure.
 
 ## How Echofish differs
@@ -47,5 +47,5 @@ explicit tasks such as:
   * Issue an alert if the ssh logins on the servers are not from the admin's IP
 
 
-You can find configuration samples, installation recipies and other usefull 
+You can find configuration samples, installation recipes and other usefull 
 information on the docs folder.
