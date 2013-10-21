@@ -1,5 +1,4 @@
-Setting up a syslog concentrator with syslog-ng
-=
+### Setting up a syslog concentrator with syslog-ng
 
 In order to be able to get all logs into the database tables and avoid logging error-neus entries
 
