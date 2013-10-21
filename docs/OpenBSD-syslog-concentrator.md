@@ -1,6 +1,6 @@
 ### Setting up a syslog concentrator with syslog-ng
 
-In order to be able to get all logs into the database tables and avoid logging error-neus entries
+In order to be able to get all logs into the database tables and avoid logging erroneous entries
 
 ```
 # make sure we only log source IPv4 address
