@@ -36,7 +36,7 @@ BEGIN
       		facility like if(wfacility<0,'%%',wfacility) AND  
       		`level` like if(wlevel<0,'%%',wlevel) AND  
 		      host LIKE if(whost='0','%%',whost) AND
-		      id!=wid; 	    
+		      id!=wid;
  	  END delete_segment;
   END LOOP read_loop;
   CLOSE uwp;

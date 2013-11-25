@@ -21,11 +21,11 @@ return array(
 		//'abuser',
 		'statistics',
 		'settings',
-/*		'gii'=>array(
+		'gii'=>array(
 			'class'=>'system.gii.GiiModule',
 			'password'=>'1',
 			'generatorPaths'=>array('bootstrap.gii',),
-		),*/
+		),
 	),
 
 	// application components

@@ -9,6 +9,21 @@ SET time_zone = "+00:00";
 
 -- --------------------------------------------------------
 
+DROP TABLE IF EXISTS `archive_bh`;
+CREATE TABLE IF NOT EXISTS `archive_bh` (
+  `host` varchar(255) COLLATE utf8_unicode_ci NOT NULL DEFAULT 'localhost',
+  `facility` bigint(20) DEFAULT NULL,
+  `priority` bigint(20) DEFAULT NULL,
+  `level` bigint(20) DEFAULT NULL,
+  `program` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `pid` bigint(20) DEFAULT NULL,
+  `tag` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `msg` text COLLATE utf8_unicode_ci,
+  `received_ts` datetime DEFAULT NULL,
+  `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `updated_at` datetime NOT NULL,
+) ENGINE=BLACKHOLE DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+
 --
 -- Table structure for table `archive`
 --
@@ -28,7 +43,6 @@ CREATE TABLE IF NOT EXISTS `archive` (
   `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   `updated_at` datetime NOT NULL,
   PRIMARY KEY (`id`)
-/* ) ENGINE=blackhole DEFAULT CHARSET=utf8 AUTO_INCREMENT=1 COLLATE=utf8_unicode_ci ; */
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 AUTO_INCREMENT=1 COLLATE=utf8_unicode_ci ;
 
 
@@ -224,12 +238,16 @@ CREATE TABLE IF NOT EXISTS `whitelist` (
   `id` bigint(20) NOT NULL AUTO_INCREMENT,
   `description` text COLLATE utf8_unicode_ci,
   `host` varchar(20) COLLATE utf8_unicode_ci NOT NULL,
-  `facility` bigint(20) DEFAULT NULL,
-  `level` bigint(20) DEFAULT NULL,
+  `facility` varchar(20) DEFAULT NULL,
+  `level` varchar(20) DEFAULT NULL,
   `program` varchar(50) COLLATE utf8_unicode_ci DEFAULT NULL,
   `pattern` varchar(512) COLLATE utf8_unicode_ci DEFAULT NULL,
   PRIMARY KEY (`id`),
-  KEY `program_index_idx` (`program`)
+  KEY `host_idx` (`host`),
+  KEY `facility_idx` (`facility`),
+  KEY `level_idx` (`level`),
+  KEY `pattern_idx` (`pattern`),
+  KEY `program_idx` (`program`)
 ) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci AUTO_INCREMENT=1;
 
 
@@ -242,15 +260,18 @@ CREATE TABLE IF NOT EXISTS `whitelist` (
 
 DROP TABLE IF EXISTS `whitelist_mem`;
 CREATE TABLE IF NOT EXISTS `whitelist_mem` (
-  `host` varchar(20) CHARACTER SET utf8 COLLATE utf8_unicode_ci NOT NULL,
-  `facility` bigint(20) NOT NULL DEFAULT '0',
-  `level` bigint(20) NOT NULL DEFAULT '0',
-  `program` varchar(50) CHARACTER SET utf8 COLLATE utf8_unicode_ci NOT NULL DEFAULT '',
-  `pattern` varchar(255) CHARACTER SET utf8 COLLATE utf8_unicode_ci NOT NULL DEFAULT '',
-  PRIMARY KEY (`host`,`facility`,`level`,`program`,`pattern`),
-  INDEX `pattern_index_idx` (`pattern`),
-  INDEX `combo_index_idx` (`program`,`pattern`),
-  INDEX `program_index_idx` (`program`)
+  `id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `host` varchar(20) COLLATE utf8_unicode_ci NOT NULL,
+  `facility` varchar(20) DEFAULT NULL,
+  `level` varchar(20) DEFAULT NULL,
+  `program` varchar(50) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `pattern` varchar(512) COLLATE utf8_unicode_ci DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `host_idx` (`host`),
+  KEY `facility_idx` (`facility`),
+  KEY `level_idx` (`level`),
+  KEY `pattern_idx` (`pattern`),
+  KEY `program_idx` (`program`)
 ) ENGINE=MEMORY DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci ;
 
 -- --------------------------------------------------------
@@ -270,19 +291,6 @@ CREATE TABLE IF NOT EXISTS `pattern` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci ;
 
 
-DROP TABLE IF EXISTS `syslog_memo`;
-CREATE TABLE syslog_memo (
-  id INT NOT NULL PRIMARY KEY AUTO_INCREMENT,
-  sender varchar(255) NOT NULL DEFAULT '',
-  message VARCHAR(255) NOT NULL DEFAULT '',
-  syslog_id BIGINT UNSIGNED DEFAULT NULL,
-  archive_id BIGINT DEFAULT NULL,
-  `created_at` datetime NOT NULL,
-  `updated_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  INDEX syslog_id (syslog_id),
-  FOREIGN KEY (syslog_id) REFERENCES syslog(id) ON DELETE SET NULL ON UPDATE CASCADE
-) ENGINE=InnoDB COLLATE=utf8_unicode_ci ;
---
 
 
 
@@ -326,4 +334,20 @@ CREATE TABLE `menu` (
 	priority int,
 	description text
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci ;
+
+DROP TABLE IF EXISTS cluster;
+CREATE TABLE cluster (
+  id BIGINT UNSIGNED PRIMARY KEY AUTO_INCREMENT,
+  msg text,
+  sndx  VARCHAR(255),
+  strlen SMALLINT UNSIGNED
+) ENGINE=InnoDB;
+
+DROP TABLE IF EXISTS cluster_syslog;
+CREATE TABLE cluster_syslog (
+  syslog_id BIGINT UNSIGNED,
+  cluster_id BIGINT UNSIGNED,
+  PRIMARY KEY (syslog_id,cluster_id)
+) ENGINE=InnoDB;
+
 SET FOREIGN_KEY_CHECKS=1;

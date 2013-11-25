@@ -6,6 +6,7 @@ $this->breadcrumbs=array(
 
 $this->menu=array(
 	array('label'=>'Create Whitelist','url'=>array('create')),
+	array('label'=>'Optimise Whitelist','url'=>array('optimise')),
 );
 
 Yii::app()->clientScript->registerScript('search', "

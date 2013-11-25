@@ -1,7 +1,7 @@
 <?php
 $this->breadcrumbs=array(
-	'Syslog'=>array('admin'),
-	'Manage',
+	'Syslog'=>array('/syslog'),
+	'Logs'=>array('admin'),
 );
 
 Yii::app()->clientScript->registerScript('search', "
@@ -15,18 +15,14 @@ $('.search-form form').submit(function(){
 	});
 	return false;
 });
-");
-?>
-<script>
-$(document).ready(function(){
-$('#massackfilter').live("click",function(){
+$('#massackfilter').live('click',function(){
 	data=$( 'table :input' ).serialize();
 	lnk=$(this).attr('href');
-	$.post(lnk,data,function(){ location.reload(); });
+	$.post(lnk,data,function(){ $.fn.yiiGridView.update('syslog-grid'); });
 	return false;
 });
-});
-</script>
+");
+?>
 <h1>Manage Sylog Messages</h1>
 
 <p>

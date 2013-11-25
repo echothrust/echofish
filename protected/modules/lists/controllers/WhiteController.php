@@ -152,6 +152,17 @@ class WhiteController extends Controller
 			throw new CHttpException(400,'Invalid request. Please do not repeat this request again.');
 	}
 
+	public function actionOptimise()
+	{
+			// we only allow deletion via POST request
+			$conn=Yii::app()->db;
+			$conn->createCommand('CALL delete_duplicate_whitelist()')->execute();
+			// if AJAX request (triggered by deletion via admin grid view), we should not redirect the browser
+			if(!isset($_GET['ajax']))
+				$this->redirect(isset($_POST['returnUrl']) ? $_POST['returnUrl'] : array('admin'));
+	}
+
+
 	/**
 	 * Lists all models.
 	 */
@@ -203,4 +214,5 @@ class WhiteController extends Controller
 			Yii::app()->end();
 		}
 	}
+	
 }

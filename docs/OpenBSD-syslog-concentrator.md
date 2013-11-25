@@ -37,7 +37,7 @@ destination d_mysql {
                 type(mysql)
                 host("DATABASEHOST") username("USERNAME") password("PASSWORD")
                 database("ETS_echofish")
-                table("archive") 
+                table("archive_bh") 
                 columns("host", "facility", "priority", "level", "received_ts", "program", "msg","pid","tag")
                 values("$HOST", "$FACILITY_NUM", "$PRIORITY","$LEVEL_NUM", "$YEAR-$MONTH-$DAY $HOUR:$MIN:$SEC", "$PROGRAM", "$MSG","$PID", "$TAG" )
         );
@@ -48,7 +48,7 @@ destination d_mysql_local {
                 type(mysql)
                 host("DATABASEHOST") username("USERNAME") password("PASSWORD")
                 database("ETS_echofish")
-                table("archive") 
+                table("archive_bh") 
                 columns("host", "facility", "priority", "level", "received_ts", "program", "msg","pid","tag")
 # change the following 172.20.1.254 with the ip of the concentrator
                 values("172.20.1.254", "$FACILITY_NUM", "$PRIORITY","$LEVEL_NUM", "$YEAR-$MONTH-$DAY $HOUR:$MIN:$SEC", "$PROGRAM", "$MSG","$PID", "$TAG" )

@@ -10,7 +10,7 @@ Echofish frontend should run well on most web servers capable of serving PHP con
 
 #### 1.2 - MySQL database
 
-Echofish backend was developed on MySQL 5.1.68, but other reasonably recent versions should work as well.
+Echofish backend was developed on MySQL 5.1.68, but other reasonably recent versions should work as well. 
 
 #### 1.3 - Syslog
 
@@ -74,3 +74,7 @@ Log on to the web frontend with default username/password `admin`/`admin`, and c
 
 You may now view your syslog events using a web browser.
 To take full advantage of Echofish, create "whitelist" rules from the web-frontend to auto-acknowledge events in the backend. This way, recurring events that are "whitelisted" as normal system behaviour are auto-archived and will not appear as noise, leaving the sysadmin with important events only to acknowledge (: Enjoy.
+
+### 6 - Troubleshooting
+
+* MySQL's builtin event scheduler is expected to be enabled, or else whitelisting will not work consistently. Make sure you have `event_scheduler=ON` in the `[mysqld]` section of `/etc/my.cnf`.
