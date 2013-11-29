@@ -23,13 +23,21 @@
             'class'=>'bootstrap.widgets.TbMenu',
             'items'=>array(
                 array('label'=>'Home', 'url'=>array('/site/index')),
-                array('label'=>'Syslog', 'url'=>array('/syslog/logs/admin'),'visible'=>!Yii::app()->user->isGuest),
+								array('label'=>'Syslog', 'url'=>'#','visible'=>!Yii::app()->user->isGuest, 'items'=>array(
+		                array('label'=>'Logs', 'url'=>array('/syslog/logs/admin'),'visible'=>!Yii::app()->user->isGuest),
+		                array('label'=>'Archive', 'url'=>array('/syslog/archive'),'visible'=>!Yii::app()->user->isGuest),
+                )),
                 array('label'=>'Whitelist', 'url'=>array('/lists/white/admin'),'visible'=>!Yii::app()->user->isGuest),
                 array('label'=>'Statistics', 'url'=>array('/statistics/default/index'),'visible'=>!Yii::app()->user->isGuest),
-                array('label'=>'Settings', 'url'=>array('/settings/default/index'),'visible'=>!Yii::app()->user->isGuest),
+								array('label'=>'Settings', 'url'=>'#','visible'=>!Yii::app()->user->isGuest, 'items'=>array(
+		                array('label'=>'Users', 'url'=>array('/settings/user/admin'),'visible'=>!Yii::app()->user->isGuest),
+		                array('label'=>'System Configuration', 'url'=>array('/settings/sysconfig'),'visible'=>!Yii::app()->user->isGuest),
+                )),
+
                 array('label'=>'Login', 'url'=>array('/site/login'), 'visible'=>Yii::app()->user->isGuest),
-                array('label'=>'Logout ('.Yii::app()->user->name.')', 'url'=>array('/site/logout'), 'visible'=>!Yii::app()->user->isGuest)
-            ),
+                array('label'=>'Logout ('.Yii::app()->user->name.')', 'url'=>array('/site/logout'), 'visible'=>!Yii::app()->user->isGuest),
+                
+                            ),
         ),
     ),
 )); ?>
