@@ -21,7 +21,7 @@ CREATE TABLE IF NOT EXISTS `archive_bh` (
   `msg` text COLLATE utf8_unicode_ci,
   `received_ts` datetime DEFAULT NULL,
   `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  `updated_at` datetime NOT NULL,
+  `updated_at` datetime NOT NULL
 ) ENGINE=BLACKHOLE DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
 --
