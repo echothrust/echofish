@@ -45,12 +45,12 @@ class LogsController extends Controller
 		if($model)
 		{
 			$c=new CDbCriteria;
-			$c->condition='host=:host and facility=:facility and level=:level and pid=:pid and msg like :msg';
+			$c->condition='host=:host and program=:program and facility=:facility and level=:level and msg=:msg';
 			$c->params=array(
 				':host'=>$model->host,
 				':facility'=>$model->facility,
+				':program'=>$model->program,
 				':level'=>$model->level,
-				':pid'=>$model->pid,
 				':msg'=>$model->msg,
 			);
 			Syslog::model()->deleteAll($c);
