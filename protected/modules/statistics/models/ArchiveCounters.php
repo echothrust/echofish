@@ -96,4 +96,14 @@ class ArchiveCounters extends CActiveRecord
 	{
 		return parent::model($className);
 	}
+	public function getConverted_name()
+	{
+		switch($this->ctype)
+		{
+			case 'host':
+				return long2ip($this->name);
+			default:
+				return $this->name;
+		}
+	}
 }
