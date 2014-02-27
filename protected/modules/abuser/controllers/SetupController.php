@@ -32,12 +32,14 @@ class SetupController extends Controller
 	
 	public function actionActivate()
 	{
+			Yii::app()->end();
       $setup=new setup();
       $setup->up();
 	}
 
 	public function actionDeactivate()
 	{
+			Yii::app()->end();
 		$setup=new setup();
 		$setup->down();
 	}
@@ -102,9 +104,9 @@ DECLARE CONTINUE HANDLER FOR NOT FOUND SET done = -1;
 
 SELECT id,pattern,grouping,capture INTO mts,@pattern,@grouping,@capture FROM abuser_trigger WHERE 
     amsg LIKE msg AND 
-    aprogram LIKE if(program='' or program is null,'%%',program) AND 
-    afacility like if(facility<0,'%%',facility) AND  
-    alevel like if(`severity`<0,'%%',`severity`)
+    aprogram LIKE if(program='' or program is null,'%',program) AND 
+    afacility like if(facility<0,'%',facility) AND  
+    alevel like if(`severity`<0,'%',`severity`)
     LIMIT 1;
   IF mts>0 THEN
   INSERT INTO abuser_incident (ip,trigger_id,counter,first_occurrence,last_occurrence) 

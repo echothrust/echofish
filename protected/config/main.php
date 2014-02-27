@@ -18,14 +18,14 @@ return array(
 	'modules'=>array(
 		'syslog',
 		'lists',
-		//'abuser',
+		'abuser',
 		'statistics',
 		'settings',
-		'gii'=>array(
+		/*'gii'=>array(
 			'class'=>'system.gii.GiiModule',
 			'password'=>'1',
 			'generatorPaths'=>array('bootstrap.gii',),
-		),
+		),*/
 	),
 
 	// application components
@@ -50,6 +50,7 @@ return array(
 		'session' => array(
     	'class' => 'CDbHttpSession',
       'connectionID' => 'db',
+      'sessionTableName'=>'sessions',
       'autoCreateSessionTable' => false,
     ),
 		// uncomment the following to use a MySQL database

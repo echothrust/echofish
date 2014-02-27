@@ -4,9 +4,7 @@
 /* @var $form CActiveForm */
 ?>
 
-<div class="form">
-
-<?php $form=$this->beginWidget('CActiveForm', array(
+<?php $form=$this->beginWidget('bootstrap.widgets.TbActiveForm', array(
 	'id'=>'abuser-trigger-form',
 	'enableAjaxValidation'=>false,
 )); ?>
@@ -15,70 +13,31 @@
 
 	<?php echo $form->errorSummary($model); ?>
 
-	<div class="row">
-		<?php echo $form->labelEx($model,'facility'); ?>
-		<?php echo $form->textField($model,'facility'); ?>
-		<?php echo $form->error($model,'facility'); ?>
-	</div>
+	<?php echo $form->textFieldRow($model,'facility',array('class'=>'span5','maxlength'=>20,'hint'=>'Use "%" for any or RFC 3164 facility number (0-23).')); ?>
 
-	<div class="row">
-		<?php echo $form->labelEx($model,'severity'); ?>
-		<?php echo $form->textField($model,'severity'); ?>
-		<?php echo $form->error($model,'severity'); ?>
-	</div>
+	<?php echo $form->textFieldRow($model,'severity',array('class'=>'span5','maxlength'=>20,'hint'=>'Use "%" for any or RFC 3164 severity level number (0-7).')); ?>
 
-	<div class="row">
-		<?php echo $form->labelEx($model,'program'); ?>
-		<?php echo $form->textField($model,'program',array('size'=>60,'maxlength'=>255)); ?>
-		<?php echo $form->error($model,'program'); ?>
-	</div>
+	<?php echo $form->textFieldRow($model,'program',array('class'=>'span5','maxlength'=>50,'hint'=>'Use "%" for any, "smtp%" for pattern or "dhcpd" for exact match.')); ?>
 
-	<div class="row">
-		<?php echo $form->labelEx($model,'msg'); ?>
-		<?php echo $form->textField($model,'msg',array('size'=>60,'maxlength'=>512)); ?>
-		<?php echo $form->error($model,'msg'); ?>
-	</div>
+	<?php echo $form->textAreaRow($model,'msg',array('rows'=>6, 'cols'=>50,'class'=>'span5','maxlength'=>512,'hint'=>'Pattern to match against msg of the syslog. Regular MySQL LIKE patterns are accepted.<table summary="Table listing wildcard characters used with MySQL LIKE with a description of each
+character." border="0" class="help-block"><tbody><tr><td scope="row"><code class="literal">%</code></td><td>Matches any number of characters, even zero characters</td></tr><tr><td scope="row"><code class="literal">_</code></td><td>Matches exactly one character</td></tr></tbody></table>')); ?>
 
-	<div class="row">
-		<?php echo $form->labelEx($model,'pattern'); ?>
-		<?php echo $form->textField($model,'pattern',array('size'=>60,'maxlength'=>512)); ?>
-		<?php echo $form->error($model,'pattern'); ?>
-	</div>
+	<?php echo $form->textAreaRow($model,'pattern',array('rows'=>6, 'cols'=>50,'class'=>'span5','maxlength'=>512,'hint'=>'Regular Expression to execute against matched message')); ?>
 
-	<div class="row">
-		<?php echo $form->labelEx($model,'grouping'); ?>
-		<?php echo $form->textField($model,'grouping'); ?>
-		<?php echo $form->error($model,'grouping'); ?>
-	</div>
+	<?php echo $form->textFieldRow($model,'grouping',array('class'=>'span5','maxlength'=>50,'hint'=>'Grouping to retrieve.')); ?>
+	<?php echo $form->textFieldRow($model,'capture',array('class'=>'span5','maxlength'=>50,'hint'=>'Capture')); ?>
+	<?php echo $form->textFieldRow($model,'occurrence',array('class'=>'span5','maxlength'=>50,'hint'=>'Occurences to trigger.')); ?>
+	<?php echo $form->textFieldRow($model,'priority',array('class'=>'span5','maxlength'=>50,'hint'=>'Priority of the trigger.')); ?>
 
-	<div class="row">
-		<?php echo $form->labelEx($model,'capture'); ?>
-		<?php echo $form->textField($model,'capture'); ?>
-		<?php echo $form->error($model,'capture'); ?>
-	</div>
+	<?php echo $form->textAreaRow($model,'description',array('rows'=>6, 'cols'=>50,'class'=>'span5','maxlength'=>512,'hint'=>'A general description for this trigger')); ?>
 
-	<div class="row">
-		<?php echo $form->labelEx($model,'description'); ?>
-		<?php echo $form->textArea($model,'description',array('rows'=>6, 'cols'=>50)); ?>
-		<?php echo $form->error($model,'description'); ?>
-	</div>
-
-	<div class="row">
-		<?php echo $form->labelEx($model,'occurrence'); ?>
-		<?php echo $form->textField($model,'occurrence'); ?>
-		<?php echo $form->error($model,'occurrence'); ?>
-	</div>
-
-	<div class="row">
-		<?php echo $form->labelEx($model,'priority'); ?>
-		<?php echo $form->textField($model,'priority'); ?>
-		<?php echo $form->error($model,'priority'); ?>
-	</div>
-
-	<div class="row buttons">
-		<?php echo CHtml::submitButton($model->isNewRecord ? 'Create' : 'Save'); ?>
+	<div class="form-actions">
+		<?php $this->widget('bootstrap.widgets.TbButton', array(
+			'buttonType'=>'submit',
+			'type'=>'primary',
+			'label'=>$model->isNewRecord ? 'Create' : 'Save',
+		)); ?>
 	</div>
 
 <?php $this->endWidget(); ?>
 
-</div><!-- form -->
