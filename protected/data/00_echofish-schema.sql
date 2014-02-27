@@ -71,11 +71,11 @@ CREATE TABLE IF NOT EXISTS `syslog` (
   KEY `program_index_idx` (`program`),
   KEY `msg_index_idx` (`msg`(255)),
   KEY `facility` (`facility`,`program`),
-  KEY `level` (`level`,`program`),
-  KEY `host` (`host`,`facility`,`level`,`program`,`pid`,`received_ts`),
-  KEY `level_2` (`level`,`received_ts`),
-  KEY `program` (`program`,`received_ts`),
-  KEY `facility_2` (`facility`,`received_ts`)
+  KEY `level_program` (`level`,`program`),
+  KEY `full_key` (`host`,`facility`,`level`,`program`,`pid`,`received_ts`),
+  KEY `level_received` (`level`,`received_ts`),
+  KEY `program_received` (`program`,`received_ts`),
+  KEY `facility_received` (`facility`,`received_ts`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci AUTO_INCREMENT=1 ;
 
 -- --------------------------------------------------------
@@ -294,6 +294,29 @@ CREATE TABLE IF NOT EXISTS `pattern` (
 
 
 
+DROP TABLE IF EXISTS message_parser;
+CREATE TABLE message_parser (
+  id INT NOT NULL PRIMARY KEY AUTO_INCREMENT,
+  ptype varchar(10) NOT NULL default 'syslog',
+  name VARCHAR(100),
+  weight int,
+  unique (name,weight)
+) ENGINE=InnoDB COLLATE=utf8_unicode_ci;
+
+-- Table structure for table `YiiSession`
+--
+
+DROP TABLE IF EXISTS `sessions`;
+CREATE TABLE IF NOT EXISTS `sessions` (
+  `id` char(32) NOT NULL,
+  `expire` int(11) DEFAULT NULL,
+  `data` longblob,
+  PRIMARY KEY (`id`),
+  KEY `expire` (`expire`),
+  KEY `id` (`id`,`expire`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci ;
+
+
 DROP TABLE IF EXISTS archive_parser;
 CREATE TABLE archive_parser (
   id INT NOT NULL PRIMARY KEY AUTO_INCREMENT,
@@ -305,49 +328,54 @@ CREATE TABLE archive_parser (
 
 DROP TABLE IF EXISTS archive_unparse;
 CREATE TABLE archive_unparse (
-  id BIGINT UNSIGNED PRIMARY KEY,
-  pending tinyint default 1
-) ENGINE=InnoDB COLLATE=utf8_unicode_ci;
+id BIGINT UNSIGNED PRIMARY KEY,
+pending tinyint default 1
+) ENGINE=InnoDB;
 
--- Table structure for table `YiiSession`
---
+DROP TABLE IF EXISTS abuser_trigger;
+CREATE TABLE IF NOT EXISTS `abuser_trigger` (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `facility` tinyint(4) DEFAULT NULL,
+  `severity` tinyint(4) DEFAULT NULL,
+  `program` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `msg` varchar(512) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `pattern` varchar(512) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `grouping` tinyint(3) unsigned DEFAULT NULL,
+  `capture` tinyint(3) unsigned DEFAULT NULL,
+  `description` text COLLATE utf8_unicode_ci,
+  `occurrence` int(11) DEFAULT NULL,
+  `priority` tinyint(4) DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci AUTO_INCREMENT=1 ;
 
-DROP TABLE IF EXISTS `YiiSession`;
-CREATE TABLE IF NOT EXISTS `YiiSession` (
-  `id` char(32) NOT NULL,
-  `expire` int(11) DEFAULT NULL,
-  `data` longblob,
+DROP TABLE IF EXISTS abuser_evidence;
+CREATE TABLE IF NOT EXISTS `abuser_evidence` (
+  `incident_id` bigint(20) NOT NULL,
+  `archive_id` bigint(20) unsigned NOT NULL DEFAULT '0',
+  PRIMARY KEY (`incident_id`,`archive_id`),
+  KEY `fk_archive_id` (`archive_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+
+DROP TABLE IF EXISTS abuser_incident;
+CREATE TABLE IF NOT EXISTS `abuser_incident` (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `ip` int(10) unsigned NOT NULL,
+  `trigger_id` bigint(20) DEFAULT NULL,
+  `counter` bigint(20) DEFAULT NULL,
+  `first_occurrence` datetime DEFAULT NULL,
+  `last_occurrence` datetime DEFAULT NULL,
+  `ts` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
-  KEY `expire` (`expire`),
-  KEY `id` (`id`,`expire`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci ;
+  UNIQUE KEY `idx_uniq_incident` (`ip`,`trigger_id`),
+  KEY `fk_trigger_id` (`trigger_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci AUTO_INCREMENT=1 ;
 
-DROP TABLE IF EXISTS `menu`;
-CREATE TABLE `menu` (
-	id INT primary key auto_increment,
-	label varchar(255),
-	url varchar(255),
-	tag varchar(255),
-	visible text,
-	active text,
-	parent_id int,
-	priority int,
-	description text
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci ;
+ALTER TABLE `abuser_incident`
+  ADD CONSTRAINT `fk_trigger_id` FOREIGN KEY (`trigger_id`) REFERENCES `abuser_trigger` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
-DROP TABLE IF EXISTS cluster;
-CREATE TABLE cluster (
-  id BIGINT UNSIGNED PRIMARY KEY AUTO_INCREMENT,
-  msg text,
-  sndx  VARCHAR(255),
-  strlen SMALLINT UNSIGNED
-) ENGINE=InnoDB;
+ 
 
-DROP TABLE IF EXISTS cluster_syslog;
-CREATE TABLE cluster_syslog (
-  syslog_id BIGINT UNSIGNED,
-  cluster_id BIGINT UNSIGNED,
-  PRIMARY KEY (syslog_id,cluster_id)
-) ENGINE=InnoDB;
+INSERT INTO archive_parser (ptype,name) value ("syslog","abuser_parser");
+INSERT INTO archive_parser (ptype,name) value ("archive","abuser_parser");
 
 SET FOREIGN_KEY_CHECKS=1;

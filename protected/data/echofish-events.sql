@@ -21,3 +21,13 @@ IF (SELECT COUNT(*) FROM whitelist_mem)<1 THEN
 END IF;
 END
 //
+
+DROP EVENT IF EXISTS e_archive_parse_unparsed//
+CREATE EVENT e_archive_parse_unparsed
+ON SCHEDULE EVERY 10 SECOND COMMENT 'PROCESS ' DO
+BEGIN
+  ALTER EVENT e_archive_parse_unparsed DISABLE;
+  call archive_parse_unparsed();
+  ALTER EVENT e_archive_parse_unparsed ENABLE;
+END
+//

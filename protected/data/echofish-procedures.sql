@@ -32,10 +32,10 @@ BEGIN
       DECLARE CONTINUE HANDLER FOR NOT FOUND SET @x='fuckoff';
  	    DELETE FROM whitelist WHERE
           pattern LIKE wpattern AND 
-    		  program LIKE if(wprogram='' or wprogram is null,'%%',wprogram) AND 
-      		facility like if(wfacility<0,'%%',wfacility) AND  
-      		`level` like if(wlevel<0,'%%',wlevel) AND  
-		      host LIKE if(whost='0','%%',whost) AND
+    		  program LIKE if(wprogram='' or wprogram is null,'%',wprogram) AND 
+      		facility like if(wfacility<0,'%',wfacility) AND  
+      		`level` like if(wlevel<0,'%',wlevel) AND  
+		      host LIKE if(whost='0','%',whost) AND
 		      id!=wid;
  	  END delete_segment;
   END LOOP read_loop;
@@ -114,15 +114,35 @@ read_loop: LOOP
 END LOOP read_loop;
 CLOSE uwp;
 COMMIT;
+END;
+//
 
-END;
-//
-/*
-SAMPLE PROCEDURE FOR PARSING
-DROP PROCEDURE IF EXISTS demo//
-CREATE PROCEDURE demo(IN aid BIGINT UNSIGNED,IN ahost BIGINT UNSIGNED,IN aprogram VARCHAR(255),IN afacility INT,in alevel INT,IN apid BIGINT,in amsg TEXT,in areceived_ts TIMESTAMP)
+DROP PROCEDURE IF EXISTS abuser_log_evidence//
+CREATE PROCEDURE abuser_log_evidence(IN abuser_id BIGINT UNSIGNED,IN entry_id BIGINT UNSIGNED)
 BEGIN
-  SELECT 'MPIKA STO DEMO',aid;
-END;
-//
-*/
+  INSERT INTO abuser_evidence (incident_id,archive_id) VALUES (abuser_id,entry_id);
+END;//
+
+DROP PROCEDURE IF EXISTS abuser_parser//
+CREATE PROCEDURE abuser_parser(IN aid BIGINT UNSIGNED,IN ahost BIGINT UNSIGNED,IN aprogram VARCHAR(255),IN afacility INT,in alevel INT,IN apid BIGINT,in amsg TEXT,in areceived_ts TIMESTAMP)
+BEGIN
+DECLARE done,mts INT DEFAULT 0; 
+DECLARE CONTINUE HANDLER FOR NOT FOUND SET done = -1;
+
+SELECT id,pattern,grouping,capture INTO mts,@pattern,@grouping,@capture FROM abuser_trigger WHERE 
+    amsg LIKE msg AND 
+    aprogram LIKE if(program='' or program is null,'%',program) AND 
+    afacility like if(facility<0,'%',facility) AND  
+    alevel like if(`severity`<0,'%',`severity`)
+    LIMIT 1;
+  IF mts>0 THEN
+  INSERT INTO abuser_incident (ip,trigger_id,counter,first_occurrence,last_occurrence) 
+    VALUES (INET_ATON(PREG_CAPTURE(@pattern,amsg,@grouping,@capture)),
+      mts,1,areceived_ts,areceived_ts)
+    ON DUPLICATE KEY UPDATE counter=counter+1,last_occurrence=areceived_ts;
+    SELECT id INTO @incident_id FROM abuser_incident WHERE ip=INET_ATON(PREG_CAPTURE(@pattern,amsg,@grouping,@capture)) AND trigger_id=mts;
+    CALL abuser_log_evidence(@incident_id,aid);
+  END IF;
+END;//
+
+

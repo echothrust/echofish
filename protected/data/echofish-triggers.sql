@@ -26,13 +26,15 @@ SELECT count(*) INTO mts FROM whitelist_mem WHERE
     NEW.facility like if(facility='' or facility is null,'%',facility) AND  
     NEW.level like if(`level`='' or level is null,'%',`level`) AND  
     NEW.host LIKE if(host='' or host is null,'%',host);
-
-   INSERT DELAYED INTO archive (host,facility,priority,`level`,program,pid,tag,msg,received_ts,created_at) VALUES (INET_ATON(NEW.host),NEW.facility,NEW.priority,NEW.level,NEW.program,NEW.pid,NEW.tag,NEW.msg,NEW.received_ts,NOW());
+   IF (SELECT count(*) FROM sysconf WHERE id="archive_activated" and val="yes")>0 THEN 
+    INSERT DELAYED INTO archive (host,facility,priority,`level`,program,pid,tag,msg,received_ts,created_at) VALUES (INET_ATON(NEW.host),NEW.facility,NEW.priority,NEW.level,NEW.program,NEW.pid,NEW.tag,NEW.msg,NEW.received_ts,sysdate());
+   END IF;
    IF mts=0 THEN
-     INSERT DELAYED INTO syslog (host,facility,priority,`level`,program,pid,tag,msg,received_ts,created_at) VALUES (INET_ATON(NEW.host),NEW.facility,NEW.priority,NEW.level,NEW.program,NEW.pid,NEW.tag,NEW.msg,NEW.received_ts,NOW());
+     INSERT DELAYED INTO syslog (host,facility,priority,`level`,program,pid,tag,msg,received_ts,created_at) VALUES (INET_ATON(NEW.host),NEW.facility,NEW.priority,NEW.level,NEW.program,NEW.pid,NEW.tag,NEW.msg,NEW.received_ts,sysdate());
    END IF;
 END
 //
+
 
 /*
  When a new whitelist entry is added make sure we remove the matching patterns
@@ -44,7 +46,7 @@ BEGIN
 INSERT INTO whitelist_mem (id,host,facility,level,program,pattern) VALUES (NEW.id,NEW.host,NEW.facility,NEW.level,NEW.program,NEW.pattern)
 ON DUPLICATE KEY UPDATE host=values(host), facility=values(facility), level=values(level),program=values(program),pattern=values(pattern);
 DELETE FROM syslog WHERE 
-    msg LIKE NEW.pattern AND 
+    msg like NEW.pattern AND 
     program LIKE if(NEW.program='' or NEW.program is null,'%',NEW.program) AND 
     facility like if(NEW.facility='' or NEW.facility IS NULL,'%',NEW.facility) AND  
     `level` like if(NEW.level='' or NEW.level IS NULL,'%',NEW.level) AND  
@@ -89,6 +91,7 @@ BEGIN
     INSERT INTO archive_counters (ctype,name,val) VALUES ('facility',NEW.facility,1) ON DUPLICATE KEY UPDATE val=val+1;
     INSERT INTO archive_counters (ctype,name,val) VALUES ('level',NEW.level,1) ON DUPLICATE KEY UPDATE val=val+1;
     INSERT INTO archive_counters (ctype,name,val) VALUES ('host',NEW.host,1) ON DUPLICATE KEY UPDATE val=val+1;
+    INSERT INTO archive_unparse VALUES (NEW.id,1);
 END
 //
 
