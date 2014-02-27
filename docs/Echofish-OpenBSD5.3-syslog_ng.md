@@ -37,7 +37,23 @@ ln -s /var/www/htdocs/echofish-master /var/www/htdocs/echofish
 chown -R www.www /var/www/htdocs/echofish/assets/
 ```
 
+#### Install MySQL UDF
+
+Install [lib_mysql_udf_preg](https://github.com/mysqludf/lib_mysqludf_preg/), which is used for PCRE pattern matching, following [its guide](https://github.com/mysqludf/lib_mysqludf_preg/blob/lib_mysqludf_preg-1.2-rc2/INSTALL):
+
+```
+ftp https://github.com/mysqludf/lib_mysqludf_preg/archive/lib_mysqludf_preg-1.2-rc2.tar.gz
+tar zxf lib_mysqludf_preg-1.2-rc2.tar.gz
+cd lib_mysqludf_preg-lib_mysqludf_preg-1.2-rc2
+./configure
+make
+make install
+make MYSQL="mysql -u root -p" installdb
+```
+
 #### Create and configure a database 
+
+Echofish requires MySQL's builtin scheduler to be enabled, so add `event_scheduler=ON` in the `[mysqld]` section of `/etc/my.cnf`.
 
 Configure MySQL to start for the first time and start the service:
 

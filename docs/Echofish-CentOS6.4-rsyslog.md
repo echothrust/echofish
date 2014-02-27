@@ -44,6 +44,7 @@ mv echofish-master echofish
 
 #### MySQL
 
+XXX: UPDATE: Echofish requires [lib_mysql_udf_preg](https://github.com/mysqludf/lib_mysqludf_preg/). Install it.
 Echofish requires MySQL's builtin scheduler to be enabled, so add `event_scheduler=ON` in the `[mysqld]` section of `/etc/my.cnf`.
 Next, you may configure & start MySQL as the backend database:
 

@@ -10,7 +10,11 @@ Echofish frontend should run well on most web servers capable of serving PHP con
 
 #### 1.2 - MySQL database
 
-Echofish backend was developed on MySQL 5.1.68, but other reasonably recent versions should work as well. 
+Echofish backend was developed on MySQL 5.1.68, but other reasonably recent versions should work as well.
+
+##### 1.2.1 - MySQL User Defined Functions
+
+Echofish is dependent on [lib_mysql_udf_preg](https://github.com/mysqludf/lib_mysqludf_preg/) for PCRE pattern matching.
 
 #### 1.3 - Syslog
 
@@ -49,6 +53,8 @@ mysql ETS_echofish < protected/data/echofish-procedures.sql
 mysql ETS_echofish < protected/data/echofish-triggers.sql
 mysql ETS_echofish < protected/data/echofish-events.sql
 ```
+
+For events to run, make sure tou set `event_scheduler=on` somewhere under the [mysqld] section in the default mysql config file, usually /etc/my.cnf
 
 #### 3.2 - Echofish frontend
 
