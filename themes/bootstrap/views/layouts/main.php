@@ -23,17 +23,31 @@
             'class'=>'bootstrap.widgets.TbMenu',
             'items'=>array(
                 array('label'=>'Home', 'url'=>array('/site/index')),
-								array('label'=>'Syslog', 'url'=>'#','visible'=>!Yii::app()->user->isGuest, 'items'=>array(
+								array('label'=>'Syslog', 'url'=>'#','active'=>$this->module && $this->module->id=='syslog', 'visible'=>!Yii::app()->user->isGuest, 'items'=>array(
 		                array('label'=>'Logs', 'url'=>array('/syslog/logs/admin'),'visible'=>!Yii::app()->user->isGuest),
 		                array('label'=>'Archive', 'url'=>array('/syslog/archive'),'visible'=>!Yii::app()->user->isGuest),
                 )),
-                array('label'=>'Whitelist', 'url'=>array('/lists/white/admin'),'visible'=>!Yii::app()->user->isGuest),
-                array('label'=>'Statistics', 'url'=>array('/statistics/default/index'),'visible'=>!Yii::app()->user->isGuest),
-								array('label'=>'Settings', 'url'=>'#','visible'=>!Yii::app()->user->isGuest, 'items'=>array(
+								array('label'=>'Lists', 'url'=>'#','active'=>$this->module && $this->module->id=='lists','visible'=>!Yii::app()->user->isGuest, 'items'=>array(
+		                array('label'=>'White Lists', 'url'=>array('/lists/white/admin'),'visible'=>!Yii::app()->user->isGuest),
+                )),
+
+								array('label'=>'Abuser', 'url'=>'/abuser/default/index','active'=>$this->module && $this->module->id=='abuser','visible'=>!Yii::app()->user->isGuest, 'items'=>array(
+		                array('label'=>'Incidents', 'url'=>array('/abuser/incident/admin'),'visible'=>!Yii::app()->user->isGuest),
+		                array('label'=>'Triggers', 'url'=>array('/abuser/trigger/admin'),'visible'=>!Yii::app()->user->isGuest),
+                )),
+
+
+								array('label'=>'Statistics', 'url'=>'#','active'=>$this->module && $this->module->id=='statistics','visible'=>!Yii::app()->user->isGuest, 'items'=>array(
+		                array('label'=>'Todays Graphs', 'url'=>array('/statistics/default/index'),'visible'=>!Yii::app()->user->isGuest),
+		                array('label'=>'Syslog Overall counters', 'url'=>array('/statistics/syslog/overall'),'visible'=>!Yii::app()->user->isGuest),
+		                array('label'=>'Syslog Daily counters', 'url'=>array('/statistics/syslog/daily'),'visible'=>!Yii::app()->user->isGuest),
+		                array('label'=>'Archive Overall counters', 'url'=>array('/statistics/archive/overall'),'visible'=>!Yii::app()->user->isGuest),
+		                array('label'=>'Archive Daily counters', 'url'=>array('/statistics/archive/daily'),'visible'=>!Yii::app()->user->isGuest),
+                )),
+								array('label'=>'Settings', 'url'=>'#','active'=>$this->module && $this->module->id=='settings','visible'=>!Yii::app()->user->isGuest, 'items'=>array(
 		                array('label'=>'Users', 'url'=>array('/settings/user/admin'),'visible'=>!Yii::app()->user->isGuest),
 		                array('label'=>'System Configuration', 'url'=>array('/settings/sysconfig'),'visible'=>!Yii::app()->user->isGuest),
                 )),
-
                 array('label'=>'Login', 'url'=>array('/site/login'), 'visible'=>Yii::app()->user->isGuest),
                 array('label'=>'Logout ('.Yii::app()->user->name.')', 'url'=>array('/site/logout'), 'visible'=>!Yii::app()->user->isGuest),
                 
