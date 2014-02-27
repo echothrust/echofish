@@ -91,7 +91,7 @@ class WhiteController extends Controller
 		$model->facility=$entry->facility;
 		$model->level=$entry->level;
 		$model->program=$entry->program;
-		$model->pattern=$entry->msg;
+		$model->pattern=addcslashes($entry->msg,'\\');
 		// Uncomment the following line if AJAX validation is needed
 		// $this->performAjaxValidation($model);
 
@@ -101,7 +101,6 @@ class WhiteController extends Controller
 			if($model->save())
 				$this->redirect(array('/syslog/logs/admin'));
 		}
-
 		$this->render('create',array(
 			'model'=>$model,
 		));
