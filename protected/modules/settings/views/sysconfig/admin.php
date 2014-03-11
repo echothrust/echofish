@@ -1,11 +1,10 @@
 <?php
 $this->breadcrumbs=array(
-	'Sysconfs'=>array('index'),
+	'Sysconfs'=>array('admin'),
 	'Manage',
 );
 
 $this->menu=array(
-	array('label'=>'List Sysconf','url'=>array('index')),
 	array('label'=>'Create Sysconf','url'=>array('create')),
 );
 

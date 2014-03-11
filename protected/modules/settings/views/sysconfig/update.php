@@ -1,15 +1,14 @@
 <?php
 $this->breadcrumbs=array(
-	'Sysconfs'=>array('index'),
+	'Sysconfs'=>array('admin'),
 	$model->id=>array('view','id'=>$model->id),
 	'Update',
 );
 
 $this->menu=array(
-	array('label'=>'List Sysconf','url'=>array('index')),
-	array('label'=>'Create Sysconf','url'=>array('create')),
-	array('label'=>'View Sysconf','url'=>array('view','id'=>$model->id)),
 	array('label'=>'Manage Sysconf','url'=>array('admin')),
+  array('label'=>'Create Sysconf','url'=>array('create')),
+	array('label'=>'View Sysconf','url'=>array('view','id'=>$model->id)),
 );
 ?>
 

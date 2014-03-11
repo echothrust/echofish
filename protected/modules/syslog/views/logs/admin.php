@@ -23,7 +23,7 @@ $('#massackfilter').live('click',function(){
 });
 ");
 ?>
-<h1>Manage Sylog Messages</h1>
+<h1>Manage Syslog Messages</h1>
 
 <p>
 You may optionally enter a comparison operator (<b>&lt;</b>, <b>&lt;=</b>, <b>&gt;</b>, <b>&gt;=</b>, <b>&lt;&gt;</b>

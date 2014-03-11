@@ -1,15 +1,14 @@
 <?php
 $this->breadcrumbs=array(
-	'Sysconfs'=>array('index'),
+	'Sysconfs'=>array('admin'),
 	$model->id,
 );
 
 $this->menu=array(
-	array('label'=>'List Sysconf','url'=>array('index')),
-	array('label'=>'Create Sysconf','url'=>array('create')),
+	array('label'=>'Manage Sysconf','url'=>array('admin')),
+  array('label'=>'Create Sysconf','url'=>array('create')),
 	array('label'=>'Update Sysconf','url'=>array('update','id'=>$model->id)),
 	array('label'=>'Delete Sysconf','url'=>'#','linkOptions'=>array('submit'=>array('delete','id'=>$model->id),'confirm'=>'Are you sure you want to delete this item?')),
-	array('label'=>'Manage Sysconf','url'=>array('admin')),
 );
 ?>
 
