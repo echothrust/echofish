@@ -116,12 +116,6 @@ code {
 	overflow-x: auto;
 }
 
-pre.prettyprint {
-	border: 0;
-	padding: 0;
-	margin: 0;
-}
-
 img.repo-author-logo {
 	float: left;
 	margin-right: 15px;
