@@ -48,7 +48,7 @@ explicit tasks such as:
 
 
 You can find configuration samples, installation recipes and other usefull 
-information on the docs folder.
+information in the contrib folder.
 
 # Credits
   * P.Athaks
