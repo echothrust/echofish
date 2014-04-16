@@ -89,7 +89,7 @@ return array(
 
 Specify your mailserver in `htdocs/protected/config/mail.php` (fqdn/ipaddr of your outgoing smtp in place of 'localhost' in Host key):
 
-```
+```php
 return array(
     'viewPath' => 'application.views.email',
     'layoutPath' => 'application.views.layouts',
