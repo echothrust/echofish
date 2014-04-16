@@ -43,6 +43,7 @@ mysql ETS_echofish < schema/echofish-dataonly.sql
 
 mysql ETS_echofish -e "drop table archive"
 mysql ETS_echofish -e "rename table archive_old to archive"
+mysql ETS_echofish -e "rename table whitelist_old to whitelist"
 mysql ETS_echofish -e "INSERT INTO host(ip) SELECT DISTINCT host FROM archive"
 
 mysql ETS_echofish < schema/echofish-functions.sql
@@ -50,10 +51,10 @@ mysql ETS_echofish < schema/echofish-procedures.sql
 mysql ETS_echofish < schema/echofish-triggers.sql
 mysql ETS_echofish < schema/echofish-events.sql
 
-mysql  ETS_echofish_prod -e "SET GLOBAL EVENT_SCHEDULER=ON"
+mysql -e "SET GLOBAL EVENT_SCHEDULER=ON"
 ```
 
 
 ### 3 - Get the latest code
 
-Download and unpack [latest Echofish](https://github.com/echothrust/echofish/archive/master.tar.gz) to proceed with [regular installation](https://github.com/echothrust/echofish/blob/master/docs/INSTALL.md) (includes instructions for restoring).
+Download and unpack [latest Echofish](https://github.com/echothrust/echofish/archive/master.tar.gz) to proceed with [regular installation](https://github.com/echothrust/echofish/blob/master/INSTALL.md) (includes instructions for restoring).
