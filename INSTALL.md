@@ -76,18 +76,18 @@ cp htdocs/protected/config/db-sample.php htdocs/protected/config/db.php
 Edit `htdocs/protected/config/db.php` and change the values to reflect the backend database configuration:
 
 ```php
-		'db'=>array(
-			'connectionString' => 'mysql:host=localhost;dbname=ETS_echofish',
+return array(
+			'connectionString' => 'mysql:host=dbhost;dbname=ETS_echofish_prod',
 			'emulatePrepare' => true,
 			'username' => 'dbuser',
 			'password' => 'dbpass',
 			'charset' => 'utf8',
-		),
+		);
 ```
 
 #### 3.3 - Echofish reporting
 
-Specify your mailserver in `htdocs/protected/config/mail.php` (replace 'your.smtp' in Host key with fqdn/ipaddr of your outgoing smtp):
+Specify your mailserver in `htdocs/protected/config/mail.php` (fqdn/ipaddr of your outgoing smtp in place of 'localhost' in Host key):
 
 ```
 return array(
@@ -95,7 +95,7 @@ return array(
     'layoutPath' => 'application.views.layouts',
     'baseDirPath' => 'webroot.images.mail',
     'layout' => 'mail',
-    'Host'=>'your.smtp',
+    'Host'=>'localhost',
 ```
 
 Schedule a daily summary of Abuser Incidents to run every night at 00:30 through cron: 
