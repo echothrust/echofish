@@ -20,7 +20,7 @@ Echofish is dependent on [lib_mysql_udf_preg](https://github.com/mysqludf/lib_my
 
 Echofish has been tested to work well with syslog-ng and rsyslog, but other syslog daemons that support MySQL logging should do it.
 
-* Check the pages [syslog-ng concentrator in OpenBSD](OpenBSD-syslog-concentrator.md) and [rsyslog config](rsyslog-echofish.conf) for working examples.
+* Check the pages [syslog-ng concentrator in OpenBSD](contrib/OpenBSD-syslog-concentrator.md) and [rsyslog config](contrib/rsyslog-echofish.conf) for working examples.
 
 ### 2 - Obtaining Echofish
 
