@@ -29,7 +29,7 @@ BEGIN
         LEAVE read_loop;
       END IF;
     delete_segment: BEGIN
-      DECLARE CONTINUE HANDLER FOR NOT FOUND SET @x='fuckoff';
+      DECLARE CONTINUE HANDLER FOR NOT FOUND SET @x='OUPS';
  	    DELETE FROM whitelist WHERE
           pattern LIKE wpattern AND 
     		  program LIKE if(wprogram='' or wprogram is null,'%',wprogram) AND 
@@ -88,9 +88,9 @@ BEGIN
     DEALLOCATE PREPARE stmtcall;
   END LOOP read_loop;
   CLOSE uwp;
-
 END;
 //
+
 
 DROP PROCEDURE IF EXISTS archive_parse_unparsed//
 CREATE PROCEDURE archive_parse_unparsed()
@@ -110,10 +110,12 @@ read_loop: LOOP
   END IF;
   DELETE FROM archive_unparse WHERE id=auid;
   SELECT host,facility,`level`,program,pid,msg,received_ts INTO @ahost,@afacility,@alevel,@aprogram,@apid,@amsg,@areceived_ts FROM archive WHERE id=auid;
-  CALL archive_parser_trigger(auid,@ahost,@aprogram,@afacility,@alevel,@apid,@amsg,@areceived_ts,'archive');
-  SET @hostexists=(SELECT count(*) FROM `host` WHERE ip=@ahost);
-  IF @hostexists IS NULL OR @hostexists = 0 THEN
-	INSERT INTO `host` (ip,fqdn) values (@ahost,inet_ntoa(@ahost));
+  IF @ahost IS NOT NULL AND @afacility IS NOT NULL AND @alevel IS NOT NULL AND @aprogram IS NOT NULL AND @apid IS NOT NULL AND @amsg IS NOT NULL THEN
+    CALL archive_parser_trigger(auid,@ahost,@aprogram,@afacility,@alevel,@apid,@amsg,@areceived_ts,'archive');
+    SET @hostexists=(SELECT count(*) FROM `host` WHERE ip=@ahost);
+    IF @hostexists IS NULL OR @hostexists = 0 and @ahost is not null THEN
+	   INSERT INTO `host` (ip,fqdn) values (@ahost,inet_ntoa(@ahost));
+    END IF;
   END IF;
 END LOOP read_loop;
 CLOSE uwp;
@@ -121,12 +123,19 @@ COMMIT;
 END;
 //
 
+/* 
+ * Simple wrapper around the insert for the log of abuser evidence
+ */
 DROP PROCEDURE IF EXISTS abuser_log_evidence//
 CREATE PROCEDURE abuser_log_evidence(IN abuser_id BIGINT UNSIGNED,IN entry_id BIGINT UNSIGNED)
 BEGIN
   INSERT INTO abuser_evidence (incident_id,archive_id) VALUES (abuser_id,entry_id);
-END;//
+END;
+//
 
+/*
+ * Parse given entry through the abuser trigger rules.
+ */
 DROP PROCEDURE IF EXISTS abuser_parser//
 CREATE PROCEDURE abuser_parser(IN aid BIGINT UNSIGNED,IN ahost BIGINT UNSIGNED,IN aprogram VARCHAR(255),IN afacility INT,in alevel INT,IN apid BIGINT,in amsg TEXT,in areceived_ts TIMESTAMP)
 BEGIN
