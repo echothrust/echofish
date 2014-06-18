@@ -65,6 +65,11 @@ class ArchiveController extends Controller {
   {
     $model = new Archive ( 'search' );
     $model->unsetAttributes (); // clear any default values
+    if (isset ( $_GET ['pageSize'] ))
+    {
+    	Yii::app ()->user->setState ( 'pageSize', ( int ) $_GET ['pageSize'] );
+    	unset ( $_GET ['pageSize'] ); // would interfere with pager and repetitive page size change
+    }
     if (isset ( $_GET ['Archive'] ))
       $model->attributes = $_GET ['Archive'];
     
