@@ -24,7 +24,7 @@ Finally, download and extract Echofish into your desired folder (the following e
 ftp https://github.com/echothrust/echofish/archive/master.tar.gz
 tar -zxf master.tar.gz -C /var/www/
 ln -s /var/www/echofish-master/htdocs /var/www/htdocs/echofish
-chown -R www.www /var/www/htdocs/echofish/assets/
+install -d -g www -o www /var/www/htdocs/echofish/assets/
 ```
 
 #### Install MySQL UDF
@@ -99,6 +99,31 @@ Edit `/var/www/htdocs/echofish/protected/config/db.php` and change the values to
 			'charset' => 'utf8',
 		),
 ```
+
+#### Email reporting
+
+If you intend to receive e-mail alerts about syslog events (via the abuser module), make sure Echofish is configured to send reports:
+
+In order to change the default sender email address for the reports (the From field), simply edit the `/var/www/htdocs/protected/config/console.php` and change the following line (located at the end of the file):
+
+```php
+    'params'=>array(
+      'adminEmail'=>'your@email.address',
+    ),    
+```
+
+You may specify a mailserver other than localhost in `/var/www/htdocs/protected/config/mail.php` (fqdn/ipaddr of your outgoing smtp in Host key):
+
+```php
+return array(
+    'viewPath' => 'application.views.email',
+    'layoutPath' => 'application.views.layouts',
+    'baseDirPath' => 'webroot.images.mail',
+    'layout' => 'mail',
+    'Host'=>'localhost',
+```
+
+If you are unsure, leave 'localhost' to deliver to the local MTA. Configuring cron for report generation is outside the scope of this recipe, because report data is only produced after configuring the Abuser module. After completing setup learn more about Abuser on the module's help pages within the webui.
 
 ### Services
 
