@@ -1,8 +1,8 @@
 <?php
 return array(
-			'connectionString' => 'mysql:host=dbhost;dbname=ETS_echofish_prod',
+			'connectionString' => 'mysql:host=localhost;dbname=ETS_echofish',
 			'emulatePrepare' => true,
-			'username' => 'dbuser',
+			'username' => 'echofish',
 			'password' => 'dbpass',
 			'charset' => 'utf8',
 		);
