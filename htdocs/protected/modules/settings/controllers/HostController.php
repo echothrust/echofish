@@ -169,11 +169,20 @@ class HostController extends Controller {
     if (Yii::app ()->request->isPostRequest)
     {
       $trans = Yii::app ()->db->beginTransaction ();
-      
-      foreach ( Host::model ()->findAll () as $host )
-        $host->resolve ();
-      $trans->commit ();
-      
+      try
+      {     
+        foreach ( Host::model ()->findAll () as $host )
+        {
+          $host->resolve ();
+          $host->save();
+        }
+        $trans->commit ();
+      }
+      catch(Exception $e)
+      {
+         Yii::app()->setFlash('error',"<strong>Error in resolving hosts</strong>");
+         $trans->rollback();
+      }
       // if AJAX request (triggered by deletion via admin grid view), we should not redirect the browser
       if (! isset ( $_GET ['ajax'] ))
         $this->redirect ( isset ( $_POST ['returnUrl'] ) ? $_POST ['returnUrl'] : array (
@@ -182,13 +191,25 @@ class HostController extends Controller {
     } else
       throw new CHttpException ( 400, 'Invalid request. Please do not repeat this request again.' );
   }
+  
   public function actionResolve($id)
   {
     if (Yii::app ()->request->isPostRequest)
     {
       // we only allow deletion via POST request
-      $this->loadModel ( $id )->resolve ();
-      
+      $trans = Yii::app ()->db->beginTransaction ();
+      try
+      {     
+        $model=$this->loadModel ( $id );
+        $model->resolve ();
+        $model->save();
+        $trans->commit ();
+      }
+      catch(Exception $e)
+      {
+         Yii::app()->setFlash('error',"<strong>Error in resolving host</strong>");
+         $trans->rollback();
+      }      
       // if AJAX request (triggered by deletion via admin grid view), we should not redirect the browser
       if (! isset ( $_GET ['ajax'] ))
         $this->redirect ( isset ( $_POST ['returnUrl'] ) ? $_POST ['returnUrl'] : array (
