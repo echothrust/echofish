@@ -1,6 +1,6 @@
-## Install Echofish On CentOS 6.4
+## Install Echofish On CentOS 6.5
 
-The following guide walks you through the installation of Echofish on CentOS 6.4 with rsyslog + nginx + php_fpm.
+The following guide walks you through the installation of Echofish on CentOS 6.5 with rsyslog + nginx + php_fpm.
 
 ### Requirements
 
@@ -21,17 +21,6 @@ Install required packages:
 yum -y install rsyslog-mysql nginx php-fpm mysql-server php-pdo php-mysql
 ```
 
-#### Yii Framework
-
-Download and extract [Yii Framework](http://www.yiiframework.com/):
-
-```sh
-cd ; curl -L -O https://github.com/yiisoft/yii/releases/download/1.1.14/yii-1.1.14.f0fee9.tar.gz
-cd /usr/share/nginx/
-tar -zxvf ~/yii-1.1.14.f0fee9.tar.gz
-ln -sf yii-1.1.14.f0fee9 yii
-```
-
 #### Echofish sources
 
 Download and extract [Echofish](https://github.com/echothrust/echofish)
@@ -44,14 +33,32 @@ mv echofish-master echofish
 
 #### MySQL
 
-XXX: UPDATE: Echofish requires [lib_mysql_udf_preg](https://github.com/mysqludf/lib_mysqludf_preg/). Install it.
-Echofish requires MySQL's builtin scheduler to be enabled, so add `event_scheduler=ON` in the `[mysqld]` section of `/etc/my.cnf`.
-Next, you may configure & start MySQL as the backend database:
+You may configure & start MySQL as the backend database:
 
 ```sh
 chkconfig mysqld on
 service mysqld start
 /usr/bin/mysql_secure_installation
+```
+
+Echofish requires [lib_mysql_udf_preg](https://github.com/mysqludf/lib_mysqludf_preg/).
+You need to install the development tools necessary to compile and install it:
+
+```sh
+cd
+yum install git gcc pcre pcre-devel make automake libtool mysql-devel
+git clone https://github.com/mysqludf/lib_mysqludf_preg.git
+cd lib_mysqludf_preg
+./configure
+aclocal && libtoolize --force && autoreconf
+make install ; make installdb ; make test
+```
+
+Echofish requires MySQL builtin scheduler to be enabled, so add `event_scheduler=ON` in the `[mysqld]` section of `/etc/my.cnf`.
+
+```sh
+chkconfig mysqld on
+service mysqld restart
 ```
 
 #### Create and configure a database 
@@ -69,7 +76,7 @@ FLUSH PRIVILEGES;
 Import the provided schema files into the database:
 
 ```sh
-cd /usr/share/nginx/html/echofish/protected/data
+cd /usr/share/nginx/html/echofish/schema
 for i in 00_echofish-schema echofish-dataonly echofish-functions echofish-procedures echofish-triggers echofish-events ;
 do
 mysql -u echofish -p ETS_echofish < $i.sql || exit;
@@ -86,15 +93,22 @@ Set unix permissions and selinux contexts:
 
 ```sh
 # set write permissions for php-fpm
-chown -R apache.apache /usr/share/nginx/html/echofish/assets
-chcon -R -u system_u -r object_r -t httpd_sys_content_t /usr/share/nginx/html/echofish
-chcon -R -u system_u -r object_r -t httpd_sys_content_rw_t /usr/share/nginx/html/echofish/assets
+mkdir /usr/share/nginx/html/echofish/htdocs/assets
+chown -R apache.apache /usr/share/nginx/html/echofish/htdocs/assets
+chcon -R -u system_u -r object_r -t httpd_sys_content_t /usr/share/nginx/html/echofish/htdocs
+chcon -R -u system_u -r object_r -t httpd_sys_content_rw_t /usr/share/nginx/html/echofish/htdocs/assets
 ```
 
 
 #### Configure database access
 
-Edit the echofish configuration file located at `/usr/share/nginx/html/echofish/protected/config/main.php` and find the following section and change the values to reflect your setup (change {{{echofish-pass-here}}} to match):
+Copy the echofish configuration sample file located in `echofish/htdocs/protected/config` and change the values to reflect your setup (change {{{echofish-pass-here}}} to match):
+
+```sh
+cd /usr/share/nginx/html/echofish/htdocs/protected/config/
+cp db-sample.php db.php
+vi db.php
+```
 
 ```php
     	'db'=>array(
@@ -106,21 +120,30 @@ Edit the echofish configuration file located at `/usr/share/nginx/html/echofish/
 		),
 ```
 
-#### Point yii location to echofish
+#### Email reporting
 
-Change the `$yii` variable path to point to the correct location for the Yii Framework in `/usr/share/nginx/html/echofish/index.php`
+If you intend to receive e-mail alerts about syslog events (via the abuser module), make sure Echofish is configured to send reports:
 
-FROM
-
-```php
-$yii=dirname(__FILE__).'/../yii/framework/yiilite.php'; 
-```
-
-INTO
+In order to change the default sender email address for the reports (the From field), simply edit the `echofish/htdocs/protected/config/console.php` and change the following line (located at the end of the file):
 
 ```php
-$yii=dirname(__FILE__).'/../../yii/framework/yiilite.php'; 
+    'params'=>array(
+      'adminEmail'=>'your@email.address',
+    ),    
 ```
+
+You may specify a mailserver other than localhost in `echofish/htdocs/protected/config/mail.php` (fqdn/ipaddr of your outgoing smtp in Host key):
+
+```php
+return array(
+    'viewPath' => 'application.views.email',
+    'layoutPath' => 'application.views.layouts',
+    'baseDirPath' => 'webroot.images.mail',
+    'layout' => 'mail',
+    'Host'=>'localhost',
+```
+
+If you are unsure, leave 'localhost' to deliver to the local MTA. Configuring cron for report generation is outside the scope of this recipe, because report data is only produced after configuring the Abuser module. After completing setup learn more about Abuser on the module's help pages within the webui.
 
 ### Services
 
@@ -139,7 +162,7 @@ $ModLoad ommysql.so
 $template dbFormat,"INSERT INTO archive_bh (host, facility, priority, level, received_ts, program, msg,pid,tag) VALUES ( '%fromhost-ip%', '%syslogfacility%', '%syslogpriority%','%syslogseverity%', '%timereported:::date-mysql%', TRIM('%programname%'), TRIM('%msg%'),'', '%syslogtag%' );\n",sql
 
 # Specific template for loghost (127.0.0.1)
-# To avoid logging as 127.0.0.1 uncomment the following lines and change A.B.C.D to the loghost's IP addr.
+# To avoid logging as 127.0.0.1 uncomment the following lines and change A.B.C.D to the loghosts IP addr.
 #$template dbFormatLocal,"INSERT INTO archive_bh (host, facility, priority, level, received_ts, program, msg,pid,tag) VALUES ( 'A.B.C.D', '%syslogfacility%', '%syslogpriority%','%syslogseverity%', '%timereported:::date-mysql%', TRIM('%programname%'), TRIM('%msg%'),'', '%syslogtag%' );\n",sql
 #if $fromhost-ip != '127.0.0.1' then :ommysql:127.0.0.1,ETS_echofish,echofish,{{{echofish-pass-here}}};dbFormat
 #& ~
@@ -151,14 +174,18 @@ $template dbFormat,"INSERT INTO archive_bh (host, facility, priority, level, rec
 
 This will load the mysql shared object that was installed with the "rsyslog-mysql" package and will log syslog in table 'archive_bh' of mysql database 'ETS_echofish'.
 
-Restart rsyslog daemon: `service rsyslog restart`
+Enable and restart rsyslog daemon:
+```sh
+chkconfig rsyslog on
+service rsyslog restart
+```
 
 #### nginx
 
 Adapt the `location /` section of your `/etc/nginx/conf.d/default.conf` to:
 
 ```
-        root   /usr/share/nginx/html;
+        root   /usr/share/nginx/html/echofish/htdocs;
         index  index.php index.html index.htm;
 ```
 
@@ -166,7 +193,7 @@ Uncomment the `location ~` section in the same file and edit it to match the exa
 
 ```
     location ~ \.php$ {
-        root           html;
+        root           /usr/share/nginx/html/echofish/htdocs;
         fastcgi_pass   127.0.0.1:9000;
         fastcgi_index  index.php;
         fastcgi_param  SCRIPT_FILENAME  $document_root$fastcgi_script_name;
@@ -180,12 +207,12 @@ Start nginx service:
 
 ```sh
 chkconfig nginx on
-service nginx start
+service nginx restart
 ```
 
 #### php-fpm
 
-In the `[Date]` section of your `/etc/php.ini` set PHP’s date.timezone (a list of available timezone settings can be found [here](http://uk.php.net/manual/en/timezones.php)). Replace with your server's timezone:
+In the `[Date]` section of your `/etc/php.ini` set PHP date.timezone (a list of available timezone settings can be found [here](http://uk.php.net/manual/en/timezones.php)). Replace with your server timezone:
 
 ```
 date.timezone = Europe/Athens
@@ -195,7 +222,7 @@ Start php-fpm service:
 
 ```sh
 chkconfig php-fpm on
-service php-fpm start
+service php-fpm restart
 ```
 
 #### iptables
