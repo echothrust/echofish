@@ -20,6 +20,13 @@ DROP TRIGGER IF EXISTS `tai_archive_bh`//
 CREATE TRIGGER `tai_archive_bh` AFTER INSERT ON `archive_bh` FOR EACH ROW 
 BEGIN 
 DECLARE mts INT DEFAULT 0;
+    IF NEW.host IS NOT NULL AND NEW.host != '' and INET_ATON(NEW.host) IS NOT NULL AND inet_aton(NEW.host) != 0 THEN
+      SET @hostexists=(SELECT count(*) FROM `host` WHERE ip=INET_ATON(NEW.host));
+      IF @hostexists IS NULL OR @hostexists < 1 THEN
+        INSERT INTO `host` (ip,fqdn) values (INET_ATON(NEW.host),NEW.host);
+      END IF;
+    END IF;
+
    IF (SELECT count(*) FROM sysconf WHERE id="archive_activated" and val="yes")>0 AND INET_ATON(NEW.host) IS NOT NULL THEN 
     INSERT DELAYED INTO archive (host,facility,priority,`level`,program,pid,tag,msg,received_ts,created_at) VALUES (INET_ATON(NEW.host),NEW.facility,NEW.priority,NEW.level,NEW.program,NEW.pid,NEW.tag,NEW.msg,NEW.received_ts,sysdate());
    ELSE 
