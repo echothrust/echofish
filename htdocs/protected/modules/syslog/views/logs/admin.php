@@ -160,11 +160,3 @@ or <b>=</b>) at the beginning of each of your search values to specify how the c
     });
 EOD
 ,CClientScript::POS_READY); ?>
-<?php /* Yii::app()->clientScript->registerScript('linkification','
-	    $(".msg").linkify({ target: "_blank" });
-	    $(".linkified").click(function(){
-	       //alert($(this).attr("href"));
-	       return false;
-      });
-'
-,CClientScript::POS_READY);  ?>
