@@ -71,6 +71,14 @@ GRANT ALL PRIVILEGES ON ETS_echofish.* TO 'echofish'@'localhost' IDENTIFIED BY '
 FLUSH PRIVILEGES;
 ```
 
+##### Enable BLACKHOLE if not 
+Make sure the BLACKHOLE engine is enabled (on newer versions of RHEL/Centos these are shipped as seperate plugins) by executing the following commands through mysql client
+
+```
+install plugin blackhole SONAME 'ha_blackhole.so' ; 
+alter table echofish.archive_bh engine blackhole ;
+```
+
 #### Import database schema
 
 Import the provided schema files into the database:
