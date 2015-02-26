@@ -145,7 +145,7 @@ class Host extends CActiveRecord
 
   public function beforeSave()
   {
-    if(ip2long($this->ipoctet)!==false && $this->ip!=ip2long($this->ipoctet))
+    if($this->isNewRecord || (ip2long($this->ipoctet)!==false && $this->ip!=ip2long($this->ipoctet)))
       $this->ip=ip2long($this->ip);
     return parent::beforeSave();
   }
