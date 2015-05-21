@@ -4,6 +4,7 @@
  * This is the model class for table "host".
  *
  * The followings are the available columns in table 'host':
+ * @property integer $id
  * @property string $ip
  * @property string $fqdn
  * @property string $short
@@ -56,6 +57,7 @@ class Host extends CActiveRecord
 	public function attributeLabels()
 	{
 		return array(
+			'id' => 'ID',
 			'ip' => 'Ip',
 			'fqdn' => 'Fqdn',
 			'short' => 'Short',
@@ -81,6 +83,7 @@ class Host extends CActiveRecord
 
 		$criteria=new CDbCriteria;
 
+		$criteria->compare('id',$this->id,false);
 		$criteria->compare('ip',$this->ip,true);
 		$criteria->compare('fqdn',$this->fqdn,true);
 		$criteria->compare('short',$this->short,true);
