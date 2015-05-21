@@ -32,7 +32,7 @@ CREATE TABLE IF NOT EXISTS `archive_bh` (
 DROP TABLE IF EXISTS `archive`;
 CREATE TABLE IF NOT EXISTS `archive` (
   `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
-  `host` bigint(20) unsigned NOT NULL,
+  `host` int unsigned NOT NULL,
   `facility` bigint(20) DEFAULT NULL,
   `priority` bigint(20) DEFAULT NULL,
   `level` bigint(20) DEFAULT NULL,
@@ -54,7 +54,7 @@ CREATE TABLE IF NOT EXISTS `archive` (
 DROP TABLE IF EXISTS `syslog`;
 CREATE TABLE IF NOT EXISTS `syslog` (
   `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
-  `host` bigint(20) unsigned NOT NULL,
+  `host` int unsigned NOT NULL,
   `facility` tinyint(3) unsigned DEFAULT '0',
   `priority` tinyint(3) unsigned DEFAULT '0',
   `level` tinyint(3) unsigned DEFAULT NULL,
@@ -383,7 +383,8 @@ CREATE TABLE IF NOT EXISTS `abuser_incident` (
 
 DROP TABLE IF EXISTS `host`;
 CREATE TABLE `host` (
-	ip int unsigned primary key,
+	id int unsigned primary key auto_increment,
+	ip int unsigned,
 	fqdn varchar(255) NOT NULL,
 	short varchar(50),
 	description text

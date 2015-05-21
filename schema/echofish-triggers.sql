@@ -20,26 +20,27 @@ DROP TRIGGER IF EXISTS `tai_archive_bh`//
 CREATE TRIGGER `tai_archive_bh` AFTER INSERT ON `archive_bh` FOR EACH ROW 
 BEGIN 
 DECLARE mts INT DEFAULT 0;
-    IF NEW.host IS NOT NULL AND NEW.host != '' and INET_ATON(NEW.host) IS NOT NULL AND inet_aton(NEW.host) != 0 THEN
-      SET @hostexists=(SELECT count(*) FROM `host` WHERE ip=INET_ATON(NEW.host));
-      IF @hostexists IS NULL OR @hostexists < 1 THEN
-        INSERT INTO `host` (ip,fqdn) values (INET_ATON(NEW.host),NEW.host);
+IF NEW.host IS NOT NULL AND NEW.host != ''  THEN
+      SET @hostexists=(SELECT id FROM `host` WHERE fqdn=NEW.host);
+      IF @hostexists IS NULL THEN
+        INSERT INTO `host` (fqdn,short) values (NEW.host,NEW.host);
+        SET @hostexists=LAST_INSERT_ID();
       END IF;
-    END IF;
+      IF (SELECT count(*) FROM sysconf WHERE id="archive_activated" and val="yes")>0 AND @hostexists IS NOT NULL THEN 
+	    INSERT DELAYED INTO archive (host,facility,priority,`level`,program,pid,tag,msg,received_ts,created_at) VALUES (@hostexists,NEW.facility,NEW.priority,NEW.level,NEW.program,NEW.pid,NEW.tag,NEW.msg,NEW.received_ts,sysdate());
+	  ELSEIF @hostexists IS NOT NULL THEN
+		SELECT count(*) INTO mts FROM whitelist_mem WHERE 
+	    NEW.msg LIKE whitelist_mem.pattern AND 
+	    NEW.program LIKE if(whitelist_mem.program='' or whitelist_mem.program is null,'%',whitelist_mem.program) AND 
+		NEW.facility like if(whitelist_mem.facility='' or whitelist_mem.facility is null,'%',whitelist_mem.facility) AND  
+		NEW.level like if(whitelist_mem.`level`='' or whitelist_mem.level is null,'%',whitelist_mem.`level`) AND
+	    NEW.host IN (SELECT id FROM host WHERE INET_NTOA(ip) LIKE whitelist_mem.host or fqdn LIKE whitelist_mem.host OR short LIKE whitelist_mem.host);
+	    IF mts=0 THEN
+	     INSERT DELAYED INTO syslog (host,facility,priority,`level`,program,pid,tag,msg,received_ts,created_at) VALUES (@hostexists,NEW.facility,NEW.priority,NEW.level,NEW.program,NEW.pid,NEW.tag,NEW.msg,NEW.received_ts,sysdate());
+	    END IF;
+	  END IF;
+END IF;
 
-   IF (SELECT count(*) FROM sysconf WHERE id="archive_activated" and val="yes")>0 AND INET_ATON(NEW.host) IS NOT NULL THEN 
-    INSERT DELAYED INTO archive (host,facility,priority,`level`,program,pid,tag,msg,received_ts,created_at) VALUES (INET_ATON(NEW.host),NEW.facility,NEW.priority,NEW.level,NEW.program,NEW.pid,NEW.tag,NEW.msg,NEW.received_ts,sysdate());
-   ELSE 
-    SELECT count(*) INTO mts FROM whitelist_mem WHERE 
-    NEW.msg LIKE pattern AND 
-    NEW.program LIKE if(program='' or program is null,'%',program) AND 
-    NEW.facility like if(facility='' or facility is null,'%',facility) AND  
-    NEW.level like if(`level`='' or level is null,'%',`level`) AND  
-    NEW.host LIKE if(host='' or host is null,'%',host);
-    IF mts=0 THEN
-     INSERT DELAYED INTO syslog (host,facility,priority,`level`,program,pid,tag,msg,received_ts,created_at) VALUES (INET_ATON(NEW.host),NEW.facility,NEW.priority,NEW.level,NEW.program,NEW.pid,NEW.tag,NEW.msg,NEW.received_ts,sysdate());
-    END IF;
-   END IF;
 END
 //
 
@@ -58,7 +59,8 @@ DELETE FROM syslog WHERE
     program LIKE if(NEW.program='' or NEW.program is null,'%',NEW.program) AND 
     facility like if(NEW.facility='' or NEW.facility IS NULL,'%',NEW.facility) AND  
     `level` like if(NEW.level='' or NEW.level IS NULL,'%',NEW.level) AND  
-    INET_NTOA(host) LIKE if(NEW.host='' OR NEW.host IS NULL,'%',NEW.host);
+    (host in (SELECT id FROM host WHERE INET_NTOA(ip) like NEW.host or fqdn like NEW.host or short like NEW.host)); 
+    /*LIKE if(NEW.host='' OR NEW.host IS NULL,'%',NEW.host);*/
 END
 //
 
@@ -76,7 +78,8 @@ DELETE FROM syslog WHERE
     program LIKE if(NEW.program='' or NEW.program is null,'%',NEW.program) AND 
     facility like if(NEW.facility='' or NEW.facility IS NULL,'%',NEW.facility) AND  
     `level` like if(NEW.level='' or NEW.level IS NULL,'%',NEW.level) AND  
-    INET_NTOA(host) LIKE if(NEW.host='' OR NEW.host IS NULL,'%',NEW.host);
+    (host in (SELECT id FROM host WHERE INET_NTOA(ip) like NEW.host or fqdn like NEW.host or short like NEW.host));
+    /* INET_NTOA(host) LIKE if(NEW.host='' OR NEW.host IS NULL,'%',NEW.host);*/
 END
 //
 
@@ -96,12 +99,13 @@ DROP TRIGGER IF EXISTS tai_archive//
 CREATE TRIGGER tai_archive AFTER INSERT ON archive FOR EACH ROW
 BEGIN
 DECLARE mts INT DEFAULT 0;
-SELECT count(*) INTO mts FROM whitelist_mem WHERE 
-    NEW.msg LIKE pattern AND 
-    NEW.program LIKE if(program='' or program is null,'%',program) AND 
-    NEW.facility like if(facility='' or facility is null,'%',facility) AND  
-    NEW.level like if(`level`='' or level is null,'%',`level`) AND  
-    INET_NTOA(NEW.host) LIKE if(host='' or host is null,'%',host);
+SELECT count(*) INTO mts FROM whitelist_mem as wm WHERE 
+    NEW.msg LIKE wm.pattern AND 
+    NEW.program LIKE if(wm.program='' or wm.program is null,'%',wm.program) AND 
+    NEW.facility like if(wm.facility='' or wm.facility is null,'%',wm.facility) AND  
+    NEW.level like if(wm.`level`='' or wm.level is null,'%',wm.`level`) AND  
+    NEW.host IN (SELECT id FROM host WHERE INET_NTOA(ip) LIKE wm.host or fqdn LIKE wm.host OR short LIKE wm.host);
+    /*INET_NTOA(NEW.host) LIKE if(host='' or host is null,'%',host);*/
     IF mts=0 THEN
       INSERT DELAYED INTO syslog (id,host,facility,priority,`level`,program,pid,tag,msg,received_ts,created_at) VALUES (NEW.id,NEW.host,NEW.facility,NEW.priority,NEW.level,NEW.program,NEW.pid,NEW.tag,NEW.msg,NEW.received_ts,sysdate());
     END IF;
