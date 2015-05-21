@@ -331,7 +331,7 @@ DROP TABLE IF EXISTS archive_unparse;
 CREATE TABLE archive_unparse (
 id BIGINT UNSIGNED PRIMARY KEY,
 pending tinyint default 1
-) ENGINE=InnoDB;
+) ENGINE=InnoDB COLLATE=utf8_unicode_ci;
 
 DROP TABLE IF EXISTS abuser_trigger;
 CREATE TABLE IF NOT EXISTS `abuser_trigger` (
@@ -388,7 +388,7 @@ CREATE TABLE `host` (
 	fqdn varchar(255) NOT NULL,
 	short varchar(50),
 	description text
-) ENGINE=InnoDB;
+) ENGINE=InnoDB COLLATE=utf8_unicode_ci;
 
 DROP TABLE IF EXISTS `trail`;
 CREATE TABLE `trail` (
@@ -396,7 +396,7 @@ CREATE TABLE `trail` (
   user_id INT UNSIGNED NOT NULL,
   category varchar(50),
   message longtext
-) ENGINE=InnoDB COMMENT="Application Audit Trails";
+) ENGINE=InnoDB COLLATE=utf8_unicode_ci COMMENT="Application Audit Trails";
 
 ALTER TABLE `abuser_incident`
   ADD CONSTRAINT `fk_trigger_id` FOREIGN KEY (`trigger_id`) REFERENCES `abuser_trigger` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
