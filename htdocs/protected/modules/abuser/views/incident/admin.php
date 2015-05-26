@@ -60,26 +60,24 @@ EOD
           'type' => 'primary',
           'size' => 'small',
           'label' => 'Zero Counters',
-          'click' => 'js:function(checked)
-{
-     var values = [];
-     checked.each(function(){
-         values.push($(this).val());
-     }); 
-    $.ajax({
-     url:"'.$this->createUrl("zeromass").'", 
-     data: {ids:values.join(",")},
-     success:function(data){ 
-         // update the grid now
-         $("#abuser-incident-grid").yiiGridView("update"); 
-     }
-     });
-}',
-                      'id'=>'zeromass'
-                    )
-                ),
-                'checkBoxColumnConfig' => array( 'name' => 'id' ),
-   ),
+          'click' => 'js:function(checked){
+			     var values = [];
+			     checked.each(function(){
+			         values.push($(this).val());
+			     }); 
+			    $.ajax({
+			     url:"'.$this->createUrl("zeromass").'", 
+			     data: {ids:values.join(",")},
+			     success:function(data){ 
+			         // update the grid now
+			         $("#abuser-incident-grid").yiiGridView("update"); 
+			     }
+			     });
+		}',
+        'id'=>'zeromass')
+	 ),
+     'checkBoxColumnConfig' => array( 'name' => 'id' ),
+   	),
   'columns'=>array(
     'id',
 		'ipstr',
