@@ -3,7 +3,6 @@ SET FOREIGN_KEY_CHECKS=0;
 SET SQL_MODE="NO_AUTO_VALUE_ON_ZERO";
 SET time_zone = "+00:00";
 SET NAMES utf8 COLLATE 'utf8_unicode_ci';
-
 --
 -- Database: `echofish`
 --
@@ -21,8 +20,7 @@ CREATE TABLE IF NOT EXISTS `archive_bh` (
   `tag` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
   `msg` text COLLATE utf8_unicode_ci,
   `received_ts` datetime DEFAULT NULL,
-  `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  `updated_at` datetime NOT NULL DEFAULT '0000-00-00 00:00:00'
+  `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 ) ENGINE=BLACKHOLE DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
 --
@@ -42,7 +40,6 @@ CREATE TABLE IF NOT EXISTS `archive` (
   `msg` text CHARACTER SET utf8 COLLATE utf8_unicode_ci,
   `received_ts` datetime DEFAULT NULL,
   `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  `updated_at` datetime NOT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 AUTO_INCREMENT=1 COLLATE=utf8_unicode_ci ;
 
@@ -64,7 +61,6 @@ CREATE TABLE IF NOT EXISTS `syslog` (
   `msg` text COLLATE utf8_unicode_ci,
   `received_ts` datetime DEFAULT NULL,
   `created_at` datetime DEFAULT NULL,
-  `updated_at` datetime NOT NULL,
   PRIMARY KEY (`id`),
   KEY `host_index_idx` (`host`),
   KEY `facility_index_idx` (`facility`),
@@ -302,7 +298,7 @@ CREATE TABLE message_parser (
   name VARCHAR(100),
   weight int,
   unique (name,weight)
-) ENGINE=InnoDB COLLATE=utf8_unicode_ci;
+) ENGINE=InnoDB CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
 -- Table structure for table `YiiSession`
 --
@@ -325,13 +321,13 @@ CREATE TABLE archive_parser (
   name VARCHAR(100),
   weight int,
   unique (name,weight)
-) ENGINE=InnoDB COLLATE=utf8_unicode_ci;
+) ENGINE=InnoDB CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
 DROP TABLE IF EXISTS archive_unparse;
 CREATE TABLE archive_unparse (
 id BIGINT UNSIGNED PRIMARY KEY,
 pending tinyint default 1
-) ENGINE=InnoDB COLLATE=utf8_unicode_ci;
+) ENGINE=InnoDB CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
 DROP TABLE IF EXISTS abuser_trigger;
 CREATE TABLE IF NOT EXISTS `abuser_trigger` (
@@ -388,7 +384,7 @@ CREATE TABLE `host` (
 	fqdn varchar(255) NOT NULL,
 	short varchar(50),
 	description text
-) ENGINE=InnoDB COLLATE=utf8_unicode_ci;
+) ENGINE=InnoDB CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
 DROP TABLE IF EXISTS `trail`;
 CREATE TABLE `trail` (
@@ -396,7 +392,7 @@ CREATE TABLE `trail` (
   user_id INT UNSIGNED NOT NULL,
   category varchar(50),
   message longtext
-) ENGINE=InnoDB COLLATE=utf8_unicode_ci COMMENT="Application Audit Trails";
+) ENGINE=InnoDB CHARSET=utf8 COLLATE=utf8_unicode_ci COMMENT="Application Audit Trails";
 
 ALTER TABLE `abuser_incident`
   ADD CONSTRAINT `fk_trigger_id` FOREIGN KEY (`trigger_id`) REFERENCES `abuser_trigger` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
