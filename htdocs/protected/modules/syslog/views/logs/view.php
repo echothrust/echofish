@@ -29,6 +29,5 @@ $this->menu=array(
 		'msg',
 		'received_ts',
 		'created_at',
-		'updated_at',
 	),
 )); ?>
