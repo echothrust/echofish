@@ -125,7 +125,7 @@ class ArchiveCountersDaily extends CActiveRecord
 				'order'=>'val desc,name',
 			),
 		'todays_hosts'=>array(
-				'select'=>'ctype,inet_ntoa(name) as name,val',
+				'select'=>'ctype,(SELECT host.fqdn FROM `host` WHERE id=name) as name,val',
 				'condition'=>'ctype="host" and ts=date(now())',
 				'order'=>'name',
 			),

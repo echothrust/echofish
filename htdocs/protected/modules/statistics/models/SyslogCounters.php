@@ -102,7 +102,8 @@ class SyslogCounters extends CActiveRecord
 		switch($this->ctype)
 		{
 			case 'host':
-				return long2ip($this->name);
+				$host=Host::model()->findByPk($this->name)
+				return $host!==null && $host->short ? $host->short : $host->fqdn;
 			default:
 				return $this->name;
 		}
