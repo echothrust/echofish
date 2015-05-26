@@ -100,7 +100,7 @@ class ArchiveCounters extends CActiveRecord
 		switch($this->ctype)
 		{
 			case 'host':
-				$host=Host::model()->findByPk($this->name)
+				$host=Host::model()->findByPk($this->name);
 				return $host!==null && $host->short ? $host->short : $host->fqdn;
 			default:
 				return $this->name;
