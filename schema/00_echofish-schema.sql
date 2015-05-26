@@ -380,10 +380,11 @@ CREATE TABLE IF NOT EXISTS `abuser_incident` (
 DROP TABLE IF EXISTS `host`;
 CREATE TABLE `host` (
 	id int unsigned primary key auto_increment,
-	ip int unsigned,
+	ip int unsigned default 0,
 	fqdn varchar(255) NOT NULL,
 	short varchar(50),
-	description text
+	description text,
+	unique key `host_details` (fqdn,short,ip)
 ) ENGINE=InnoDB CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
 DROP TABLE IF EXISTS `trail`;
