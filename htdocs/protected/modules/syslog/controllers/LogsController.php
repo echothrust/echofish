@@ -108,6 +108,7 @@ class LogsController extends Controller {
     }
     if (isset ( $_GET ['Syslog'] ))
       $model->attributes = $_GET ['Syslog'];
+    
     $this->render ( 'admin', array (
         'model' => $model 
     ) );
