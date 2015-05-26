@@ -1,7 +1,7 @@
 <?php
 $this->breadcrumbs=array(
 	'Hosts'=>array('admin'),
-	$model->ip,
+	$model->ipoctet,
 );
 
 $this->menu=array(
@@ -13,7 +13,7 @@ array('label'=>'Delete Host','url'=>'#','linkOptions'=>array('submit'=>array('de
 );
 ?>
 
-<h1>View Host #<?php echo $model->ip; ?></h1>
+<h1>View Host ID#<?php echo $model->id; ?>/<?php echo $model->ipoctet; ?></h1>
 
 <?php $this->widget('bootstrap.widgets.TbDetailView',array(
 'data'=>$model,
