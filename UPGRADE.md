@@ -1,60 +1,49 @@
-## UPGRADE Echofish
+# UPGRADE Echofish from v0.4.x to v0.5.x 
+Starting with version 0.4, Echofish has import/export operations for Whitelists
+and Abuser Triggers. However, until these features are completed, this 
+procedure is will act as the suggested Upgrade Guide.
 
-Starting with v.0.4 Echofish has import/export operations for Whitelists and Abuser Triggers. Until backup is completely implemented, this procedure is provided as an Upgrade Guide.
+This guide provides instructions to upgrate an Echofish v0.4 installation to v0.5
 
-### 1 - Database changes
-
-In case the database schema has changed, keep a backup of your precious data, at least the tables 'user', 'whitelist' and 'abuser_trigger':
-
-```sh
-# Adjust IP, DBUSER 'echofish' and DBNAME 'ETS_echofish' to match yours
-# Backup tables containing user data
-mysqldump --no-create-info -h mysql.server.ip -u echofish -p ETS_echofish user whitelist abuser_trigger > userdata.sql
-# Backup table containing archived logs separately
-mysqldump --no-create-info -h mysql.server.ip -u echofish -p ETS_echofish archive > archivedata.sql
-``` 
-
-After successfully backing up your valuable data, you can proceed to DROP the database:
-
-```sh
-# Make sure you have backed up your data!
-# Replace credentials with your mysql admin user. 
-mysqladmin -u[username] -p[password] drop 
-```
-### 2 - Alternative (keeping database)
-The procedure is as following:
-
-  * Stop the event scheduler
-  * Rename tables
-  * Import schema
-  * Rename back
-  * Populate host table (new table)
-  * Proceed with import
-  * Activate event schedule again
+## Fetching files
+Download [Echofish v0.5.0](https://github.com/echothrust/echofish/archive/echofish-v0.5.0.tar.gz) and extract over your previous installation.
 
 ```
-mysql -e "SET GLOBAL EVENT_SCHEDULER=OFF"
+ftp https://github.com/echothrust/echofish/archive/echofish-v0.5.0.tar.gz
+tar zxf echofish-v0.5.0.tar.gz -C /var/www/echofish
+cd /var/www/echofish
+```
 
-mysql ETS_echofish -e "RENAME TABLE archive TO archive_old"
-mysql ETS_echofish -e "RENAME TABLE whitelist TO whitelist_old"
+## Update the database schema
+* Disable the event scheduler temporarily by executing the following command,
+```sh
+mysql -e "SET GLOBAL EVENT_SCHEDULER=off;"
+```
 
-mysql ETS_echofish < schema/00_echofish-schema.sql
-mysql ETS_echofish < schema/echofish-dataonly.sql
+* Change the default character set and collation of the database (assuming your 
+database is `ETS_echofish`)
+```
+mysql -e 'ALTER DATABASE ETS_echofish CHARACTER SET utf8 COLLATE utf8_unicode_ci'
+```
 
-mysql ETS_echofish -e "drop table archive"
-mysql ETS_echofish -e "rename table archive_old to archive"
-mysql ETS_echofish -e "rename table whitelist_old to whitelist"
-mysql ETS_echofish -e "INSERT INTO host(ip) SELECT DISTINCT host FROM archive"
+* Import the updated schema (note that this might take long time to complete 
+since it updates the archive and syslog tables)
+```sh
+mysql ETS_echofish < schema/updates/v0.4-to-v0.5.sql
+```
 
+* Import the remaining updated functions, triggers and events
+```sh
 mysql ETS_echofish < schema/echofish-functions.sql
 mysql ETS_echofish < schema/echofish-procedures.sql
 mysql ETS_echofish < schema/echofish-triggers.sql
 mysql ETS_echofish < schema/echofish-events.sql
-
-mysql -e "SET GLOBAL EVENT_SCHEDULER=ON"
 ```
 
+* Reactivate the MySQL/MariaDB event scheduler
+```
+mysql -e "SET GLOBAL EVENT_SCHEDULER=on;"
+```
 
-### 3 - Get the latest code
-
-Download and unpack [latest Echofish](https://github.com/echothrust/echofish/archive/master.tar.gz) to proceed with [regular installation](https://github.com/echothrust/echofish/blob/master/INSTALL.md) (includes instructions for restoring).
+Now that you're all set, visit the Echofish web interface and verify that 
+everything is working as it should.

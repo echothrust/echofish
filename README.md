@@ -1,5 +1,5 @@
-Echofish
-=
+# Echofish Syslog manager
+
 Central syslog management console with whitelisting feature and ability to 
 generate events from syslog entries.
 
@@ -17,7 +17,6 @@ alerting and notifications, Echofish is able to deliver new levels of
 visibility and insight on your business IT infrastructure.
 
 ## How Echofish differs
-
 Echofish focuses around the fact that:
 
 * daily operators need to be able to see what happens on their network.
@@ -29,7 +28,6 @@ Echofish focuses around the fact that:
   messages that need our attention.
 
 ## Beneath the hood
-
 When a message is received by syslog it gets written into a specific table of 
 the echofish database.
 
@@ -48,9 +46,5 @@ explicit tasks such as:
 
 
 You can find configuration samples, installation recipes and other usefull 
-information in the contrib folder.
-
-# Credits
-  * P.Athaks
-  * P.kotsiop
+information in the `contrib/` folder.
 
