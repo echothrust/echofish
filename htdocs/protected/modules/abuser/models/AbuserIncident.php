@@ -48,15 +48,8 @@ class AbuserIncident extends CActiveRecord {
     // NOTE: you should only define rules for those attributes that
     // will receive user inputs.
     return array (
-        array (
-            'ip, ts',
-            'required' 
-        ),
-        array (
-            'ip',
-            'length',
-            'max' => 10 
-        ),
+        array ('ip, ts','required'),
+        array ('ip','length','max' => 10),
         array (
             'trigger_id, counter, first_occurrence, last_occurrence',
             'length',
@@ -92,14 +85,7 @@ class AbuserIncident extends CActiveRecord {
             'AbuserEvidence',
             'incident_id' 
         ),
-        'evidence' => array (
-            self::HAS_MANY,
-            'Archive',
-            array (
-                'archive_id' => 'id' 
-            ),
-            'through' => 'AE' 
-        ) 
+        'evidence' => array (self::HAS_MANY,'Archive',array ('archive_id' => 'id'),'through' => 'AE') 
     );
   }
   

@@ -112,9 +112,9 @@ read_loop: LOOP
   SELECT host,facility,`level`,program,pid,msg,received_ts INTO @ahost,@afacility,@alevel,@aprogram,@apid,@amsg,@areceived_ts FROM archive WHERE id=auid;
   IF @ahost IS NOT NULL AND @afacility IS NOT NULL AND @alevel IS NOT NULL AND @aprogram IS NOT NULL AND @apid IS NOT NULL AND @amsg IS NOT NULL THEN
     CALL archive_parser_trigger(auid,@ahost,@aprogram,@afacility,@alevel,@apid,@amsg,@areceived_ts,'archive');
-    SET @hostexists=(SELECT count(*) FROM `host` WHERE ip=@ahost);
+    SET @hostexists=(SELECT count(*) FROM `host` WHERE id=@ahost);
     IF @hostexists IS NULL OR @hostexists = 0 and @ahost is not null THEN
-	   INSERT INTO `host` (ip,fqdn) values (@ahost,inet_ntoa(@ahost));
+	   INSERT INTO `host` (fqdn,short) values (@ahost,@ahost);
     END IF;
   END IF;
 END LOOP read_loop;

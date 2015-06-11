@@ -77,7 +77,7 @@ class HostController extends Controller {
       {
         $this->redirect ( array (
             'view',
-            'id' => $model->ip 
+            'id' => $model->id 
         ) );
       }
     }
@@ -108,7 +108,7 @@ class HostController extends Controller {
       if ($model->save ())
         $this->redirect ( array (
             'view',
-            'id' => $model->ip 
+            'id' => $model->id 
         ) );
     }
     $model->ip = $model->ipoctet;

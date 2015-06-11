@@ -1,14 +1,17 @@
 ## Install Echofish On OpenBSD
 
-The following guide walks you through the installation of Echofish on OpenBSD 5.4 with syslog-ng+nginx+php_fpm.
+The following guide walks you through the installation of Echofish on 
+OpenBSD 5.4 with syslog-ng+nginx+php_fpm.
 
 ### Requirements
 
-Starting from a fresh installation of 5.4 release, Echofish has a few additional requirements:
+Starting from a fresh installation of 5.4 release, Echofish has a few
+ additional requirements:
 
 #### Packages
 
-We are going to use syslog-ng as a collector and MySQL as backend database. php-fpm will be used to run Echofish:
+We are going to use syslog-ng as a collector and MySQL as backend database. 
+php-fpm will be used to run Echofish:
 
 ```sh
 export PKG_PATH=ftp://ftp.openbsd.org/pub/OpenBSD/$(uname -r)/packages/$(uname -m)
@@ -18,7 +21,8 @@ pkg_add -vvi php-fpm.5.3.27 php-pdo_mysql-5.3.27 pecl-APC-3.1.9p3 pcre-8.33
 
 #### Echofish sources
 
-Finally, download and extract Echofish into your desired folder (the following example extracts into /var/www/htdocs)
+Finally, download and extract Echofish into your desired folder (the following 
+example extracts into /var/www/htdocs)
 
 ```sh
 ftp https://github.com/echothrust/echofish/archive/master.tar.gz
@@ -29,7 +33,9 @@ install -d -g www -o www /var/www/htdocs/echofish/assets/
 
 #### Install MySQL UDF
 
-Install [lib_mysql_udf_preg](https://github.com/mysqludf/lib_mysqludf_preg/), which is used for PCRE pattern matching, following [its guide](https://github.com/mysqludf/lib_mysqludf_preg/blob/lib_mysqludf_preg-1.2-rc2/INSTALL):
+Install [lib_mysql_udf_preg](https://github.com/mysqludf/lib_mysqludf_preg/), 
+which is used for PCRE pattern matching, following 
+[its guide](https://github.com/mysqludf/lib_mysqludf_preg/blob/lib_mysqludf_preg-1.2-rc2/INSTALL):
 
 ```
 ftp https://github.com/mysqludf/lib_mysqludf_preg/archive/lib_mysqludf_preg-1.2-rc2.tar.gz
@@ -41,11 +47,13 @@ make install
 make MYSQL="mysql -u root -p" installdb
 ```
 
-Note: The `installdb` target of make(1) may fail to load lib_mysql_udf_preg with `undefined symbol: my_thread_stack_size`. Read [Can't open shared library lib_mysqludf_preg.so](https://github.com/mysqludf/lib_mysqludf_preg/issues/13).
+Note: The `installdb` target of make(1) may fail to load lib_mysql_udf_preg 
+with `undefined symbol: my_thread_stack_size`. Read [Can't open shared library lib_mysqludf_preg.so](https://github.com/mysqludf/lib_mysqludf_preg/issues/13).
 
 #### Create and configure a database 
 
-Echofish requires MySQL's builtin scheduler to be enabled, so add `event_scheduler=ON` in the `[mysqld]` section of `/etc/my.cnf`.
+Echofish requires MySQL's builtin scheduler to be enabled, so add 
+`event_scheduler=ON` in the `[mysqld]` section of `/etc/my.cnf`.
 
 Configure MySQL to start for the first time and start the service:
 
@@ -54,10 +62,11 @@ mysql_install_db
 /etc/rc.d/mysqld -f start
 ```
 
-Run `mysql -p -u root` to connect to your mysql server as administrator and execute the following SQL (change {{{echofish-pass-here}}} as you see fit):
+Run `mysql -p -u root` to connect to your mysql server as administrator and 
+execute the following SQL (change {{{echofish-pass-here}}} as you see fit):
 
 ```sql
-CREATE DATABASE ETS_echofish
+CREATE DATABASE ETS_echofish CHARACTER SET utf8 COLLATE utf8_unicode_ci;
 GRANT ALL PRIVILEGES ON ETS_echofish.* TO 'echofish'@'127.0.0.1' IDENTIFIED BY '{{{echofish-pass-here}}}' WITH GRANT OPTION;
 FLUSH PRIVILEGES;
 ```
@@ -102,9 +111,12 @@ Edit `/var/www/htdocs/echofish/protected/config/db.php` and change the values to
 
 #### Email reporting
 
-If you intend to receive e-mail alerts about syslog events (via the abuser module), make sure Echofish is configured to send reports:
+If you intend to receive e-mail alerts about syslog events (via the abuser 
+module), make sure Echofish is configured to send reports:
 
-In order to change the default sender email address for the reports (the From field), simply edit the `/var/www/htdocs/protected/config/console.php` and change the following line (located at the end of the file):
+In order to change the default sender email address for the reports (the From 
+field), simply edit the `/var/www/htdocs/protected/config/console.php` and 
+change the following line (located at the end of the file):
 
 ```php
     'params'=>array(
@@ -112,7 +124,9 @@ In order to change the default sender email address for the reports (the From fi
     ),    
 ```
 
-You may specify a mailserver other than localhost in `/var/www/htdocs/protected/config/mail.php` (fqdn/ipaddr of your outgoing smtp in Host key):
+You may specify a mailserver other than localhost in 
+`/var/www/htdocs/protected/config/mail.php` (fqdn/ipaddr of your outgoing smtp 
+in Host key):
 
 ```php
 return array(
@@ -123,11 +137,15 @@ return array(
     'Host'=>'localhost',
 ```
 
-If you are unsure, leave 'localhost' to deliver to the local MTA. Configuring cron for report generation is outside the scope of this recipe, because report data is only produced after configuring the Abuser module. After completing setup learn more about Abuser on the module's help pages within the webui.
+If you are unsure, leave 'localhost' to deliver to the local MTA. Configuring 
+cron for report generation is outside the scope of this recipe, because report 
+data is only produced after configuring the Abuser module. After completing 
+setup learn more about Abuser on the module's help pages within the webui.
 
 ### Services
 
-This section described setting up all complementing services, such as a syslog concentrator, a web server, etc.
+This section described setting up all complementing services, such as a syslog 
+concentrator, a web server, etc.
 
 #### Configure nginx for php-fpm
 
@@ -148,7 +166,10 @@ This will configure nginx to serve PHP pages through php-fastcgi.
 
 #### Configure php date.timezone
 
-In the `[Date]` section of your `/etc/php-5.3.ini` set PHP’s date.timezone (a list of available timezone settings can be found [here](http://uk.php.net/manual/en/timezones.php)). Replace with your server's timezone:
+In the `[Date]` section of your `/etc/php-5.3.ini` set PHP’s date.timezone (a 
+list of available timezone settings can be found 
+[here](http://uk.php.net/manual/en/timezones.php)). Replace with your server's 
+timezone:
 
 ```
 date.timezone = Europe/Athens
@@ -156,7 +177,9 @@ date.timezone = Europe/Athens
 
 #### Syslog-ng configuration
 
-In order for syslog-ng to get all logs into the database tables and avoid logging erroneous entries, a certain configuration is required. Modify `/etc/syslog-ng/syslog-ng.conf` like the following:
+In order for syslog-ng to get all logs into the database tables and avoid 
+logging erroneous entries, a certain configuration is required. Modify 
+`/etc/syslog-ng/syslog-ng.conf` like the following:
 
 ```
 # make sure we only log source IPv4 address
@@ -216,7 +239,8 @@ destination d_mysql_local {
 
 #### OpenBSD service startup
 
-Now make sure the required services are started at system boot by updating the file `/etc/rc.conf.local` to include the newly installed package daemons
+Now make sure the required services are started at system boot by updating the 
+file `/etc/rc.conf.local` to include the newly installed package daemons
 
 ```sh
 syslogd_flags=NO
@@ -235,4 +259,5 @@ Start the remaining services
 
 ### Test your installation
 
-Point your browser to `http://echofish_host/echofish/` and login with uid/pwd admin/admin.
+Point your browser to `http://echofish_host/echofish/` and login with uid/pwd 
+admin/admin.

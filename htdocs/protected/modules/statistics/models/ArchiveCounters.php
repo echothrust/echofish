@@ -26,13 +26,12 @@ class ArchiveCounters extends CActiveRecord
 		// NOTE: you should only define rules for those attributes that
 		// will receive user inputs.
 		return array(
-			array('ctype, name', 'required'),
-			array('ctype', 'length', 'max'=>32),
-			array('name', 'length', 'max'=>255),
-			array('val', 'length', 'max'=>20),
-			// The following rule is used by search().
-			// @todo Please remove those attributes that should not be searched.
-			array('ctype, name, val', 'safe', 'on'=>'search'),
+				array('ctype, name', 'required'),
+				array('ctype', 'length', 'max'=>32),
+				array('name', 'length', 'max'=>255),
+				array('val', 'length', 'max'=>20),
+				// The following rule is used by search().
+				array('ctype, name, val', 'safe', 'on'=>'search'),
 		);
 	}
 
@@ -53,9 +52,9 @@ class ArchiveCounters extends CActiveRecord
 	public function attributeLabels()
 	{
 		return array(
-			'ctype' => 'Ctype',
-			'name' => 'Name',
-			'val' => 'Val',
+				'ctype' => 'Ctype',
+				'name' => 'Name',
+				'val' => 'Val',
 		);
 	}
 
@@ -82,7 +81,7 @@ class ArchiveCounters extends CActiveRecord
 		$criteria->compare('val',$this->val,true);
 
 		return new CActiveDataProvider($this, array(
-			'criteria'=>$criteria,
+				'criteria'=>$criteria,
 		));
 	}
 
@@ -101,7 +100,8 @@ class ArchiveCounters extends CActiveRecord
 		switch($this->ctype)
 		{
 			case 'host':
-				return long2ip($this->name);
+				$host=Host::model()->findByPk($this->name);
+				return $host!==null && $host->short ? $host->short : $host->fqdn;
 			default:
 				return $this->name;
 		}

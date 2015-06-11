@@ -120,7 +120,7 @@ class SyslogCountersDaily extends CActiveRecord
 			),
 
 		'todays_hosts'=>array(
-				'select'=>'ctype,inet_ntoa(name) as name,val',
+				'select'=>'ctype,(SELECT host.fqdn FROM `host` WHERE id=name) as name,val',
 				'condition'=>'ctype="host" and ts=date(now())',
 				'order'=>'name',
 			),

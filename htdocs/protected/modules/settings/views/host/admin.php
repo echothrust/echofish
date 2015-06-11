@@ -52,6 +52,7 @@ EOD
   'enableHistory'=>false,
   'filter'=>$model,
 'columns'=>array(
+		'id',
 		'ipoctet',
 		'fqdn',
 		'short',
