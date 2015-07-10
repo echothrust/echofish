@@ -110,10 +110,12 @@ class Archive extends CActiveRecord
 				),
 		);
 	}
+	
 	public function defaultScope()
 	{
 		return array(
-				'select'=>'*,inet_ntoa(host) as hostip',
+				'select'=>'t.*,inet_ntoa(host.ip) as hostip',
+				'join'=>'LEFT JOIN host ON host=host.id',
 				'order'=>'received_ts DESC',
 		);
 	}
