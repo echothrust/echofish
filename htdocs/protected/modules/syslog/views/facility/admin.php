@@ -40,7 +40,7 @@ return false;
 
 <?php $pageSize=Yii::app()->user->getState('pageSize',Yii::app()->params['defaultPageSize']); ?>
 <?php Yii::app()->clientScript->registerScript('initPageSize',<<<EOD
-    $('.change-pagesize').live('change', function() {
+    $('body').on('change','.change-pagesize', function() {
         $.fn.yiiGridView.update('facility-grid',{ data:{ pageSize: $(this).val() }})
     });
 EOD

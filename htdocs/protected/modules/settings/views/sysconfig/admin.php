@@ -32,8 +32,8 @@ or <b>=</b>) at the beginning of each of your search values to specify how the c
 
 <?php $pageSize=Yii::app()->user->getState('pageSize',Yii::app()->params['defaultPageSize']); ?>
 <?php Yii::app()->clientScript->registerScript('initPageSize',<<<EOD
-    $('.change-pagesize').live('change', function() {
-        $.fn.yiiGridView.update('sysconf-grid',{ data:{ pageSize: $(this).val() }})
+    $('body').on('change','.change-pagesize', function() {
+		$.fn.yiiGridView.update('sysconf-grid',{ data:{ pageSize: $(this).val() }})
     });
 EOD
 ,CClientScript::POS_READY); ?>
