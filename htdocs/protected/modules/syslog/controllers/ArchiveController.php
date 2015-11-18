@@ -54,7 +54,16 @@ class ArchiveController extends Controller {
   {
     // we only allow deletion via POST request
     $conn = Yii::app ()->db;
+    $mydb=Yii::app()->db->createCommand("SELECT DATABASE()")->queryScalar();
+    $AUTO_INCREMENT_NO=Yii::app()->db->createCommand()
+    						->select('AUTO_INCREMENT')
+    						->from('INFORMATION_SCHEMA.TABLES')
+    						->where('TABLE_SCHEMA=:TS AND TABLE_NAME=:TN', 
+    								 array(':TS'=>$mydb,':TN'=>'archive'))
+    						->queryScalar();
     $conn->createCommand ( 'TRUNCATE archive' )->execute ();
+    $conn->createCommand ( 'TRUNCATE archive_unparse' )->execute ();
+    $conn->createCommand ( "ALTER TABLE archive AUTO_INCREMENT=$AUTO_INCREMENT_NO")->execute();
     // if AJAX request (triggered by deletion via admin grid view), we should not redirect the browser
     if (! isset ( $_GET ['ajax'] ))
       $this->redirect ( isset ( $_POST ['returnUrl'] ) ? $_POST ['returnUrl'] : array (
