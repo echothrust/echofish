@@ -152,7 +152,6 @@ class AbuserIncident extends CActiveRecord {
                 '*' 
             ) 
         ),
-        'pagination' => $pagination 
     ) );
   }
   
