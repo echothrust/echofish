@@ -6,7 +6,7 @@
 <p class="help-block">Fields with <span class="required">*</span> are required.</p>
 
 <?php echo $form->errorSummary($model); ?>
-	<?php echo $form->textFieldRow($model,'ip',array('class'=>'span5','maxlength'=>16)); ?>
+	<?php echo $form->textFieldRow($model,'ip',array('class'=>'span5','maxlength'=>16,'value' => $model->isNewRecord ? '0.0.0.0' : null)); ?>
 	<?php echo $form->textFieldRow($model,'fqdn',array('class'=>'span5','maxlength'=>255)); ?>
 
 	<?php echo $form->textFieldRow($model,'short',array('class'=>'span5','maxlength'=>50)); ?>
