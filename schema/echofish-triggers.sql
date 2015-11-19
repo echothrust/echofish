@@ -23,7 +23,7 @@ DECLARE mts INT DEFAULT 0;
 IF NEW.host IS NOT NULL AND NEW.host != ''  THEN
       SET @hostexists=(SELECT id FROM `host` WHERE fqdn=NEW.host or short=NEW.host or ip like NEW.host or inet_ntoa(ip)=NEW.host);
       IF @hostexists IS NULL THEN
-        INSERT INTO `host` (fqdn,short) values (NEW.host,NEW.host);
+        INSERT INTO `host` (`ip`,`fqdn`,`short`) VALUES (INET_ATON(NEW.host),NEW.host,NEW.host);
         SET @hostexists=LAST_INSERT_ID();
       END IF;
       IF (SELECT count(*) FROM sysconf WHERE id="archive_activated" and val="yes")>0 AND @hostexists IS NOT NULL THEN 
