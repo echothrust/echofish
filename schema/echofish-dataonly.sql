@@ -23,7 +23,10 @@ SET time_zone = "+00:00";
 --
 -- Dumping data for table `sysconf`
 --
-insert into sysconf (id,val) VALUES ('archive_activated','yes') ON DUPLICATE KEY UPDATE val=VALUES(val);
+insert into sysconf (id,val) VALUES ('archive_activated','yes'),
+									('whitelist_archived','no') 
+							 ON DUPLICATE KEY UPDATE id=VALUES(id);
+
 --
 -- Dumping data for table `syslog_facility`
 --
