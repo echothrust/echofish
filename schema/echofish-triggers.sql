@@ -29,18 +29,17 @@ IF NEW.host IS NOT NULL AND NEW.host != ''  THEN
       IF (SELECT count(*) FROM sysconf WHERE id="archive_activated" and val="yes")>0 AND @hostexists IS NOT NULL THEN 
 	    INSERT DELAYED INTO archive (host,facility,priority,`level`,program,pid,tag,msg,received_ts,created_at) VALUES (@hostexists,NEW.facility,NEW.priority,NEW.level,NEW.program,NEW.pid,NEW.tag,NEW.msg,NEW.received_ts,sysdate());
 	  ELSEIF @hostexists IS NOT NULL THEN
-		SELECT count(*) INTO mts FROM whitelist_mem WHERE 
-	    NEW.msg LIKE whitelist_mem.pattern AND 
-	    NEW.program LIKE if(whitelist_mem.program='' or whitelist_mem.program is null,'%',whitelist_mem.program) AND 
-		NEW.facility like if(whitelist_mem.facility='' or whitelist_mem.facility is null,'%',whitelist_mem.facility) AND  
-		NEW.level like if(whitelist_mem.`level`='' or whitelist_mem.level is null,'%',whitelist_mem.`level`) AND
-	    NEW.host IN (SELECT id FROM host WHERE INET_NTOA(ip) LIKE whitelist_mem.host or fqdn LIKE whitelist_mem.host OR short LIKE whitelist_mem.host);
+	    SELECT count(*) INTO mts FROM whitelist_mem as wm WHERE 
+	    NEW.msg LIKE wm.pattern AND 
+	    NEW.program LIKE if(wm.program='' or wm.program is null,'%',wm.program) AND 
+		NEW.facility like if(wm.facility='' or wm.facility is null,'%',wm.facility) AND  
+		NEW.level like if(wm.level='' or wm.level is null,'%',wm.level) AND
+	    NEW.host LIKE if(wm.host='' OR wm.host IS NULL,'%',wm.host);
 	    IF mts=0 THEN
 	     INSERT DELAYED INTO syslog (host,facility,priority,`level`,program,pid,tag,msg,received_ts,created_at) VALUES (@hostexists,NEW.facility,NEW.priority,NEW.level,NEW.program,NEW.pid,NEW.tag,NEW.msg,NEW.received_ts,sysdate());
 	    END IF;
 	  END IF;
 END IF;
-
 END
 //
 
