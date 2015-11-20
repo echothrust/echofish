@@ -98,21 +98,22 @@ DROP TRIGGER IF EXISTS tai_archive//
 CREATE TRIGGER tai_archive AFTER INSERT ON archive FOR EACH ROW
 BEGIN
 DECLARE mts INT DEFAULT 0;
-SELECT count(*) INTO mts FROM whitelist_mem as wm WHERE 
-    NEW.msg LIKE wm.pattern AND 
-    NEW.program LIKE if(wm.program='' or wm.program is null,'%',wm.program) AND 
-    NEW.facility like if(wm.facility='' or wm.facility is null,'%',wm.facility) AND  
-    NEW.level like if(wm.`level`='' or wm.level is null,'%',wm.`level`) AND  
-    NEW.host IN (SELECT id FROM host WHERE INET_NTOA(ip) LIKE wm.host or fqdn LIKE wm.host OR short LIKE wm.host);
-    /*INET_NTOA(NEW.host) LIKE if(host='' or host is null,'%',host);*/
-    IF mts=0 THEN
-      INSERT DELAYED INTO syslog (id,host,facility,priority,`level`,program,pid,tag,msg,received_ts,created_at) VALUES (NEW.id,NEW.host,NEW.facility,NEW.priority,NEW.level,NEW.program,NEW.pid,NEW.tag,NEW.msg,NEW.received_ts,sysdate());
-    END IF;
-    INSERT INTO archive_counters (ctype,name,val) VALUES ('program',NEW.program,1) ON DUPLICATE KEY UPDATE val=val+1;
-    INSERT INTO archive_counters (ctype,name,val) VALUES ('facility',NEW.facility,1) ON DUPLICATE KEY UPDATE val=val+1;
-    INSERT INTO archive_counters (ctype,name,val) VALUES ('level',NEW.level,1) ON DUPLICATE KEY UPDATE val=val+1;
-    INSERT INTO archive_counters (ctype,name,val) VALUES ('host',NEW.host,1) ON DUPLICATE KEY UPDATE val=val+1;
-    INSERT INTO archive_unparse VALUES (NEW.id,1);
+IF (SELECT count(*) FROM sysconf WHERE (id="archive_activated" and val="yes") OR (id="whitelist_archived" and val="no"))=2 THEN
+	SELECT count(*) INTO mts FROM whitelist_mem as wm WHERE 
+    	NEW.msg LIKE wm.pattern AND 
+    	NEW.program LIKE if(wm.program='' or wm.program is null,'%',wm.program) AND 
+    	NEW.facility like if(wm.facility='' or wm.facility is null,'%',wm.facility) AND  
+    	NEW.level like if(wm.`level`='' or wm.level is null,'%',wm.`level`) AND  
+    	NEW.host IN (SELECT id FROM host WHERE INET_NTOA(ip) LIKE wm.host or fqdn LIKE wm.host OR short LIKE wm.host);
+	    IF mts=0 THEN
+	      INSERT DELAYED INTO syslog (id,host,facility,priority,`level`,program,pid,tag,msg,received_ts,created_at) VALUES (NEW.id,NEW.host,NEW.facility,NEW.priority,NEW.level,NEW.program,NEW.pid,NEW.tag,NEW.msg,NEW.received_ts,sysdate());
+	    END IF;
+	    INSERT INTO archive_counters (ctype,name,val) VALUES ('program',NEW.program,1) ON DUPLICATE KEY UPDATE val=val+1;
+	    INSERT INTO archive_counters (ctype,name,val) VALUES ('facility',NEW.facility,1) ON DUPLICATE KEY UPDATE val=val+1;
+	    INSERT INTO archive_counters (ctype,name,val) VALUES ('level',NEW.level,1) ON DUPLICATE KEY UPDATE val=val+1;
+	    INSERT INTO archive_counters (ctype,name,val) VALUES ('host',NEW.host,1) ON DUPLICATE KEY UPDATE val=val+1;
+	    INSERT INTO archive_unparse VALUES (NEW.id,1);
+END IF;
 END
 //
 
@@ -123,6 +124,15 @@ BEGIN
     INSERT INTO syslog_counters (ctype,name,val) VALUES ('facility',NEW.facility,1) ON DUPLICATE KEY UPDATE val=val+1;
     INSERT INTO syslog_counters (ctype,name,val) VALUES ('level',NEW.level,1) ON DUPLICATE KEY UPDATE val=val+1;
     INSERT INTO syslog_counters (ctype,name,val) VALUES ('host',NEW.host,1) ON DUPLICATE KEY UPDATE val=val+1;
+END
+//
+
+DROP TRIGGER IF EXISTS `tad_syslog`//
+CREATE TRIGGER `tad_syslog` AFTER DELETE ON `syslog` FOR EACH ROW 
+BEGIN
+	IF (SELECT count(*) FROM sysconf WHERE (id="archive_activated" and val="no")  OR (id="whitelist_archived" and val="yes"))=2 THEN
+ 		INSERT INTO archive (id, host, facility, priority, level, program, pid, tag, msg, received_ts, created_at) values (OLD.id, OLD.host, OLD.facility, OLD.priority, OLD.level, OLD.program, OLD.pid, OLD.tag, OLD.msg, OLD.received_ts, OLD.created_at);
+ 	END IF;
 END
 //
 
