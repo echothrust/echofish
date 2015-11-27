@@ -149,8 +149,10 @@ class Syslog extends CActiveRecord
 		$criteria=new CDbCriteria;
 		$criteria->together = true;
 		$criteria->compare('id',$this->id,true);
-		$criteria->compare('host',$this->host,true);
+		//$criteria->compare('host',$this->host,true);
 		$criteria->compare('inet_ntoa(host.ip)',$this->hostip,true,'OR');
+		if(ip2long($this->hostip)!==false)
+			$criteria->compare('host.ip',ip2long($this->hostip),false,'OR');
 		$criteria->compare('host.fqdn',$this->hostip,true,'OR');
 		$criteria->compare('host.short',$this->hostip,true,'OR');
 		$criteria->compare('facility',$this->facility);
