@@ -147,6 +147,7 @@ class Syslog extends CActiveRecord
 		// should not be searched.
 
 		$criteria=new CDbCriteria;
+		$criteria->together = true;
 		$criteria->compare('id',$this->id,true);
 		$criteria->compare('host',$this->host,true);
 		$criteria->compare('inet_ntoa(host.ip)',$this->hostip,true);
@@ -159,15 +160,17 @@ class Syslog extends CActiveRecord
 		$criteria->compare('msg',$this->msg,true);
 		$criteria->compare('received_ts',$this->received_ts,true);
 		$criteria->compare('created_at',$this->created_at,true);
-		
 		if(Yii::app()->user->getState('pageSize',Yii::app()->params['defaultPageSize'])==0)
 			$pagination=false;
 		else
 			$pagination=array('pageSize'=>Yii::app()->user->getState('pageSize',Yii::app()->params['defaultPageSize']));
 
 		if($this->acknowledge!==false)
-		{
-			Syslog::model()->deleteAll($criteria->condition,$criteria->params);
+		{	
+			$cmd = Yii::app()->db->createCommand("DELETE syslog.* FROM syslog LEFT JOIN host ON host.id=syslog.host WHERE ".$criteria->condition);
+			foreach($criteria->params as $key=>$val) $cmd->bindParam($key,$val);
+			$cmd->execute();
+//			Syslog::model()->deleteAll($criteria->condition,$criteria->params);
 			$this->unsetAttributes();
 			return new CActiveDataProvider($this, array(
 					'sort'=>array(
