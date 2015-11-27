@@ -149,8 +149,28 @@ class Archive extends CActiveRecord
 
 		$criteria=new CDbCriteria;
 		$criteria->compare('id',$this->id,true);
-		$criteria->compare('host',$this->host,true);
-		$criteria->compare('inet_ntoa(host.ip)',$this->hostip,true);
+			//$criteria->compare('host',$this->host,true);
+		$withmask=explode('/',$this->hostip);
+		$ip=Host::strip_comparison($withmask[0]);
+		$cmp=Host::get_comparison($withmask[0]);
+		if(isset($withmask[1]))
+		{
+			$netmask=Host::netmask($withmask[1]);
+			if($netmask!==false)
+			{
+				$network=ip2long($ip) & ip2long($netmask);
+				$criteria->compare("host.ip & inet_aton('$netmask')",$network);
+				$criteria->compare('host.ip',$cmp.ip2long($ip),true);
+			}
+		} 
+		else
+		{ 
+			$criteria->compare('inet_ntoa(host.ip)',$ip,true,'OR');
+			if(ip2long($this->hostip)!==false)
+				$criteria->compare('host.ip',ip2long($ip),false,'OR');
+			$criteria->compare('host.fqdn',$this->hostip,true,'OR');
+			$criteria->compare('host.short',$this->hostip,true,'OR');
+		}
 		$criteria->compare('facility',$this->facility);
 		$criteria->compare('priority',$this->priority);
 		$criteria->compare('level',$this->level);

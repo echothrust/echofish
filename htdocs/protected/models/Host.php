@@ -175,4 +175,32 @@ class Host extends CActiveRecord
 		}
 		return parent::beforeSave();
 	}
+	public static function netmask($cidr=0)
+	{
+		$parts=explode('.',$cidr);
+		if($parts[0]==$cidr && intval($cidr)>0 && intval($cidr)<=32)
+			return long2ip(pow(2, 32) - pow(2, (32 - intval($cidr))));
+		if(count($parts)==4)
+			return $cidr;
+		return false;
+	}
+	
+	public static function strip_comparison($string)
+	{
+		$rep=array('<','>','=');
+		return str_replace($rep,'',$string);
+	}
+	
+	public static function get_comparison($string)
+	{
+		$ret="";
+	
+		for($i=0;$i<strlen($string);$i++)
+			if( $string{$i}!='=' && $string{$i}!='<' && $string{$i}!='>')
+			break;
+			if(strlen(trim($string))==0 || $i==strlen($string))
+				return "";
+				return substr($string, 0,$i);
+	}
+	
 }
