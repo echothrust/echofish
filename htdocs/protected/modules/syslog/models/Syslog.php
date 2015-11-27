@@ -151,6 +151,8 @@ class Syslog extends CActiveRecord
 		$criteria->compare('id',$this->id,true);
 		$criteria->compare('host',$this->host,true);
 		$criteria->compare('inet_ntoa(host.ip)',$this->hostip,true);
+		$criteria->compare('host.fqdn',$this->hostip,true);
+		$criteria->compare('host.short',$this->hostip,true);
 		$criteria->compare('facility',$this->facility);
 		$criteria->compare('priority',$this->priority);
 		$criteria->compare('level',$this->level);
