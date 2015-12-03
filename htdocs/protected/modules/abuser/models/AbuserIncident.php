@@ -119,7 +119,26 @@ class AbuserIncident extends CActiveRecord {
     $criteria = new CDbCriteria ();
     
     $criteria->compare ( 'id', $this->id, true );
-    $criteria->compare ( 'ip', $this->ip, true );
+    //$criteria->compare ( 'ip', $this->ip, true );
+    $withmask=explode('/',$this->ipstr);
+    $ipaddr=Host::strip_comparison($withmask[0]);
+    $cmp=Host::get_comparison($withmask[0]);
+    if(isset($withmask[1]))
+    {
+       $netmask=Host::netmask($withmask[1]);
+       if($netmask!==false)
+       {
+          $network=ip2long($ipaddr) & ip2long($netmask);
+          $criteria->compare("ip & inet_aton('$netmask')",$network);
+          $criteria->compare('ip',$cmp.ip2long($ipaddr));
+       }
+    }
+    else
+    {
+       $criteria->compare('inet_ntoa(ip)',$ipaddr,true);
+       if(ip2long($this->ip)!==false)
+          $criteria->compare('ip',ip2long($ipaddr),false,'OR');
+    }
     $criteria->compare ( 'trigger_id', $this->trigger_id, true );
     $criteria->compare ( 'counter', $this->counter, true );
     $criteria->compare ( 'inet_ntoa(ip)', $this->ipstr, true );

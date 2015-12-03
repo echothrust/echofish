@@ -81,7 +81,26 @@ class Host extends CActiveRecord
 
 		$criteria->compare('id',$this->id,true);
 		$criteria->compare('ip',$this->ip,true);
-		$criteria->compare('inet_ntoa(ip)',$this->ipoctet,true);
+		//$criteria->compare('inet_ntoa(ip)',$this->ipoctet,true);
+		$withmask=explode('/',$this->ipoctet);
+		$ip=self::strip_comparison($withmask[0]);
+		$cmp=self::get_comparison($withmask[0]);
+		if(isset($withmask[1]))
+		{
+			$netmask=Host::netmask($withmask[1]);
+			if($netmask!==false)
+			{
+				$network=ip2long($ip) & ip2long($netmask);
+				$criteria->compare("ip & inet_aton('$netmask')",$network);
+				$criteria->compare('ip',$cmp.ip2long($ip));
+			}
+		}
+		else
+		{
+			$criteria->compare('inet_ntoa(ip)',$ip,true);
+			if(ip2long($this->ipoctet)!==false)
+				$criteria->compare('ip',ip2long($ip),false,'OR');
+		}
 		$criteria->compare('fqdn',$this->fqdn,true);
 		$criteria->compare('short',$this->short,true);
 		$criteria->compare('description',$this->description,true);
