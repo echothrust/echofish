@@ -71,4 +71,4 @@ END IF;
 END
 //
 
-ALTER EVENT e_rotate_archive DISABLE//
+
