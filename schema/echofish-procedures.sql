@@ -159,3 +159,40 @@ SELECT id,pattern,grouping,capture INTO mts,@pattern,@grouping,Ccapture FROM abu
 END;//
 
 
+/*
+ * Procedure to process old archive log entries and delete them
+ */
+DROP PROCEDURE IF EXISTS eproc_rotate_archive//
+CREATE PROCEDURE eproc_rotate_archive()
+BEGIN
+  DROP TABLE IF EXISTS archive_ids;
+  SET @archive_days=IFNULL((SELECT val FROM sysconf WHERE id='archive_delete_days'),7);
+  SET @archive_limit=IFNULL((SELECT val FROM sysconf WHERE id='archive_delete_limit'),0);
+  SET @use_mem=IFNULL((SELECT val FROM sysconf WHERE id='archive_delete_use_mem'),'no');
+  IF @archive_days>0 THEN
+	IF @use_mem != 'yes' THEN
+  	  CREATE TEMPORARY TABLE IF NOT EXISTS archive_ids (id BIGINT UNSIGNED NOT NULL PRIMARY KEY);
+  	ELSE
+  	  CREATE TEMPORARY TABLE IF NOT EXISTS archive_ids (id BIGINT UNSIGNED NOT NULL PRIMARY KEY) ENGINE=MEMORY;
+	END IF;
+	
+	SET SESSION TRANSACTION ISOLATION LEVEL READ UNCOMMITTED;
+	START TRANSACTION;
+	IF @archive_limit > 0 THEN
+    	PREPARE choose_archive_ids FROM 'INSERT INTO archive_ids SELECT id FROM `archive` WHERE received_ts < NOW() - INTERVAL ? DAY LIMIT ?';
+	   	EXECUTE choose_archive_ids USING @archive_days, @archive_limit;
+    ELSE
+    	PREPARE choose_archive_ids FROM 'INSERT INTO archive_ids SELECT id FROM `archive` WHERE received_ts < NOW() - INTERVAL ? DAY';
+	   	EXECUTE choose_archive_ids USING @archive_days;
+	END IF;
+	DEALLOCATE PREPARE choose_archive_ids;
+	-- Ignore ID's from entries that exist on archive_unparse
+	DELETE t1.* FROM archive_ids as t1 LEFT JOIN archive_unparse AS t2 ON t1.id=t2.id WHERE t2.id IS NOT NULL;
+	-- Ignore ID's from entries that exist on syslog
+	DELETE t1.* FROM archive_ids as t1 LEFT JOIN syslog AS t2 ON t1.id=t2.id WHERE t2.id IS NOT NULL;
+	-- Ignore ID's from entries that exist on abuser_evidense
+	DELETE t1.* FROM archive_ids as t1 LEFT JOIN abuser_evidence AS t2 ON t1.id=t2.archive_id WHERE t2.archive_id IS NOT NULL;
+	DELETE t1.* FROM `archive` AS t1 LEFT JOIN archive_ids AS t2 ON t1.id=t2.id WHERE t2.id IS NOT NULL;
+	COMMIT;
+  END IF;
+END;//
