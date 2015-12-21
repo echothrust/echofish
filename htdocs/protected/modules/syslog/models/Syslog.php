@@ -187,7 +187,10 @@ class Syslog extends CActiveRecord
 
 		if($this->acknowledge!==false)
 		{	
-			$cmd = Yii::app()->db->createCommand("DELETE syslog.* FROM syslog LEFT JOIN host ON host.id=syslog.host WHERE ".$criteria->condition);
+			if($criteria->condition!="")
+				$cmd = Yii::app()->db->createCommand("DELETE syslog.* FROM syslog LEFT JOIN host ON host.id=syslog.host WHERE ".$criteria->condition);
+			else
+				$cmd = Yii::app()->db->createCommand("DELETE syslog.* FROM syslog");
 			foreach($criteria->params as $key=>$val) $cmd->bindParam($key,$val);
 			$cmd->execute();
 //			Syslog::model()->deleteAll($criteria->condition,$criteria->params);
