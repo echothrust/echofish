@@ -20,7 +20,7 @@ reasonably recent versions too).
 
 #### 1.2.1 - MySQL User Defined Functions
 
-Echofish is dependent on [lib_mysql_udf_preg](https://github.com/mysqludf/lib_mysqludf_preg/) for PCRE pattern matching.
+Echofish is dependent on [lib_mysql_udf_preg](https://github.com/mysqludf/lib_mysqludf_preg/) OR MariaDB 10.0.5+ for PCRE pattern matching.
 
 ### 1.3 - Syslog
 
@@ -56,9 +56,21 @@ cd echofish/
 mysql -u root -p ETS_echofish < schema/00_echofish-schema.sql
 mysql -u root -p ETS_echofish < schema/echofish-dataonly.sql
 mysql -u root -p ETS_echofish < schema/echofish-functions.sql
-mysql -u root -p ETS_echofish < schema/echofish-procedures.sql
 mysql -u root -p ETS_echofish < schema/echofish-triggers.sql
 mysql -u root -p ETS_echofish < schema/echofish-events.sql
+```
+Import the appropriate procedures for your database server
+
+MySQL with udf_preg
+
+```sh
+mysql -u root -p ETS_echofish < schema/echofish-procedures.sql
+```
+
+MariaDB 10.0.5+
+
+```sh
+mysql -u root -p ETS_echofish < schema/echofish-procedures.mariadb10.sql
 ```
 
 For events to run, make sure you set `event_scheduler=on` somewhere under the 
