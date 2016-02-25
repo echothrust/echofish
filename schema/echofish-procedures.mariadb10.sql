@@ -47,13 +47,14 @@ END;
 DROP PROCEDURE IF EXISTS extract_ipaddr//
 CREATE PROCEDURE extract_ipaddr(IN msg VARCHAR(5000))
 BEGIN
-DECLARE matching INT default 1;
-DECLARE ipaddr VARCHAR(255);
-SET ipaddr=(SELECT REGEXP_SUBSTR(msg, '/(([0-9]+)(?:\.[0-9]+){3})/'));
-tfer_loop:WHILE (ipaddr IS NOT NULL and length(ipaddr)>0 ) DO
-	SELECT ipaddr;
-	set matching=matching+1;
-	SET ipaddr=(SELECT REGEXP_SUBSTR(msg, '/(([0-9]+)(?:\.[0-9]+){3})/'));
+    DECLARE matching INT default 1;
+    DECLARE ipaddr VARCHAR(255);
+    SET ipaddr=(SELECT REGEXP_SUBSTR(msg, '\\d{1,3}(?:\.\\d{1,3}){3}'));
+    tfer_loop:WHILE ( ipaddr IS NOT NULL and length(ipaddr)>0 ) DO
+    SELECT ipaddr;
+    SET matching=matching+1;
+    SET msg=(SELECT REPLACE( msg, @ipaddr, '' ));
+    SET ipaddr=(SELECT REGEXP_SUBSTR(msg, '?:\\d{1,3}(?:\.\\d{1,3}){3})'));
 END WHILE tfer_loop;
 END;
 //
@@ -139,23 +140,32 @@ END;
 DROP PROCEDURE IF EXISTS abuser_parser//
 CREATE PROCEDURE abuser_parser(IN aid BIGINT UNSIGNED,IN ahost BIGINT UNSIGNED,IN aprogram VARCHAR(255),IN afacility INT,in alevel INT,IN apid BIGINT,in amsg TEXT,in areceived_ts TIMESTAMP)
 BEGIN
-DECLARE done,mts,Ccapture INT DEFAULT 0; 
-DECLARE CONTINUE HANDLER FOR NOT FOUND SET done = -1;
+    DECLARE done,mts,Ccapture INT DEFAULT 0;
+    DECLARE CONTINUE HANDLER FOR NOT FOUND SET done = -1;
 
-SELECT id,pattern,grouping,capture INTO mts,@pattern,@grouping,Ccapture FROM abuser_trigger WHERE 
+    SELECT id,pattern,grouping,capture INTO mts,@pattern,@grouping,Ccapture FROM abuser_trigger WHERE
     amsg LIKE msg AND 
     aprogram LIKE if(program='' or program is null,'%',program) AND 
     afacility like if(facility<0,'%',facility) AND  
     alevel like if(`severity`<0,'%',`severity`) and active=1
     LIMIT 1;
-  IF mts>0 AND Ccapture IS NOT NULL AND INET_ATON(REGEXP_REPLACE(amsg,@pattern,CONCAT('\\' COLLATE utf8_general_ci,@grouping))) IS NOT NULL THEN
-  INSERT INTO abuser_incident (ip,trigger_id,counter,first_occurrence,last_occurrence) 
-    VALUES (INET_ATON(REGEXP_REPLACE(amsg,@pattern,CONCAT('\\' COLLATE utf8_general_ci,@grouping))),
-      mts,1,areceived_ts,areceived_ts)
-    ON DUPLICATE KEY UPDATE counter=counter+1,last_occurrence=areceived_ts;
-    SELECT id INTO @incident_id FROM abuser_incident WHERE ip=INET_ATON(REGEXP_REPLACE(amsg,@pattern,CONCAT('\\' COLLATE utf8_general_ci,@grouping))) AND trigger_id=mts;
-    CALL abuser_log_evidence(@incident_id,aid);
-  END IF;
+
+    SET @grouping = (CONVERT(CONCAT('\\',@grouping) USING utf8) COLLATE utf8_unicode_ci);
+    IF @pattern REGEXP '^\\^' != '1' THEN
+        SET @pattern = (CONCAT('^.*',@pattern));
+    END IF;
+    if @pattern REGEXP '\\$$' != '1' THEN
+        SET @pattern = (CONCAT(@pattern,'.*$'));
+    END IF;
+
+    IF mts>0 AND Ccapture IS NOT NULL AND INET_ATON(REGEXP_REPLACE(amsg,@pattern,@grouping)) IS NOT NULL THEN
+        INSERT INTO abuser_incident (ip,trigger_id,counter,first_occurrence,last_occurrence)
+        VALUES (INET_ATON(REGEXP_REPLACE(amsg,@pattern,@grouping)),
+            mts,1,areceived_ts,areceived_ts)
+        ON DUPLICATE KEY UPDATE counter=counter+1,last_occurrence=areceived_ts;
+        SELECT id INTO @incident_id FROM abuser_incident WHERE ip=INET_ATON(REGEXP_REPLACE(amsg,@pattern,@grouping)) AND trigger_id=mts;
+        CALL abuser_log_evidence(@incident_id,aid);
+    END IF;
 END;//
 
 
