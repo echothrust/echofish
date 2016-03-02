@@ -382,9 +382,10 @@ CREATE TABLE `host` (
 	id int unsigned primary key auto_increment,
 	ip int unsigned default 0,
 	fqdn varchar(255) NOT NULL,
-	short varchar(50) unique,
+	short varchar(50),
 	description text,
-	unique key `host_details` (fqdn,short,ip)
+	KEY (`short`),
+	UNIQUE KEY `host_details` (`short`,`fqdn`,`ip`)
 ) ENGINE=InnoDB CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
 DROP TABLE IF EXISTS `trail`;
