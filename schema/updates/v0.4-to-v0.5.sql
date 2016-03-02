@@ -15,8 +15,9 @@ ALTER TABLE `syslog` CHANGE `host` `host` INT UNSIGNED NOT NULL ;
 
 ALTER TABLE `host` DROP PRIMARY KEY;
 ALTER TABLE `host` ADD `id` INT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY FIRST ;
-ALTER TABLE `host` ADD UNIQUE ( `short` );
-ALTER TABLE `host` ADD UNIQUE key `host_details` (`fqdn`,`short`,`ip`);
+DROP INDEX `short` ON `host`; /* This is meant for the unique index */
+CREATE INDEX `short` on `host`(`short`);
+CREATE UNIQUE INDEX `host_details` ON `host`(`fqdn`,`short`,`ip`);
 
 UPDATE `syslog` as t1 LEFT JOIN host as t2 ON t1.host=t2.ip SET t1.host=t2.id; 
 UPDATE `archive` as t1 LEFT JOIN host as t2 ON t1.host=t2.ip SET t1.host=t2.id; 
