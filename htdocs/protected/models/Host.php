@@ -185,15 +185,19 @@ class Host extends CActiveRecord
 		}
 	}
 
+	
 	public function beforeSave()
 	{
 		if($this->isNewRecord || $this->ipoctet===NULL || (ip2long($this->ipoctet)!==false && $this->ip!=ip2long($this->ipoctet)))
 		{
-			//if(ip2long($this->ipoctet)!==false && ip2long($this->ipoctet)!=0 && $this->ip==0)
-				$this->ip=ip2long($this->ip);
+			$this->ip=ip2long($this->ip);
 		}
 		return parent::beforeSave();
 	}
+
+	/**
+	 * convert bit masks into cidr notation netmask 
+	 */
 	public static function netmask($cidr=0)
 	{
 		$parts=explode('.',$cidr);
@@ -204,22 +208,33 @@ class Host extends CActiveRecord
 		return false;
 	}
 	
+	/** 
+	 * strip any comparison symbols (such as <,>,=)
+	 * and return the $string without it. 
+	 */
 	public static function strip_comparison($string)
 	{
 		$rep=array('<','>','=');
 		return str_replace($rep,'',$string);
 	}
-	
+
+	/**
+	 * returns the comparison symbols from the string.
+	 * $string comes from the search filters of the admin views.
+	 * This function grabs the >,<,= and combinations such as <=,>=
+	 */
 	public static function get_comparison($string)
 	{
 		$ret="";
 	
 		for($i=0;$i<strlen($string);$i++)
 			if( $string{$i}!='=' && $string{$i}!='<' && $string{$i}!='>')
-			break;
-			if(strlen(trim($string))==0 || $i==strlen($string))
-				return "";
-				return substr($string, 0,$i);
+				break;
+		
+		if(strlen(trim($string))==0 || $i==strlen($string))
+			return "";
+
+		return substr($string, 0,$i);
 	}
 	
 }
