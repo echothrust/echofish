@@ -133,8 +133,14 @@ switch($section)
 	</div>
     <p class="lead">Your system configuration panel.</p>
     <p>The System Configuration option allows you to configure aspects of your Echofish installation through internal knobs. These key-value pairs are best left alone.</p>
-    <p>The only key currently in place is <code>archive_activated</code></p>, which is there only for testing purposes, controls whether you want to keep an archive of all logs or rather send them to /dev/null once they are (auto-)acknowledged. Disabling the archive is untested and therefore not advised.</p>
-    
+    <ul>
+       <li><code>archive_activated</code> (default:'yes') allows to control different operation modes for the archive ('yes','no'). Using 'no', which disables the archive altogether, may limit functionality of other modules that operate on the `archive` table of mysql (e.g. abuser module)</li>
+       <li><code>whitelist_archived</code> (default:'no') You may wish to set this value to 'yes', but <b>only</b> when <code>archive_activated</code> is set to 'no'; with a disabled archive, the table can be used to store all deleted/acknowledged events from the syslog table</li>
+       <li><code>archive_rotate</code> (default:'yes') Trim entries older than <code>archive_delete_days</code> days</li>
+       <li><code>archive_delete_days</code> (default:7) How many days of archive logs to keep (when <code>archive_rotate</code> is set 'yes'); older entries will be trimmed from the archive table during rotation</li>
+       <li><code>archive_delete_use_mem</code> (default:'no') Set this value to 'yes' to use ENGINE=memory for intermediate temporary table that is created during rotation (when <code>archive_rotate</code> is set 'yes')</li>
+       <li><code>archive_delete_limit</code> (default:0) Setting a value here will set a maximum limit on the number of entries than can be trimmed during rotation</li>
+    </ul>
     
 </section>
 
