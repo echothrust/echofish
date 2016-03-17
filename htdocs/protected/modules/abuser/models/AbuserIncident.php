@@ -135,9 +135,9 @@ class AbuserIncident extends CActiveRecord {
     }
     else
     {
-       $criteria->compare('inet_ntoa(ip)',$ipaddr,true);
-       if(ip2long($this->ip)!==false)
-          $criteria->compare('ip',ip2long($ipaddr),false,'OR');
+       $criteria->compare('INET6_NTOA(ip)',$ipaddr,true);
+	   if(filter_var($this->ip, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4))
+          $criteria->compare('INET6_NTOA(ip)',$ipaddr,false,'OR');
     }
     $criteria->compare ( 'trigger_id', $this->trigger_id, true );
     $criteria->compare ( 'counter', $this->counter, true );
@@ -162,7 +162,7 @@ class AbuserIncident extends CActiveRecord {
         'criteria' => $criteria,
         'pagination' => $pagination,
         'sort' => array (
-            'defaultOrder' => 'counter DESC, last_occurrence DESC',
+            'defaultOrder' => 'last_occurrence DESC',
             'attributes' => array (
                 'ipstr' => array (
                     'asc' => 'INET6_NTOA(ip)',
