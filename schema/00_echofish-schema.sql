@@ -366,7 +366,7 @@ CREATE TABLE IF NOT EXISTS `abuser_evidence` (
 DROP TABLE IF EXISTS abuser_incident;
 CREATE TABLE IF NOT EXISTS `abuser_incident` (
   `id` bigint(20) NOT NULL AUTO_INCREMENT,
-  `ip` int(10) unsigned NOT NULL,
+  `ip` varbinary(16)  NOT NULL,
   `trigger_id` bigint(20) DEFAULT NULL,
   `counter` bigint(20) DEFAULT NULL,
   `first_occurrence` datetime DEFAULT NULL,

@@ -22,9 +22,9 @@ CREATE TRIGGER `tai_archive_bh` AFTER INSERT ON `archive_bh` FOR EACH ROW
 BEGIN 
 DECLARE mts INT DEFAULT 0;
 IF NEW.host IS NOT NULL AND NEW.host != ''  THEN
-      SET @hostexists=(SELECT id FROM `host` WHERE fqdn=NEW.host or short=NEW.host or ip like NEW.host or inet_ntoa(ip)=NEW.host);
+      SET @hostexists=(SELECT id FROM `host` WHERE fqdn=NEW.host or short=NEW.host or ip like NEW.host or INET6_NTOA(ip)=NEW.host);
       IF @hostexists IS NULL THEN
-        INSERT INTO `host` (`ip`,`fqdn`,`short`) VALUES (INET_ATON(NEW.host),NEW.host,NEW.host);
+        INSERT INTO `host` (`ip`,`fqdn`,`short`) VALUES (INET6_ATON(NEW.host),NEW.host,NEW.host);
         SET @hostexists=LAST_INSERT_ID();
       END IF;
       IF (SELECT count(*) FROM sysconf WHERE id="archive_activated" and val="yes")>0 AND @hostexists IS NOT NULL THEN 
@@ -59,7 +59,7 @@ DELETE FROM syslog WHERE
     program LIKE if(NEW.program='' or NEW.program is null,'%',NEW.program) AND 
     facility like if(NEW.facility='' or NEW.facility IS NULL,'%',NEW.facility) AND  
     `level` like if(NEW.level='' or NEW.level IS NULL,'%',NEW.level) AND  
-    (host in (SELECT id FROM host WHERE INET_NTOA(ip) like NEW.host or fqdn like NEW.host or short like NEW.host)); 
+    (host in (SELECT id FROM host WHERE INET6_NTOA(ip) like NEW.host or fqdn like NEW.host or short like NEW.host)); 
     /*LIKE if(NEW.host='' OR NEW.host IS NULL,'%',NEW.host);*/
 END
 //
@@ -78,7 +78,7 @@ DELETE FROM syslog WHERE
     program LIKE if(NEW.program='' or NEW.program is null,'%',NEW.program) AND 
     facility like if(NEW.facility='' or NEW.facility IS NULL,'%',NEW.facility) AND  
     `level` like if(NEW.level='' or NEW.level IS NULL,'%',NEW.level) AND  
-    (host in (SELECT id FROM host WHERE INET_NTOA(ip) like NEW.host or fqdn like NEW.host or short like NEW.host));
+    (host in (SELECT id FROM host WHERE INET6_NTOA(ip) like NEW.host or fqdn like NEW.host or short like NEW.host));
     /* INET_NTOA(host) LIKE if(NEW.host='' OR NEW.host IS NULL,'%',NEW.host);*/
 END
 //
@@ -105,7 +105,7 @@ IF (SELECT count(*) FROM sysconf WHERE (id="archive_activated" and val="yes") OR
     	NEW.program LIKE if(wm.program='' or wm.program is null,'%',wm.program) AND 
     	NEW.facility like if(wm.facility='' or wm.facility is null,'%',wm.facility) AND  
     	NEW.level like if(wm.`level`='' or wm.level is null,'%',wm.`level`) AND  
-    	NEW.host IN (SELECT id FROM host WHERE INET_NTOA(ip) LIKE wm.host or fqdn LIKE wm.host OR short LIKE wm.host);
+    	NEW.host IN (SELECT id FROM host WHERE INET6_NTOA(ip) LIKE wm.host or fqdn LIKE wm.host OR short LIKE wm.host);
 	    IF mts=0 THEN
 	      INSERT DELAYED INTO syslog (id,host,facility,priority,`level`,program,pid,tag,msg,received_ts,created_at) VALUES (NEW.id,NEW.host,NEW.facility,NEW.priority,NEW.level,NEW.program,NEW.pid,NEW.tag,NEW.msg,NEW.received_ts,sysdate());
 	    END IF;
