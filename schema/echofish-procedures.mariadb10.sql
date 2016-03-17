@@ -150,12 +150,21 @@ BEGIN
     afacility like if(facility<0,'%',facility) AND  
     alevel like if(`severity`<0,'%',`severity`) and active=1
     LIMIT 1;
-    IF mts>0 AND Ccapture IS NOT NULL AND INET_ATON(REGEXP_REPLACE(amsg,@pattern,"")) IS NOT NULL THEN
+
+    SET @grouping = (CONVERT(CONCAT('\\',@grouping) USING utf8) COLLATE utf8_unicode_ci);
+    IF @pattern REGEXP '^\\^' != '1' THEN
+        SET @pattern = (CONCAT('^.*',@pattern));
+    END IF;
+    if @pattern REGEXP '\\$$' != '1' THEN
+        SET @pattern = (CONCAT(@pattern,'.*$'));
+    END IF;
+
+    IF mts>0 AND Ccapture IS NOT NULL AND INET6_ATON(REGEXP_REPLACE(amsg,@pattern,@grouping)) IS NOT NULL THEN
         INSERT INTO abuser_incident (ip,trigger_id,counter,first_occurrence,last_occurrence)
-        VALUES (INET_ATON(REGEXP_REPLACE(amsg,@pattern,"")),
+        VALUES (INET6_ATON(REGEXP_REPLACE(amsg,@pattern,@grouping)),
             mts,1,areceived_ts,areceived_ts)
         ON DUPLICATE KEY UPDATE counter=counter+1,last_occurrence=areceived_ts;
-        SELECT id INTO @incident_id FROM abuser_incident WHERE ip=INET_ATON(REGEXP_REPLACE(amsg,@pattern,"")) AND trigger_id=mts;
+        SELECT id INTO @incident_id FROM abuser_incident WHERE ip=INET6_ATON(REGEXP_REPLACE(amsg,@pattern,@grouping)) AND trigger_id=mts;
         CALL abuser_log_evidence(@incident_id,aid);
     END IF;
 END;//
