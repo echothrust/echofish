@@ -28,7 +28,7 @@ class Host extends CActiveRecord
 	{
 		return array(
 				array('ip, fqdn', 'required'),
-				array('ip', 'length', 'max'=>16),
+				array('ip', 'length', 'max'=>40),
 				array('fqdn', 'length', 'max'=>255),
 				array('short', 'length', 'max'=>50),
 				array('description', 'safe'),
@@ -97,9 +97,9 @@ class Host extends CActiveRecord
 		}
 		else
 		{
-			$criteria->compare('inet_ntoa(ip)',$ip,true);
+			$criteria->compare('INET6_NTOA(ip)',$ip,true);
 			if(ip2long($this->ipoctet)!==false)
-				$criteria->compare('ip',ip2long($ip),false,'OR');
+				$criteria->compare('INET6_NTOA(ip)',$ip,false,'OR');
 		}
 		$criteria->compare('fqdn',$this->fqdn,true);
 		$criteria->compare('short',$this->short,true);
@@ -117,8 +117,8 @@ class Host extends CActiveRecord
 				'sort' => array (
 						'attributes' => array (
 								'ipoctet' => array (
-										'asc' => 'inet_ntoa(ip)',
-										'desc' => 'inet_ntoa(ip) DESC'
+										'asc' => 'INET6_NTOA(ip)',
+										'desc' => 'INET6_NTOA(ip) DESC'
 								),
 								'*'
 						)
@@ -141,7 +141,7 @@ class Host extends CActiveRecord
 	public function defaultScope()
 	{
 		return array(
-				'select'=>'*,inet_ntoa(ip) as ipoctet',
+				'select'=>'*,INET6_NTOA(ip) as ipoctet',
 		);
 	}
 
@@ -162,7 +162,11 @@ class Host extends CActiveRecord
 	 */
 	public function resolve()
 	{
-		if($this->ip!==0 && $this->ip!==NULL && gethostbyaddr($this->ipoctet)!==$this->ipoctet && gethostbyaddr($this->ipoctet)!==false)
+
+		if($this->ip!==0 && $this->ip!==NULL && 
+			filter_var($this->ipoctet, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4) && 
+			gethostbyaddr($this->ipoctet)!==$this->ipoctet && 
+			gethostbyaddr($this->ipoctet)!==false)
 		{
 			$this->fqdn=gethostbyaddr($this->ipoctet);
 			if($this->fqdn!==false && $this->fqdn!==$this->ipoctet)
@@ -175,7 +179,7 @@ class Host extends CActiveRecord
 		elseif($this->fqdn!='' && gethostbyname($this->fqdn)!==$this->fqdn)
 		{
 			$this->ipoctet=gethostbyname($this->fqdn);
-			$this->ip=ip2long($this->ipoctet);
+			$this->ip=Yii::app()->db->createCommand('SELECT INET6_ATON(:ip)')->queryScalar(array('ip'=>$this->ipoctet));
 			if($this->ip!==false && $this->fqdn!==$this->ip)
 			{
 				if(explode('.',$this->fqdn)!=array())
@@ -188,9 +192,10 @@ class Host extends CActiveRecord
 	
 	public function beforeSave()
 	{
-		if($this->isNewRecord || $this->ipoctet===NULL || (ip2long($this->ipoctet)!==false && $this->ip!=ip2long($this->ipoctet)))
+		$binIP=Yii::app()->db->createCommand('SELECT INET6_ATON(:ip)')->queryScalar(array('ip'=>$this->ipoctet));
+		if($this->isNewRecord || $this->ipoctet===NULL || $this->ip!=$binIP)
 		{
-			$this->ip=ip2long($this->ip);
+			$this->ip=Yii::app()->db->createCommand('SELECT INET6_ATON(:ip)')->queryScalar(array('ip'=>$this->ip));
 		}
 		return parent::beforeSave();
 	}

@@ -9,6 +9,7 @@
 
 SET SQL_MODE="NO_AUTO_VALUE_ON_ZERO";
 SET time_zone = "+00:00";
+SET NAMES utf8 COLLATE 'utf8_unicode_ci';
 
 
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
@@ -80,8 +81,7 @@ INSERT INTO `syslog_severity` (`name`, `description`, `num`) VALUES
 --
 
 INSERT INTO `user` (`id`, `username`, `firstname`, `lastname`, `password`, `email`, `activkey`, `created_at`, `lastvisit_at`, `superuser`, `status`, `level`) VALUES
-(1, 'admin', '', '', md5('admin'), 'noc@echothrust.net', '138df2b208e7fa01f9584e0cd50d3575', '2012-11-05 14:06:25', '2012-11-06 12:35:59', 1, 1, 0),
-(2, 'demo', '', '', md5('demo'), 'demo@example.com', '099f825543f7850cc038b90aaff39fac', '2012-11-05 14:06:25', '0000-00-00 00:00:00', 0, 1, 0);
+(1, 'admin', '', '', md5('admin'), 'noc@echothrust.net', '138df2b208e7fa01f9584e0cd50d3575', '2012-11-05 14:06:25', '2012-11-06 12:35:59', 1, 1, 0);
 
 INSERT INTO message_parser (ptype,name) value ("any","abuser_parser");
 

@@ -3,6 +3,7 @@
 SET FOREIGN_KEY_CHECKS=0;
 SET SQL_MODE="NO_AUTO_VALUE_ON_ZERO";
 SET time_zone = "+00:00";
+SET NAMES utf8 COLLATE 'utf8_unicode_ci';
 
 
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
@@ -158,12 +159,12 @@ BEGIN
         SET @pattern = (CONCAT(@pattern,'.*$'));
     END IF;
 
-    IF mts>0 AND Ccapture IS NOT NULL AND INET_ATON(REGEXP_REPLACE(amsg,@pattern,@grouping)) IS NOT NULL THEN
+    IF mts>0 AND Ccapture IS NOT NULL AND INET6_ATON(REGEXP_REPLACE(amsg,@pattern,@grouping)) IS NOT NULL THEN
         INSERT INTO abuser_incident (ip,trigger_id,counter,first_occurrence,last_occurrence)
-        VALUES (INET_ATON(REGEXP_REPLACE(amsg,@pattern,@grouping)),
+        VALUES (INET6_ATON(REGEXP_REPLACE(amsg,@pattern,@grouping)),
             mts,1,areceived_ts,areceived_ts)
         ON DUPLICATE KEY UPDATE counter=counter+1,last_occurrence=areceived_ts;
-        SELECT id INTO @incident_id FROM abuser_incident WHERE ip=INET_ATON(REGEXP_REPLACE(amsg,@pattern,@grouping)) AND trigger_id=mts;
+        SELECT id INTO @incident_id FROM abuser_incident WHERE ip=INET6_ATON(REGEXP_REPLACE(amsg,@pattern,@grouping)) AND trigger_id=mts;
         CALL abuser_log_evidence(@incident_id,aid);
     END IF;
 END;//

@@ -234,7 +234,7 @@ DROP TABLE IF EXISTS `whitelist`;
 CREATE TABLE IF NOT EXISTS `whitelist` (
   `id` bigint(20) NOT NULL AUTO_INCREMENT,
   `description` text COLLATE utf8_unicode_ci,
-  `host` varchar(20) COLLATE utf8_unicode_ci NOT NULL,
+  `host` varchar(40) COLLATE utf8_unicode_ci NOT NULL,
   `facility` varchar(20) DEFAULT NULL,
   `level` varchar(20) DEFAULT NULL,
   `program` varchar(50) COLLATE utf8_unicode_ci DEFAULT NULL,
@@ -258,7 +258,7 @@ CREATE TABLE IF NOT EXISTS `whitelist` (
 DROP TABLE IF EXISTS `whitelist_mem`;
 CREATE TABLE IF NOT EXISTS `whitelist_mem` (
   `id` bigint(20) NOT NULL AUTO_INCREMENT,
-  `host` varchar(20) COLLATE utf8_unicode_ci NOT NULL,
+  `host` varchar(40) COLLATE utf8_unicode_ci NOT NULL,
   `facility` varchar(20) DEFAULT NULL,
   `level` varchar(20) DEFAULT NULL,
   `program` varchar(50) COLLATE utf8_unicode_ci DEFAULT NULL,
@@ -366,7 +366,7 @@ CREATE TABLE IF NOT EXISTS `abuser_evidence` (
 DROP TABLE IF EXISTS abuser_incident;
 CREATE TABLE IF NOT EXISTS `abuser_incident` (
   `id` bigint(20) NOT NULL AUTO_INCREMENT,
-  `ip` int(10) unsigned NOT NULL,
+  `ip` varbinary(16)  NOT NULL,
   `trigger_id` bigint(20) DEFAULT NULL,
   `counter` bigint(20) DEFAULT NULL,
   `first_occurrence` datetime DEFAULT NULL,
@@ -380,7 +380,7 @@ CREATE TABLE IF NOT EXISTS `abuser_incident` (
 DROP TABLE IF EXISTS `host`;
 CREATE TABLE `host` (
 	id int unsigned primary key auto_increment,
-	ip int unsigned default 0,
+	ip varbinary(16) default 0,
 	fqdn varchar(255) NOT NULL,
 	short varchar(50),
 	description text,

@@ -49,7 +49,7 @@ class AbuserIncident extends CActiveRecord {
     // will receive user inputs.
     return array (
         array ('ip, ts','required'),
-        array ('ip','length','max' => 10),
+        //array ('ip','length','max' => 10),
         array (
             'trigger_id, counter, first_occurrence, last_occurrence',
             'length',
@@ -135,13 +135,13 @@ class AbuserIncident extends CActiveRecord {
     }
     else
     {
-       $criteria->compare('inet_ntoa(ip)',$ipaddr,true);
-       if(ip2long($this->ip)!==false)
-          $criteria->compare('ip',ip2long($ipaddr),false,'OR');
+       $criteria->compare('INET6_NTOA(ip)',$ipaddr,true);
+	   if(filter_var($this->ip, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4))
+          $criteria->compare('INET6_NTOA(ip)',$ipaddr,false,'OR');
     }
     $criteria->compare ( 'trigger_id', $this->trigger_id, true );
     $criteria->compare ( 'counter', $this->counter, true );
-    $criteria->compare ( 'inet_ntoa(ip)', $this->ipstr, true );
+    $criteria->compare ( 'INET6_NTOA(ip)', $this->ipstr, true );
     $criteria->compare ( 'first_occurrence', $this->first_occurrence, true );
     $criteria->compare ( 'last_occurrence', $this->last_occurrence, true );
     $criteria->compare ( 'ts', $this->ts, true );
@@ -165,8 +165,8 @@ class AbuserIncident extends CActiveRecord {
             'defaultOrder' => 'last_occurrence DESC',
             'attributes' => array (
                 'ipstr' => array (
-                    'asc' => 'inet_ntoa(ip)',
-                    'desc' => 'inet_ntoa(ip) DESC' 
+                    'asc' => 'INET6_NTOA(ip)',
+                    'desc' => 'INET6_NTOA(ip) DESC' 
                 ),
                 '*' 
             ) 
@@ -178,7 +178,7 @@ class AbuserIncident extends CActiveRecord {
   public function defaultScope()
   {
     return array (
-        'select' => '*,inet_ntoa(ip) as ipstr' 
+        'select' => '*,INET6_NTOA(ip) as ipstr' 
     );
   }
 
