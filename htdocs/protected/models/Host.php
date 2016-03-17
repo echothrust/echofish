@@ -97,9 +97,9 @@ class Host extends CActiveRecord
 		}
 		else
 		{
-			$criteria->compare('inet6_ntoa(ip)',$ip,true);
+			$criteria->compare('INET6_NTOA(ip)',$ip,true);
 			if(ip2long($this->ipoctet)!==false)
-				$criteria->compare('ip',ip2long($ip),false,'OR');
+				$criteria->compare('INET6_NTOA(ip)',$ip,false,'OR');
 		}
 		$criteria->compare('fqdn',$this->fqdn,true);
 		$criteria->compare('short',$this->short,true);
@@ -117,8 +117,8 @@ class Host extends CActiveRecord
 				'sort' => array (
 						'attributes' => array (
 								'ipoctet' => array (
-										'asc' => 'inet6_ntoa(ip)',
-										'desc' => 'inet6_ntoa(ip) DESC'
+										'asc' => 'INET6_NTOA(ip)',
+										'desc' => 'INET6_NTOA(ip) DESC'
 								),
 								'*'
 						)
@@ -141,7 +141,7 @@ class Host extends CActiveRecord
 	public function defaultScope()
 	{
 		return array(
-				'select'=>'*,inet6_ntoa(ip) as ipoctet',
+				'select'=>'*,INET6_NTOA(ip) as ipoctet',
 		);
 	}
 
