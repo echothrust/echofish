@@ -79,8 +79,11 @@ class IncidentController extends Controller {
   {
     $idz=explode(",",$ids);
     foreach($idz as $i=>$id)
-        $this->loadModel ( intval($id) )->zero();
-    echo $this->createUrl ( 'admin' );
+        $this->loadModel ( intval($id) )->zero(true);
+    if (! isset ( $_GET ['ajax'] ))
+      $this->redirect ( isset ( $_POST ['returnUrl'] ) ? $_POST ['returnUrl'] : array (
+          'admin' 
+      ) );//    echo $this->createUrl ( 'admin' );
     Yii::app ()->end ();
   }
   /**
