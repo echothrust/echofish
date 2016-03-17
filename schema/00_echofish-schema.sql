@@ -234,7 +234,7 @@ DROP TABLE IF EXISTS `whitelist`;
 CREATE TABLE IF NOT EXISTS `whitelist` (
   `id` bigint(20) NOT NULL AUTO_INCREMENT,
   `description` text COLLATE utf8_unicode_ci,
-  `host` varchar(20) COLLATE utf8_unicode_ci NOT NULL,
+  `host` varchar(40) COLLATE utf8_unicode_ci NOT NULL,
   `facility` varchar(20) DEFAULT NULL,
   `level` varchar(20) DEFAULT NULL,
   `program` varchar(50) COLLATE utf8_unicode_ci DEFAULT NULL,
