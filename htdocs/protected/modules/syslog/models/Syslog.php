@@ -113,7 +113,7 @@ class Syslog extends CActiveRecord
 	public function defaultScope()
 	{
 		return array(
-				'select'=>'t.*,inet_ntoa(host.ip) as hostip',
+				'select'=>'t.*,inet6_ntoa(host.ip) as hostip',
 				'join'=>'LEFT JOIN host ON host=host.id',
 				'order'=>'received_ts DESC',
 		);
@@ -165,9 +165,9 @@ class Syslog extends CActiveRecord
 		} 
 		else
 		{ 
-			$criteria->compare('inet_ntoa(host.ip)',$ip,true,'OR');
-			if(ip2long($this->hostip)!==false)
-				$criteria->compare('host.ip',ip2long($ip),false,'OR');
+			$criteria->compare('inet6_ntoa(host.ip)',$ip,true,'OR');
+			if(filter_var($this->hostip, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4))
+				$criteria->compare('inet6_ntoa(host.ip)',$ip,false,'OR');
 			$criteria->compare('host.fqdn',$this->hostip,true,'OR');
 			$criteria->compare('host.short',$this->hostip,true,'OR');
 		}
@@ -200,8 +200,8 @@ class Syslog extends CActiveRecord
 							'defaultOrder'=>'received_ts DESC',
 							'attributes'=>array(
 									'hostip'=>array(
-											'asc'=>'inet_ntoa(host.ip)',
-											'desc'=>'inet_ntoa(host.ip) DESC',
+											'asc'=>'inet6_ntoa(host.ip)',
+											'desc'=>'inet6_ntoa(host.ip) DESC',
 									),
 									'*',
 							),
@@ -216,8 +216,8 @@ class Syslog extends CActiveRecord
 						'defaultOrder'=>'received_ts DESC',
 						'attributes'=>array(
 								'hostip'=>array(
-										'asc'=>'inet_ntoa(host.ip)',
-										'desc'=>'inet_ntoa(host.ip) DESC',
+										'asc'=>'inet6_ntoa(host.ip)',
+										'desc'=>'inet6_ntoa(host.ip) DESC',
 								),
 								'*',
 						),
