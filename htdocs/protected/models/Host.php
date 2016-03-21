@@ -78,29 +78,12 @@ class Host extends CActiveRecord
 	{
 
 		$criteria=new CDbCriteria;
-
 		$criteria->compare('id',$this->id,true);
 		$criteria->compare('ip',$this->ip,true);
-		//$criteria->compare('inet_ntoa(ip)',$this->ipoctet,true);
-		$withmask=explode('/',$this->ipoctet);
-		$ip=self::strip_comparison($withmask[0]);
-		$cmp=self::get_comparison($withmask[0]);
-		if(isset($withmask[1]))
-		{
-			$netmask=Host::netmask($withmask[1]);
-			if($netmask!==false)
-			{
-				$network=ip2long($ip) & ip2long($netmask);
-				$criteria->compare("ip & inet_aton('$netmask')",$network);
-				$criteria->compare('ip',$cmp.ip2long($ip));
-			}
-		}
-		else
-		{
-			$criteria->compare('INET6_NTOA(ip)',$ip,true);
-			if(ip2long($this->ipoctet)!==false)
-				$criteria->compare('INET6_NTOA(ip)',$ip,false,'OR');
-		}
+		$criteria->compare('INET6_NTOA(ip)',$this->ipoctet,true);
+		if(filter_var($this->ipoctet, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4) || 
+				filter_var($this->ipoctet, FILTER_VALIDATE_IP, FILTER_FLAG_IPV6))
+			$criteria->compare('INET6_NTOA(ip)',$this->ipoctet,false,'OR');
 		$criteria->compare('fqdn',$this->fqdn,true);
 		$criteria->compare('short',$this->short,true);
 		$criteria->compare('description',$this->description,true);
@@ -147,11 +130,15 @@ class Host extends CActiveRecord
 
 	public function DNSBL()
 	{
-		$octet=explode('.',$this->ipoctet);
-		$revip=sprintf("%d.%d.%d.%d",$octet[3],$octet[2],$octet[1],$octet[0]);
-		$dnsbls=array("xbl.spamhaus.org","cbl.abuseat.org","zen.spamhaus.org", "dul.dnsbl.sorbs.net");
-		foreach($dnsbl as $bl)
-			$check[$bl]=gethostbyname($revip.'.'.$bl);
+		$check=array();
+		if(filter_var($this->ipoctet, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4))
+		{
+			$octet=explode('.',$this->ipoctet);
+			$revip=sprintf("%d.%d.%d.%d",$octet[3],$octet[2],$octet[1],$octet[0]);
+			$dnsbls=array("xbl.spamhaus.org","cbl.abuseat.org","zen.spamhaus.org", "dul.dnsbl.sorbs.net");
+			foreach($dnsbl as $bl)
+				$check[$bl]=gethostbyname($revip.'.'.$bl);
+		}
 		return $check;
 	}
 
@@ -179,7 +166,7 @@ class Host extends CActiveRecord
 		elseif($this->fqdn!='' && gethostbyname($this->fqdn)!==$this->fqdn)
 		{
 			$this->ipoctet=gethostbyname($this->fqdn);
-			$this->ip=Yii::app()->db->createCommand('SELECT INET6_ATON(:ip)')->queryScalar(array('ip'=>$this->ipoctet));
+			$this->ip=inet_pton($this->ipoctet);
 			if($this->ip!==false && $this->fqdn!==$this->ip)
 			{
 				if(explode('.',$this->fqdn)!=array())
@@ -198,48 +185,6 @@ class Host extends CActiveRecord
 			$this->ip=Yii::app()->db->createCommand('SELECT INET6_ATON(:ip)')->queryScalar(array('ip'=>$this->ip));
 		}
 		return parent::beforeSave();
-	}
-
-	/**
-	 * convert bit masks into cidr notation netmask 
-	 */
-	public static function netmask($cidr=0)
-	{
-		$parts=explode('.',$cidr);
-		if($parts[0]==$cidr && intval($cidr)>0 && intval($cidr)<=32)
-			return long2ip(pow(2, 32) - pow(2, (32 - intval($cidr))));
-		if(count($parts)==4)
-			return $cidr;
-		return false;
-	}
-	
-	/** 
-	 * strip any comparison symbols (such as <,>,=)
-	 * and return the $string without it. 
-	 */
-	public static function strip_comparison($string)
-	{
-		$rep=array('<','>','=');
-		return str_replace($rep,'',$string);
-	}
-
-	/**
-	 * returns the comparison symbols from the string.
-	 * $string comes from the search filters of the admin views.
-	 * This function grabs the >,<,= and combinations such as <=,>=
-	 */
-	public static function get_comparison($string)
-	{
-		$ret="";
-	
-		for($i=0;$i<strlen($string);$i++)
-			if( $string{$i}!='=' && $string{$i}!='<' && $string{$i}!='>')
-				break;
-		
-		if(strlen(trim($string))==0 || $i==strlen($string))
-			return "";
-
-		return substr($string, 0,$i);
 	}
 	
 }
