@@ -1,8 +1,7 @@
 <?php
 $this->breadcrumbs=array(
-	'Archive'=>array('/syslog'),
+	'Syslog'=>array('/syslog'),
 	'Archives'=>array('admin'),
-	'Manage'
 );
 
 $this->menu=array(
