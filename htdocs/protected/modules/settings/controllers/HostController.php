@@ -175,12 +175,14 @@ class HostController extends Controller {
         {
           $host->resolve ();
           $host->save();
+          
         }
         $trans->commit ();
+        Yii::app()->user->addFlash('info',"<strong>Hosts resolved</strong>");
       }
       catch(Exception $e)
       {
-         Yii::app()->user->setFlash('error',"<strong>Error in resolving hosts</strong>");
+         Yii::app()->user->addFlash('error',"<strong>Error in resolving hosts</strong>");
          $trans->rollback();
       }
       // if AJAX request (triggered by deletion via admin grid view), we should not redirect the browser
@@ -204,6 +206,8 @@ class HostController extends Controller {
         $model->resolve ();
         $model->save();
         $trans->commit ();
+        Yii::app()->user->setFlash('info',"<strong>Host resolved.</strong>");
+        
       }
       catch(Exception $e)
       {
