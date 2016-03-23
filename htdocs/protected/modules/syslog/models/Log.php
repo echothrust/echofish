@@ -126,7 +126,7 @@ Abstract class Log extends CActiveRecord
 			$pagination=array('pageSize'=>Yii::app()->user->getState('pageSize',Yii::app()->params['defaultPageSize']));
 		if($this->acknowledge!==false)
 		{
-			$this->acknowledge_logs();
+			self::acknowledge_logs();
 			$this->unsetAttributes();
 			return new CActiveDataProvider($this, array(
 					'sort'=>array(
