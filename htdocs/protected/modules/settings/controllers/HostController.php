@@ -27,23 +27,21 @@ class HostController extends Controller {
    * @return array access control rules
    *        
    */
-  public function accessRules()
-  {
-    return array (
-        array (
-            'allow', // allow authenticated user to perform 'create' and 'update' actions
-            'users' => array (
-                '@' 
-            ) 
-        ),
-        array (
-            'deny', // deny all users
-            'users' => array (
-                '*' 
-            ) 
-        ) 
-    );
-  }
+	public function accessRules()
+	{
+		return array (
+				array (
+						'allow', // allow authenticated user
+						'expression'=>"Yii::app()->user->isAdmin",
+				),
+				array (
+						'deny', // deny all users
+						'users' => array (
+								'*'
+						)
+				)
+		);
+	}
   
   /**
    * Displays a particular model.
