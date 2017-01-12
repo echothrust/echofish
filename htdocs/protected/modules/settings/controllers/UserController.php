@@ -14,7 +14,7 @@ class UserController extends Controller
 	public function filters()
 	{
 		return array(
-			'accessControl', // perform access control for CRUD operations
+				'accessControl', // perform access control for CRUD operations
 		);
 	}
 
@@ -25,20 +25,18 @@ class UserController extends Controller
 	 */
 	public function accessRules()
 	{
-    return array (
-        array (
-            'allow', // allow authenticated user to perform 'create' and 'update' actions
-            'users' => array (
-                '@' 
-            ) 
-        ),
-        array (
-            'deny', // deny all users
-            'users' => array (
-                '*' 
-            ) 
-        ) 
-    );
+		return array (
+				array (
+						'allow', // allow authenticated user
+						'expression'=>"Yii::app()->user->isAdmin",
+				),
+				array (
+						'deny', // deny all users
+						'users' => array (
+								'*'
+						)
+				)
+		);
 	}
 
 	/**
@@ -48,7 +46,7 @@ class UserController extends Controller
 	public function actionView($id)
 	{
 		$this->render('view',array(
-			'model'=>$this->loadModel($id),
+				'model'=>$this->loadModel($id),
 		));
 	}
 
@@ -71,7 +69,7 @@ class UserController extends Controller
 		}
 
 		$this->render('create',array(
-			'model'=>$model,
+				'model'=>$model,
 		));
 	}
 
@@ -95,7 +93,7 @@ class UserController extends Controller
 		}
 
 		$this->render('update',array(
-			'model'=>$model,
+				'model'=>$model,
 		));
 	}
 
@@ -127,16 +125,16 @@ class UserController extends Controller
 	{
 		$model=new User('search');
 		$model->unsetAttributes();  // clear any default values
-  	if (isset($_GET['pageSize'])) 
-  	{
-      Yii::app()->user->setState('pageSize',(int)$_GET['pageSize']);
-      unset($_GET['pageSize']);  // would interfere with pager and repetitive page size change
-    }
+		if (isset($_GET['pageSize']))
+		{
+			Yii::app()->user->setState('pageSize',(int)$_GET['pageSize']);
+			unset($_GET['pageSize']);  // would interfere with pager and repetitive page size change
+		}
 		if(isset($_GET['User']))
 			$model->attributes=$_GET['User'];
 
 		$this->render('admin',array(
-			'model'=>$model,
+				'model'=>$model,
 		));
 	}
 

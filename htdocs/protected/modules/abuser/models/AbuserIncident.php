@@ -120,25 +120,10 @@ class AbuserIncident extends CActiveRecord {
     
     $criteria->compare ( 'id', $this->id, true );
     //$criteria->compare ( 'ip', $this->ip, true );
-    $withmask=explode('/',$this->ipstr);
-    $ipaddr=Host::strip_comparison($withmask[0]);
-    $cmp=Host::get_comparison($withmask[0]);
-    if(isset($withmask[1]))
-    {
-       $netmask=Host::netmask($withmask[1]);
-       if($netmask!==false)
-       {
-          $network=ip2long($ipaddr) & ip2long($netmask);
-          $criteria->compare("ip & inet_aton('$netmask')",$network);
-          $criteria->compare('ip',$cmp.ip2long($ipaddr));
-       }
-    }
-    else
-    {
-       $criteria->compare('INET6_NTOA(ip)',$ipaddr,true);
-	   if(filter_var($this->ip, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4))
-          $criteria->compare('INET6_NTOA(ip)',$ipaddr,false,'OR');
-    }
+    $criteria->compare('INET6_NTOA(ip)',$this->ipstr,true);
+	if(filter_var($this->ip, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4))
+    	$criteria->compare('INET6_NTOA(ip)',$this->ipstr,false,'OR');
+	
     $criteria->compare ( 'trigger_id', $this->trigger_id, true );
     $criteria->compare ( 'counter', $this->counter, true );
     $criteria->compare ( 'INET6_NTOA(ip)', $this->ipstr, true );

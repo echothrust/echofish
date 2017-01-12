@@ -27,23 +27,21 @@ class HostController extends Controller {
    * @return array access control rules
    *        
    */
-  public function accessRules()
-  {
-    return array (
-        array (
-            'allow', // allow authenticated user to perform 'create' and 'update' actions
-            'users' => array (
-                '@' 
-            ) 
-        ),
-        array (
-            'deny', // deny all users
-            'users' => array (
-                '*' 
-            ) 
-        ) 
-    );
-  }
+	public function accessRules()
+	{
+		return array (
+				array (
+						'allow', // allow authenticated user
+						'expression'=>"Yii::app()->user->isAdmin",
+				),
+				array (
+						'deny', // deny all users
+						'users' => array (
+								'*'
+						)
+				)
+		);
+	}
   
   /**
    * Displays a particular model.
@@ -175,12 +173,14 @@ class HostController extends Controller {
         {
           $host->resolve ();
           $host->save();
+          
         }
         $trans->commit ();
+        Yii::app()->user->addFlash('info',"<strong>Hosts resolved</strong>");
       }
       catch(Exception $e)
       {
-         Yii::app()->user->setFlash('error',"<strong>Error in resolving hosts</strong>");
+         Yii::app()->user->addFlash('error',"<strong>Error in resolving hosts</strong>");
          $trans->rollback();
       }
       // if AJAX request (triggered by deletion via admin grid view), we should not redirect the browser
@@ -204,6 +204,8 @@ class HostController extends Controller {
         $model->resolve ();
         $model->save();
         $trans->commit ();
+        Yii::app()->user->setFlash('info',"<strong>Host resolved.</strong>");
+        
       }
       catch(Exception $e)
       {
