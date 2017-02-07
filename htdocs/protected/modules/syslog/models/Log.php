@@ -124,23 +124,10 @@ Abstract class Log extends CActiveRecord
 			$pagination=false;
 		else
 			$pagination=array('pageSize'=>Yii::app()->user->getState('pageSize',Yii::app()->params['defaultPageSize']));
-		if($this->acknowledge!==false)
+		if($this->acknowledge===true)
 		{
-			self::acknowledge_logs();
+			$this->acknowledge_logs($criteria);
 			$this->unsetAttributes();
-			return new CActiveDataProvider($this, array(
-					'sort'=>array(
-							'defaultOrder'=>'received_ts DESC',
-							'attributes'=>array(
-									'hostip'=>array(
-											'asc'=>'INET6_NTOA(host.ip)',
-											'desc'=>'INET6_NTOA(host.ip) DESC',
-									),
-									'*',
-							),
-					),
-					'pagination'=>$pagination,
-			));
 		}
 		return new CActiveDataProvider($this, array(
 				'criteria'=>$criteria,
@@ -158,7 +145,7 @@ Abstract class Log extends CActiveRecord
 		));
 	}
 	
-	public function acknowledge_logs()
+	public function acknowledge_logs($criteria=null)
 	{
 		
 	}
