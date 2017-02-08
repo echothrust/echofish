@@ -180,7 +180,15 @@ class HostController extends Controller {
       }
       catch(Exception $e)
       {
-         Yii::app()->user->addFlash('error',"<strong>Error in resolving hosts</strong> [ID: ".$host->id."]");
+         if ($e->getCode()==23000 && $e->errorInfo[1]==1062)
+         {
+           // handle duplicate entry (Integrity constraint violation)
+           $conflict=Host::model()->findByAttributes(
+                array('ip'=>$host->ip, 'fqdn'=>$host->fqdn, 'short'=>$host->short)
+           );
+           $xtramsg="[Conflicting host IDs: ".$conflict->id." ".$host->id."]";
+         }
+         Yii::app()->user->setFlash('error',"<strong>Error in resolving hosts</strong> ".$xtramsg);
          $trans->rollback();
       }
       // if AJAX request (triggered by deletion via admin grid view), we should not redirect the browser
@@ -209,7 +217,15 @@ class HostController extends Controller {
       }
       catch(Exception $e)
       {
-         Yii::app()->user->setFlash('error',"<strong>Error in resolving host</strong> [ID: ".$model->id."]");
+         if ($e->getCode()==23000 && $e->errorInfo[1]==1062)
+         {
+           // handle duplicate entry (Integrity constraint violation)
+           $conflict=Host::model()->findByAttributes(
+                array('ip'=>$model->ip, 'fqdn'=>$model->fqdn, 'short'=>$model->short)
+           );
+           $xtramsg="[Conflicting host ID: ".$conflict->id."]";
+         }
+         Yii::app()->user->setFlash('error',"<strong>Error in resolving host</strong> ".$xtramsg);
          $trans->rollback();
       }      
       // if AJAX request (triggered by deletion via admin grid view), we should not redirect the browser
