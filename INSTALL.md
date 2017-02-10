@@ -15,12 +15,12 @@ content. For lighter footprint, nginx with php-fpm is recommended.
 
 ### 1.2 - MySQL database
 
-Echofish backend was developed on MySQL 5.1.68 (and works fine on other 
+Echofish backend is developed on MariaDB 10.0.25 (and works fine on other 
 reasonably recent versions too).
 
-#### 1.2.1 - MySQL User Defined Functions
+#### 1.2.1 - MariaDB Regexp Functions
 
-Echofish is dependent on [lib_mysql_udf_preg](https://github.com/mysqludf/lib_mysqludf_preg/) OR MariaDB 10.0.5+ for PCRE pattern matching.
+Echofish is dependent on MariaDB 10.0.5+ for PCRE pattern matching.
 
 ### 1.3 - Syslog
 
@@ -58,25 +58,13 @@ mysql -u root -p ETS_echofish < schema/echofish-dataonly.sql
 mysql -u root -p ETS_echofish < schema/echofish-functions.sql
 mysql -u root -p ETS_echofish < schema/echofish-triggers.sql
 mysql -u root -p ETS_echofish < schema/echofish-events.sql
-```
-Import the appropriate procedures for your database server
-
-MySQL with udf_preg
-
-```sh
-mysql -u root -p ETS_echofish < schema/echofish-procedures.sql
-```
-
-MariaDB 10.0.5+
-
-```sh
 mysql -u root -p ETS_echofish < schema/echofish-procedures.mariadb10.sql
 ```
 
 For events to run, make sure you set `event_scheduler=on` somewhere under the 
 `[mysqld]` section in the default mysql config file, usually `/etc/my.cnf` or 
-`/etc/mysql/my.cnf`. After setting up the event_scheduler you may also want to 
-run `sudo /etc/init.d/mysql reload`.
+`/etc/mysql/my.cnf`. After setting up the event_scheduler you should also 
+reload the mysql server process, i.e. `service mysqld reload` or equivalent.
 
 ### 3.2 - Echofish frontend
 
@@ -152,13 +140,3 @@ whitelisting and abuser incident correlation will not work consistently. Make
 sure you have `event_scheduler=ON` in the `[mysqld]` section of `/etc/my.cnf` 
 or `/etc/mysql/my.cnf`.
 
-* lib_mysql_udf_preg fails to ./configure with WARNING: ‘aclocal-1.13′.Run 
-```
-cd lib_mysqludf_preg
-aclocal 
-libtoolize –force
-autoreconf``` 
-and try again. [lib_mysqludf_preg on CentOS 6.4](http://dragkh.wordpress.com/2013/12/18/how-to-install-mysql-10-0-6-mariadb-and-to-compile-lib_mysqludf_preg-on-centos-6-4/).
-
-* lib_mysql_udf_preg fails to load on some MySQL versions with 
-`undefined symbol: my_thread_stack_size`. Read [Can't open shared library lib_mysqludf_preg.so](https://github.com/mysqludf/lib_mysqludf_preg/issues/13).
