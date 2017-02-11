@@ -186,7 +186,7 @@ class HostController extends Controller {
            $conflict=Host::model()->findByAttributes(
                 array('ip'=>$host->ip, 'fqdn'=>$host->fqdn, 'short'=>$host->short)
            );
-           $xtramsg="[Conflicting host IDs: ".$conflict->id." ".$host->id."]";
+           $xtramsg="[Conflicting host IDs: ".$conflict->id.", ".$host->id."]";
          }
          Yii::app()->user->setFlash('error',"<strong>Error in resolving hosts</strong> ".$xtramsg);
          $trans->rollback();
