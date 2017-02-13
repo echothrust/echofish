@@ -240,7 +240,7 @@ rcctl start nginx
 
 Restart local syslogd:
 
-``sh`
+```sh
 rcctl restart syslogd
 ```
 
