@@ -10,7 +10,9 @@ Abstract class Log extends CActiveRecord
 	public $hostip;
 	public $acknowledge=false;
 	public $counter=0;
-	
+	public $fromTS=null;
+	public $toTS=null;
+
 	public static function model($className=__CLASS__)
 	{
 		return parent::model($className);
@@ -30,7 +32,7 @@ Abstract class Log extends CActiveRecord
 				array('pid', 'length', 'max'=>11),
 				array('msg, received_ts, created_at,hostip,acknowledge,counter', 'safe'),
 				// The following rule is used by search().
-				array('id, host, massack,facility, priority, level, program, pid, tag, msg, received_ts, created_at,hostip,counter', 'safe', 'on'=>'search'),
+				array('id, host, massack,facility, priority, level, program, pid, tag, msg, received_ts, created_at,hostip,counter,fromTS,toTS', 'safe', 'on'=>'search'),
 		);
 	}
 
@@ -104,6 +106,13 @@ Abstract class Log extends CActiveRecord
 		$criteria=new CDbCriteria;
 		$criteria->together = true;
 		$criteria->compare('id',$this->id,true);
+		if($this->fromTS!==null && $this->toTS!==null)
+		{
+			$criteria->addBetweenCondition('received_ts',"FROM_UNIXTIME(".$this->fromTS."/1000)","FROM_UNIXTIME(".$this->toTS."/1000)");
+		}
+		else
+			$criteria->compare('received_ts',$this->received_ts,true);
+
 		if(filter_var($this->hostip, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4))
 			$criteria->compare('inet6_ntoa(host.ip)',$this->hostip,false,'OR');
 		else
@@ -118,7 +127,6 @@ Abstract class Log extends CActiveRecord
 		$criteria->compare('pid',$this->pid,true);
 		$criteria->compare('tag',$this->tag,true);
 		$criteria->compare('msg',$this->msg,true);
-		$criteria->compare('received_ts',$this->received_ts,true);
 		$criteria->compare('created_at',$this->created_at,true);
 		if(Yii::app()->user->getState('pageSize',Yii::app()->params['defaultPageSize'])==0)
 			$pagination=false;
@@ -144,9 +152,9 @@ Abstract class Log extends CActiveRecord
 				'pagination'=>$pagination,
 		));
 	}
-	
+
 	public function acknowledge_logs($criteria=null)
 	{
-		
+
 	}
 }
