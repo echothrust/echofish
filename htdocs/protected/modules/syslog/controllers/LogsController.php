@@ -96,7 +96,7 @@ class LogsController extends Controller {
   /**
    * Manages all models.
    */
-  public function actionAdmin($from=null, $to=null)
+  public function actionAdmin($from=null, $to=null,$divider=1)
   {
     $this->layout = '//layouts/column1';
     $model = new Syslog ( 'search' );
@@ -111,8 +111,8 @@ class LogsController extends Controller {
 
 	if($from!=null && $to!=null)
 	{
-		$model->fromTS=$from;
-		$model->toTS=$to;
+		$model->fromTS=$from/intval($divider);
+		$model->toTS=$to/intval($divider);
 	}
 
     $this->render ( 'admin', array (
