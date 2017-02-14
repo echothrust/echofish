@@ -56,13 +56,13 @@ or <b>=</b>) at the beginning of each of your search values to specify how the c
      var values = [];
      checked.each(function(){
          values.push($(this).val());
-     }); 
+     });
     $.ajax({
-     url:"'.$this->createUrl("massackids").'", 
+     url:"'.$this->createUrl("massackids").'",
      data: {ids:values.join(",")},
-     success:function(data){ 
+     success:function(data){
          // update the grid now
-         $("#syslog-grid").yiiGridView("update"); 
+         $("#syslog-grid").yiiGridView("update");
      }
      });
 }'
@@ -83,7 +83,7 @@ or <b>=</b>) at the beginning of each of your search values to specify how the c
     array(
         'name'=>'hostip',
         'type'=>'raw',
-        'value'=>'CHtml::link($data->hostip,array("admin","Syslog[hostip]"=>"=".$data->hostip),array("title"=>$data->lHost->short))',
+        'value'=>'CHtml::link($data->lHost->DisplayName,array("admin","Syslog[hostip]"=>"=".$data->hostip),array("title"=>$data->lHost->FullDisplayName))',
         'cssClassExpression'=>'"hostip"',
 	      'htmlOptions'=>array('width'=>'55px'),
      ),
@@ -93,7 +93,7 @@ or <b>=</b>) at the beginning of each of your search values to specify how the c
       'value'=>'CHtml::link($data->facil->name,array("admin","Syslog[facility]"=>"=".$data->facility),array("title"=>$data->facility.":".$data->facil->name))',
       'htmlOptions'=>array('width'=>'55px'),
       'cssClassExpression'=>'"facility"',
-      
+
       ),
     array(
       'name'=>'level',
