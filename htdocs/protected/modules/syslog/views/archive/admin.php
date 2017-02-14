@@ -53,9 +53,9 @@ or <b>=</b>) at the beginning of each of your search values to specify how the c
     array(
         'name'=>'hostip',
         'type'=>'raw',
-        'value'=>'CHtml::link($data->hostip,array("admin","Archive[hostip]"=>"=".$data->hostip),array("title"=>$data->lHost->short))',
+        'value'=>'CHtml::link($data->lHost->DisplayName,array("admin","Syslog[hostip]"=>"=".$data->hostip),array("title"=>$data->lHost->FullDisplayName))',
         'cssClassExpression'=>'"hostip"',
-	      'htmlOptions'=>array('width'=>'55px'),
+	    'htmlOptions'=>array('width'=>'55px'),
      ),
     array(
       'name'=>'facility',
@@ -63,7 +63,7 @@ or <b>=</b>) at the beginning of each of your search values to specify how the c
       'value'=>'CHtml::link($data->facil->name,array("admin","Archive[facility]"=>"=".$data->facility),array("title"=>$data->facility.":".$data->facil->name))',
       'htmlOptions'=>array('width'=>'55px'),
       'cssClassExpression'=>'"facility"',
-      
+
       ),
     array(
       'name'=>'level',
