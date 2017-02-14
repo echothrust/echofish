@@ -81,7 +81,7 @@ class Host extends CActiveRecord
 		$criteria->compare('id',$this->id,true);
 		$criteria->compare('ip',$this->ip,true);
 		$criteria->compare('INET6_NTOA(ip)',$this->ipoctet,true);
-		if(filter_var($this->ipoctet, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4) || 
+		if(filter_var($this->ipoctet, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4) ||
 				filter_var($this->ipoctet, FILTER_VALIDATE_IP, FILTER_FLAG_IPV6))
 			$criteria->compare('INET6_NTOA(ip)',$this->ipoctet,false,'OR');
 		$criteria->compare('fqdn',$this->fqdn,true);
@@ -150,9 +150,9 @@ class Host extends CActiveRecord
 	public function resolve()
 	{
 
-		if($this->ip!==0 && $this->ip!==NULL && 
-			filter_var($this->ipoctet, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4) && 
-			gethostbyaddr($this->ipoctet)!==$this->ipoctet && 
+		if($this->ip!==0 && $this->ip!==NULL &&
+			filter_var($this->ipoctet, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4) &&
+			gethostbyaddr($this->ipoctet)!==$this->ipoctet &&
 			gethostbyaddr($this->ipoctet)!==false)
 		{
 			$this->fqdn=gethostbyaddr($this->ipoctet);
@@ -178,7 +178,7 @@ class Host extends CActiveRecord
 		}
 	}
 
-	
+
 	public function beforeSave()
 	{
 		$binIP=Yii::app()->db->createCommand('SELECT INET6_ATON(:ip)')->queryScalar(array('ip'=>$this->ipoctet));
@@ -188,5 +188,25 @@ class Host extends CActiveRecord
 		}
 		return parent::beforeSave();
 	}
-	
+
+	public function getDisplayName()
+	{
+		if (mb_strlen($this->short)>0 && $this->short!==NULL)
+			return $this->short;
+		else
+			return $this->ipoctet;
+	}
+
+	public function getFullDisplayName()
+	{
+		$arr=array();
+		if (mb_strlen($this->ipoctet)>0 && $this->ipoctet!==NULL)
+			$arr[]=$this->ipoctet;
+		if (mb_strlen($this->short)>0 && $this->short!==NULL)
+			$arr[]=$this->short;
+		if (mb_strlen($this->fqdn)>0 && $this->fqdn!==NULL)
+			$arr[]=$this->fqdn;
+		return implode(' / ',$arr);
+	}
+
 }

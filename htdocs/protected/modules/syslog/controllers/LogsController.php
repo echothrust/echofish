@@ -6,7 +6,7 @@ class LogsController extends Controller {
    *      using two-column layout. See 'protected/views/layouts/column2.php'.
    */
   public $layout = '//layouts/column2';
-  
+
   /**
    *
    * @return array action filters
@@ -17,11 +17,11 @@ class LogsController extends Controller {
         'accessControl'  // perform access control for CRUD operations
         );
   }
-  
+
   /**
    * Specifies the access control rules.
    * This method is used by the 'accessControl' filter.
-   * 
+   *
    * @return array access control rules
    */
   public function accessRules()
@@ -30,21 +30,21 @@ class LogsController extends Controller {
         array (
             'allow', // allow authenticated users
             'users' => array (
-                '@' 
-            ) 
+                '@'
+            )
         ),
         array (
             'deny', // deny all users
             'users' => array (
-                '*' 
-            ) 
-        ) 
+                '*'
+            )
+        )
     );
   }
-  
+
   /**
    * Acknowledge a syslog entry and other similar.
-   * 
+   *
    * @param integer $id
    *          the ID of the model to be displayed
    */
@@ -60,19 +60,19 @@ class LogsController extends Controller {
           ':facility' => $model->facility,
           ':program' => $model->program,
           ':level' => $model->level,
-          ':msg' => $model->msg 
+          ':msg' => $model->msg
       );
       Syslog::model ()->deleteAll ( $c );
     }
     $this->redirect ( array (
-        'admin' 
+        'admin'
     ) );
   }
-  
+
   /**
    * Deletes a particular model.
    * If deletion is successful, the browser will be redirected to the 'admin' page.
-   * 
+   *
    * @param integer $id
    *          the ID of the model to be deleted
    */
@@ -82,21 +82,21 @@ class LogsController extends Controller {
     {
       // we only allow deletion via POST request
       $this->loadModel ( $id )->delete ();
-      
+
       // if AJAX request (triggered by deletion via admin grid view), we should not redirect the browser
       if (! isset ( $_GET ['ajax'] ))
         $this->redirect ( isset ( $_POST ['returnUrl'] ) ? $_POST ['returnUrl'] : array (
-            'admin' 
+            'admin'
         ) );
     } else
       throw new CHttpException ( 400, 'Invalid request. Please do not repeat this request again.' );
   }
-  
-  
+
+
   /**
    * Manages all models.
    */
-  public function actionAdmin()
+  public function actionAdmin($from=null, $to=null,$divider=1)
   {
     $this->layout = '//layouts/column1';
     $model = new Syslog ( 'search' );
@@ -108,9 +108,15 @@ class LogsController extends Controller {
     }
     if (isset ( $_GET ['Syslog'] ))
       $model->attributes = $_GET ['Syslog'];
-    
+
+	if($from!=null && $to!=null)
+	{
+		$model->fromTS=$from/intval($divider);
+		$model->toTS=$to/intval($divider);
+	}
+
     $this->render ( 'admin', array (
-        'model' => $model 
+        'model' => $model
     ) );
   }
   public function actionMassack()
@@ -124,7 +130,7 @@ class LogsController extends Controller {
       $model->search ()->getData ();
     }
     Yii::app ()->user->setState ( 'pageSize', Yii::app ()->params ['defaultPageSize'] );
-    
+
     echo $this->createUrl ( 'admin' );
     Yii::app ()->end ();
   }
@@ -138,11 +144,11 @@ class LogsController extends Controller {
       Syslog::model ()->deleteAll ( $c );
     }
   }
-  
+
   /**
    * Returns the data model based on the primary key given in the GET variable.
    * If the data model is not found, an HTTP exception will be raised.
-   * 
+   *
    * @param
    *          integer the ID of the model to be loaded
    */
@@ -153,10 +159,10 @@ class LogsController extends Controller {
       throw new CHttpException ( 404, 'The requested page does not exist.' );
     return $model;
   }
-  
+
   /**
    * Performs the AJAX validation.
-   * 
+   *
    * @param
    *          CModel the model to be validated
    */
