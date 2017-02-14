@@ -108,7 +108,7 @@ Abstract class Log extends CActiveRecord
 		$criteria->compare('id',$this->id,true);
 		if($this->fromTS!==null && $this->toTS!==null)
 		{
-			$criteria->addBetweenCondition('UNIX_TIMESATMP(received_ts)*1000',$this->fromTS,$this->toTS);
+			$criteria->addBetweenCondition('UNIX_TIMESTAMP(received_ts)*1000',$this->fromTS,$this->toTS);
 		}
 		else
 			$criteria->compare('received_ts',$this->received_ts,true);
