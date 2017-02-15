@@ -11,7 +11,11 @@ mysql database backend and a web server for the frontend.
 ### 1.1 - Web server
 
 Echofish frontend should run well on most web servers capable of serving PHP 
-content. For lighter footprint, nginx with php-fpm is recommended.
+content.
+
+PHP with the mbstring extension, the MySQL PDO extension and PCRE-support is pretty much the only hard requirement for the web server environment.
+
+For lighter footprint, nginx with php-fpm is recommended.
 
 ### 1.2 - MySQL database
 
