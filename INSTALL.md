@@ -56,9 +56,9 @@ cd echofish/
 mysql -u root -p ETS_echofish < schema/00_echofish-schema.sql
 mysql -u root -p ETS_echofish < schema/echofish-dataonly.sql
 mysql -u root -p ETS_echofish < schema/echofish-functions.sql
+mysql -u root -p ETS_echofish < schema/echofish-procedures.mariadb10.sql
 mysql -u root -p ETS_echofish < schema/echofish-triggers.sql
 mysql -u root -p ETS_echofish < schema/echofish-events.sql
-mysql -u root -p ETS_echofish < schema/echofish-procedures.mariadb10.sql
 ```
 
 For events to run, make sure you set `event_scheduler=on` somewhere under the 

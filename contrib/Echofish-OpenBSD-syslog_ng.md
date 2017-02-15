@@ -61,9 +61,9 @@ cd /var/www/echofish-master
 mysql ETS_echofish < schema/00_echofish-schema.sql
 mysql ETS_echofish < schema/echofish-dataonly.sql
 mysql ETS_echofish < schema/echofish-functions.sql
+mysql ETS_echofish < schema/echofish-procedures.mariadb10.sql
 mysql ETS_echofish < schema/echofish-triggers.sql
 mysql ETS_echofish < schema/echofish-events.sql
-mysql ETS_echofish < schema/echofish-procedures.mariadb10.sql
 ```
 
 ### Echofish setup
