@@ -38,7 +38,13 @@ $('body').on('click','#massackfilter',function(){
 </p>
 <?php $pageSize=Yii::app()->user->getState('pageSize',Yii::app()->params['defaultPageSize']); ?>
 
+
 <?php
+$this->widget('bootstrap.widgets.TbButton', array(
+		'label'=>'Toggle Live Feed',
+		'id'=>'ToggleLiveFeed',
+		'htmlOptions'=>array('data-state'=>'off'),
+));
 
 $this->widget ( 'bootstrap.widgets.TbExtendedGridView', array (
 		'id' => 'syslog-grid',
@@ -82,7 +88,7 @@ $this->widget ( 'bootstrap.widgets.TbExtendedGridView', array (
 				array (
 						'name' => 'received_ts',
 						'type' => 'raw',
-						'value' => 'CHtml::link($data->received_ts,array("admin","Syslog[received_ts]"=>"=".$data->received_ts))',
+						'value' => 'CHtml::link($data->received_ts,array("admin","Syslog[received_ts]"=>"=".$data->received_ts),array("data-filter-value"=>"=".$data->received_ts,"class"=>"Filter-received_ts"))',
 						'htmlOptions' => array (
 								'width' => '155px'
 						),
@@ -91,7 +97,7 @@ $this->widget ( 'bootstrap.widgets.TbExtendedGridView', array (
 				array (
 						'name' => 'hostip',
 						'type' => 'raw',
-						'value' => 'CHtml::link($data->lHost->DisplayName,array("admin","Syslog[hostip]"=>"=".$data->hostip),array("title"=>$data->lHost->FullDisplayName))',
+						'value' => 'CHtml::link($data->lHost->DisplayName,array("admin","Syslog[hostip]"=>"=".$data->hostip),array("data-filter-value"=>"=".$data->hostip,"title"=>$data->lHost->FullDisplayName,"class"=>"Filter-hostip"))',
 						'cssClassExpression' => '"hostip"',
 						'htmlOptions' => array (
 								'width' => '55px'
@@ -100,7 +106,7 @@ $this->widget ( 'bootstrap.widgets.TbExtendedGridView', array (
 				array (
 						'name' => 'facility',
 						'type' => 'raw',
-						'value' => 'CHtml::link($data->facil->name,array("admin","Syslog[facility]"=>"=".$data->facility),array("title"=>$data->facility.":".$data->facil->name))',
+						'value' => 'CHtml::link($data->facil->name,array("admin","Syslog[facility]"=>"=".$data->facility),array("data-filter-value"=>"=".$data->facility,"title"=>$data->facility.":".$data->facil->name,"class"=>"Filter-facility"))',
 						'htmlOptions' => array (
 								'width' => '55px'
 						),
@@ -110,7 +116,7 @@ $this->widget ( 'bootstrap.widgets.TbExtendedGridView', array (
 				array (
 						'name' => 'level',
 						'type' => 'raw',
-						'value' => 'CHtml::openTag("span", array("class"=>"label label-".$data->sever->label)).CHtml::link($data->sever->name,array("admin","Syslog[level]"=>"=".$data->level),array("title"=>$data->level.":".$data->sever->name))."</span>"',
+						'value' => 'CHtml::openTag("span", array("class"=>"label label-".$data->sever->label)).CHtml::link($data->sever->name,array("admin","Syslog[level]"=>"=".$data->level),array("data-filter-value"=>"=".$data->level,"title"=>$data->level.":".$data->sever->name,"class"=>"Filter-level"))."</span>"',
 						'htmlOptions' => array (
 								'width' => '55px'
 						),
@@ -119,7 +125,7 @@ $this->widget ( 'bootstrap.widgets.TbExtendedGridView', array (
 				array (
 						'name' => 'program',
 						'type' => 'raw',
-						'value' => 'CHtml::link($data->program,array("admin","Syslog[program]"=>"=".$data->program))',
+						'value' => 'CHtml::link($data->program,array("admin","Syslog[program]"=>"=".$data->program),array("data-filter-value"=>"=".$data->program,"class"=>"Filter-program"))',
 						'htmlOptions' => array (
 								'width' => '55px'
 						),
@@ -151,7 +157,7 @@ $this->widget ( 'bootstrap.widgets.TbExtendedGridView', array (
 										'url' => Yii::app ()->createUrl ( "syslog/logs/massack" ),
 										'options' => array (
 												'rel' => 'tooltip',
-												'title' => 'ack based on filt',
+												'title' => 'Acknowledge filtered',
 												'id' => 'massackfilter'
 										)
 								),
@@ -186,7 +192,7 @@ EOD
 ?>
 
 <?php
-Yii::app ()->clientScript->registerScript ( 'liveUpdate', <<<EOD
+Yii::app ()->clientScript->registerScript ( 'liveFeed', <<<EOD
 		var timeoutID;
 		function LiveUpdate()
 		{
@@ -194,8 +200,43 @@ Yii::app ()->clientScript->registerScript ( 'liveUpdate', <<<EOD
 			clearTimeout(timeoutID);
 			timeoutID=setTimeout(LiveUpdate,3000);
 		}
-		timeoutID=setTimeout(LiveUpdate,3000);
-    	$('body').on('click',function() { clearTimeout(timeoutID);});
+
+		$('#ToggleLiveFeed').on('click',function() {
+			var state=$(this).attr('data-state');
+			if(state=='off')
+			{
+				$(this).attr('data-state','on');
+				$(this).attr('class','btn btn-success');
+				timeoutID=setTimeout(LiveUpdate,3000);
+			}
+			else
+			{
+				$(this).attr('data-state','off');
+				$(this).attr('class','btn');
+				clearTimeout(timeoutID);
+			}
+		});
+EOD
+, CClientScript::POS_READY );
+?>
+
+<?php
+Yii::app ()->clientScript->registerScript ( 'cumulativeFilter', <<<EOD
+	$(document).on('click','[class^="Filter"]',function(e) {
+		var id='syslog-grid';
+		var origclass=$(this).attr('class');
+		var Cclass=origclass.replace('Filter-','Syslog_');
+		var inputSelector='#'+id+' .filters input, '+'#'+id+' .filters select';
+		if(e.shiftKey)
+		{
+				txt=$(this).attr('data-filter-value');
+				$("#"+Cclass).val(txt);
+
+			    var data=$.param($(inputSelector));
+   				$.fn.yiiGridView.update(id, {data: data});
+				return false;
+		}
+	 });
 EOD
 , CClientScript::POS_READY );
 ?>
