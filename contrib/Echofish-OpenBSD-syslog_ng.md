@@ -182,8 +182,10 @@ source s_local{
         internal(); 
 };
 
+# This source is for logs coming to the concentrator from other hosts.
 # Since 514/UDP is already occupied by syslogd(8) either listen on high port
-# or specify LAN ip address to listen on normal port
+# or specify LAN ip address to listen on default port (514) on the specific
+# LAN interface
 source s_net {
 
         udp(port(60514));
