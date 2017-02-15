@@ -55,8 +55,8 @@ Abstract class Log extends CActiveRecord
 	{
 		return array(
 				'id' => 'ID',
-				'host' => 'Host',
-				'hostip' => 'Host IP',
+				'host' => 'Host ID',
+				'hostip' => 'Host',
 				'facility' => 'Facility',
 				'priority' => 'Priority',
 				'level' => 'Level',
@@ -106,12 +106,6 @@ Abstract class Log extends CActiveRecord
 		$criteria=new CDbCriteria;
 		$criteria->together = true;
 		$criteria->compare('id',$this->id,true);
-		if($this->fromTS!==null && $this->toTS!==null)
-		{
-			$criteria->addBetweenCondition('UNIX_TIMESTAMP(received_ts)',$this->fromTS,$this->toTS);
-		}
-		else
-			$criteria->compare('received_ts',$this->received_ts,true);
 
 		if(filter_var($this->hostip, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4))
 			$criteria->compare('inet6_ntoa(host.ip)',$this->hostip,false,'OR');
@@ -120,6 +114,14 @@ Abstract class Log extends CActiveRecord
 
 		$criteria->compare('host.fqdn',$this->hostip,true,'OR');
 		$criteria->compare('host.short',$this->hostip,true,'OR');
+
+		if($this->fromTS!==null && $this->toTS!==null)
+		{
+			$criteria->addBetweenCondition('UNIX_TIMESTAMP(received_ts)',$this->fromTS,$this->toTS);
+		}
+		else
+			$criteria->compare('received_ts',$this->received_ts,true);
+
 		$criteria->compare('facility',$this->facility);
 		$criteria->compare('priority',$this->priority);
 		$criteria->compare('level',$this->level);
