@@ -1,22 +1,22 @@
 ## Install Echofish On OpenBSD
 
 The following guide walks you through the installation of Echofish on 
-OpenBSD 5.4 with syslog-ng+nginx+php_fpm.
+OpenBSD 6.0 with syslog-ng+nginx+php_fpm.
 
 ### Requirements
 
-Starting from a fresh installation of 5.4 release, Echofish has a few
+Starting from a fresh installation of 6.0 release, Echofish has a few
  additional requirements:
 
 #### Packages
 
-We are going to use syslog-ng as a collector and MySQL as backend database. 
+We are going to use syslog-ng as a collector and MariaDB as backend database. 
 php-fpm will be used to run Echofish:
 
 ```sh
-export PKG_PATH=ftp://ftp.openbsd.org/pub/OpenBSD/$(uname -r)/packages/$(uname -m)
-pkg_add -vvi syslog-ng libdbi-drivers-mysql mysql-server 
-pkg_add -vvi php-fpm.5.3.27 php-pdo_mysql-5.3.27 pecl-APC-3.1.9p3 pcre-8.33
+export PKG_PATH=http://ftp.openbsd.org/pub/OpenBSD/$(uname -r)/packages/$(uname -m)
+pkg_add -vvi syslog-ng libdbi-drivers-mysql mariadb-server mariadb-client 
+pkg_add -vvi nginx-1.10.1 php-5.6.23p0 php-pdo_mysql-5.6.23p0 
 ```
 
 #### Echofish sources
@@ -31,25 +31,6 @@ ln -s /var/www/echofish-master/htdocs /var/www/htdocs/echofish
 install -d -g www -o www /var/www/htdocs/echofish/assets/
 ```
 
-#### Install MySQL UDF
-
-Install [lib_mysql_udf_preg](https://github.com/mysqludf/lib_mysqludf_preg/), 
-which is used for PCRE pattern matching, following 
-[its guide](https://github.com/mysqludf/lib_mysqludf_preg/blob/lib_mysqludf_preg-1.2-rc2/INSTALL):
-
-```
-ftp https://github.com/mysqludf/lib_mysqludf_preg/archive/lib_mysqludf_preg-1.2-rc2.tar.gz
-tar zxf lib_mysqludf_preg-1.2-rc2.tar.gz
-cd lib_mysqludf_preg-lib_mysqludf_preg-1.2-rc2
-./configure
-make
-make install
-make MYSQL="mysql -u root -p" installdb
-```
-
-Note: The `installdb` target of make(1) may fail to load lib_mysql_udf_preg 
-with `undefined symbol: my_thread_stack_size`. Read [Can't open shared library lib_mysqludf_preg.so](https://github.com/mysqludf/lib_mysqludf_preg/issues/13).
-
 #### Create and configure a database 
 
 Echofish requires MySQL's builtin scheduler to be enabled, so add 
@@ -59,7 +40,7 @@ Configure MySQL to start for the first time and start the service:
 
 ```
 mysql_install_db
-/etc/rc.d/mysqld -f start
+rcctl -f start mysqld
 ```
 
 Run `mysql -p -u root` to connect to your mysql server as administrator and 
@@ -80,7 +61,7 @@ cd /var/www/echofish-master
 mysql ETS_echofish < schema/00_echofish-schema.sql
 mysql ETS_echofish < schema/echofish-dataonly.sql
 mysql ETS_echofish < schema/echofish-functions.sql
-mysql ETS_echofish < schema/echofish-procedures.sql
+mysql ETS_echofish < schema/echofish-procedures.mariadb10.sql
 mysql ETS_echofish < schema/echofish-triggers.sql
 mysql ETS_echofish < schema/echofish-events.sql
 ```
@@ -138,7 +119,7 @@ return array(
 ```
 
 If you are unsure, leave 'localhost' to deliver to the local MTA. Configuring 
-cron for report generation is outside the scope of this recipe, because report 
+cron for report generation is outside the scope of this guide, because report 
 data is only produced after configuring the Abuser module. After completing 
 setup learn more about Abuser on the module's help pages within the webui.
 
@@ -153,8 +134,8 @@ Uncomment the following section in `/etc/nginx/nginx.conf`:
 
 ```
         #location ~ \.php$ {
-        #    root           /var/www/htdocs;
-        #    fastcgi_pass   127.0.0.1:9000;
+        #    try_files      $uri $uri/ =404;
+        #    fastcgi_pass   unix:run/php-fpm.sock;
         #    fastcgi_index  index.php;
         #    fastcgi_param  SCRIPT_FILENAME  $document_root$fastcgi_script_name;
         #    include        fastcgi_params;
@@ -182,6 +163,8 @@ logging erroneous entries, a certain configuration is required. Modify
 `/etc/syslog-ng/syslog-ng.conf` like the following:
 
 ```
+@version: 3.7
+
 # make sure we only log source IPv4 address
 options {
         use_dns(no);
@@ -192,29 +175,34 @@ options {
         stats_freq(0);
 };
 
-# in case of openbsd you can use those to replace default syslog
-# if you run other chrooted services that log to syslog you should 
-# include them here, e.g. unix-dgram ("/var/nsd/dev/log");
-source s_local {
-        unix-dgram ("/dev/log");
-        unix-dgram ("/var/empty/dev/log");
-        unix-dgram ("/var/www/dev/log");
-        internal();
+# This source includes internal syslog_ng messages and local system logs, as
+# forwarded by OpenBSD's stock syslogd(8) 
+source s_local{ 
+        udp(ip("127.0.0.1") port(514));
+        internal(); 
 };
 
+# This source is for logs coming to the concentrator from other hosts.
+# Since 514/UDP is already occupied by syslogd(8) either listen on high port
+# or specify LAN ip address to listen on default port (514) on the specific
+# LAN interface
 source s_net {
-        udp(port(514));
+
+        udp(port(60514));
+# or   udp(ip("lan.ip.add.res") port(514));
 #      tcp(port(514));
 };
 
+# change the following '127.0.0.1' with the ip of the concentrator
+rewrite r_local_sethost { set("127.0.0.1", value("HOST"));};
 
 log { source(s_net); destination(d_mysql); };
-log { source(s_local); destination(d_mysql_local); };
+log { source(s_local); rewrite(r_local_sethost); destination(d_mysql); };
 
 destination d_mysql {
         sql(
                 type(mysql)
-                host("DATABASEHOST") username("USERNAME") password("PASSWORD")
+                host("127.0.0.1") username("echofish") password("{{{echofish-pass-here}}}")
                 database("ETS_echofish")
                 table("archive_bh") 
                 columns("host", "facility", "priority", "level", "received_ts", "program", "msg","pid","tag")
@@ -222,39 +210,40 @@ destination d_mysql {
         );
 };
 
-destination d_mysql_local {
-        sql(
-                type(mysql)
-                host("DATABASEHOST") username("USERNAME") password("PASSWORD")
-                database("ETS_echofish")
-                table("archive_bh") 
-                columns("host", "facility", "priority", "level", "received_ts", "program", "msg","pid","tag")
-# change the following '127.0.0.1' with the ip of the concentrator
-                values("127.0.0.1", "$FACILITY_NUM", "$PRIORITY","$LEVEL_NUM", "$YEAR-$MONTH-$DAY $HOUR:$MIN:$SEC", "$PROGRAM", "$MSG","$PID", "$TAG" )
-        );
-};
-
 ```
 
+#### Stock OpenBSD syslogd configuration
+
+To additionally forward logs from the concentrator's OS, the syslogd(8) daemon
+is configured to relay all messages to the syslog-ng daemon.
+
+Add the following lines to `/etc/syslog.conf`:
+
+```
+# Log all messages to local syslog-ng listening on 127.0.0.1
+*.*    @127.0.0.1
+```
 
 #### OpenBSD service startup
 
-Now make sure the required services are started at system boot by updating the 
-file `/etc/rc.conf.local` to include the newly installed package daemons
+Now make sure the required services are started at system boot:
 
 ```sh
-syslogd_flags=NO
-nginx_flags=""
-pkg_scripts="syslog_ng mysqld php_fpm"
+rcctl enable mysqld syslog_ng php56_fpm nginx
 ```
 
 Start the remaining services
   
 ```sh
-/etc/rc.d/syslogd stop
-/etc/rc.d/syslog_ng start 
-/etc/rc.d/php_fpm start
-/etc/rc.d/nginx start
+rcctl start syslog_ng
+rcctl start php56_fpm
+rcctl start nginx
+```
+
+Restart local syslogd:
+
+```sh
+rcctl restart syslogd
 ```
 
 ### Test your installation
