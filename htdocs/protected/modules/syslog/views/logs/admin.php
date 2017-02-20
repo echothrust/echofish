@@ -20,10 +20,18 @@ $('.search-form form').submit(function(){
 	return false;
 });
 $('body').on('click','#massackfilter',function(){
+	nonempty=0;
+	$('table tr.filters :input').each(function(key,value) {
+		if(value.value!='')
+			nonempty++;
+	});
+	if(nonempty==0 && !confirm('Are you sure you want to acknowledge with empty filters?'))
+	{
+		return false;
+	}
 	data=$( 'table :input' ).serialize();
 	lnk=$(this).attr('href');
 	$.post(lnk,data,function(resp){ $.fn.yiiGridView.update('syslog-grid');window.location.href=resp;});
-  //
 	return false;
 });
 " );
