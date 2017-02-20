@@ -53,7 +53,7 @@ or <b>=</b>) at the beginning of each of your search values to specify how the c
     array(
         'name'=>'hostip',
         'type'=>'raw',
-        'value'=>'CHtml::link($data->lHost->DisplayName,array("admin","Syslog[hostip]"=>"=".$data->hostip),array("title"=>$data->lHost->FullDisplayName))',
+        'value'=>'CHtml::link($data->lHost->DisplayName,array("admin","Archive[hostip]"=>"=".$data->hostip),array("title"=>$data->lHost->FullDisplayName))',
         'cssClassExpression'=>'"hostip"',
 	    'htmlOptions'=>array('width'=>'55px'),
      ),
