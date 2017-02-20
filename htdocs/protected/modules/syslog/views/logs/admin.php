@@ -192,12 +192,13 @@ EOD
 ?>
 
 <?php
+if (! isset ( $_GET ['ajax'] ))
 Yii::app ()->clientScript->registerScript ( 'liveFeed', <<<EOD
 		var timeoutID;
 		function LiveUpdate()
 		{
-			$.fn.yiiGridView.update('syslog-grid');
 			clearTimeout(timeoutID);
+			$.fn.yiiGridView.update('syslog-grid');
 			timeoutID=setTimeout(LiveUpdate,3000);
 		}
 
