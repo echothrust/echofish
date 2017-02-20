@@ -43,7 +43,7 @@ class Syslog extends Log
 	public function acknowledge_logs($criteria=null)
 	{
 		if($criteria->condition!="")
-			$cmd = Yii::app()->db->createCommand("DELETE t1.* FROM syslog as t1 LEFT JOIN host as t2 ON t2.id=t1.host WHERE ".$criteria->condition);
+			$cmd = Yii::app()->db->createCommand("DELETE t1.* FROM syslog as t1 LEFT JOIN host ON host.id=t1.host WHERE ".$criteria->condition);
 		else
 			$cmd = Yii::app()->db->createCommand("DELETE t1.* FROM syslog as t1");
 		foreach($criteria->params as $key=>$val) $cmd->bindParam($key,$val);
