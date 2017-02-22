@@ -12,7 +12,7 @@ SET NAMES utf8 COLLATE 'utf8_unicode_ci';
 DELIMITER //
 
 DROP EVENT IF EXISTS e_populate_whitelist_mem//
-CREATE EVENT e_populate_whitelist_mem ON SCHEDULE EVERY 1 SECOND DO 
+CREATE EVENT e_populate_whitelist_mem ON SCHEDULE EVERY 1 SECOND DO
 BEGIN
 IF (SELECT COUNT(*) FROM whitelist_mem)<1 THEN
   IF (SELECT COUNT(*) FROM whitelist)>0 THEN
@@ -33,13 +33,14 @@ BEGIN
 END
 //
 
+
 DROP EVENT IF EXISTS e_rotate_archive//
 CREATE EVENT e_rotate_archive
-ON SCHEDULE EVERY 1 DAY COMMENT 'ROTATE OLD ARCHIVE ENTRIES' DO
+ON SCHEDULE EVERY 1 DAY STARTS CURDATE() + INTERVAL 0 HOUR COMMENT 'ROTATE OLD ARCHIVE ENTRIES' DO
 BEGIN
 IF (SELECT count(*) FROM sysconf WHERE id='archive_rotate' and val='yes')>0 THEN
 	CALL eproc_rotate_archive();
-END IF;  
+END IF;
 END
 //
 
