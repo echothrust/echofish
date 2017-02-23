@@ -148,3 +148,10 @@ whitelisting and abuser incident correlation will not work consistently. Make
 sure you have `event_scheduler=ON` in the `[mysqld]` section of `/etc/my.cnf` 
 or `/etc/mysql/my.cnf`.
 
+* Recent versions of MariaDB ship the BLACKHOLE engine as separate plugin, which
+is disabled by default. To fix this issue on an existing MariaDB installation:
+```
+INSTALL PLUGIN BLACKHOLE SONAME 'ha_blackhole.so';
+ALTER TABLE ETS_echofish.archive_bh ENGINE BLACKHOLE;
+```
+
