@@ -26,6 +26,10 @@ reasonably recent versions too).
 
 Echofish is dependent on MariaDB 10.0.5+ for PCRE pattern matching.
 
+#### 1.2.2 - MariaDB BLACKHOLE Storage Engine
+
+Make sure the BLACKHOLE engine is enabled in MariaDB as a plugin.
+
 ### 1.3 - Syslog
 
 Echofish has been tested to work well with syslog-ng and rsyslog, but other 
@@ -107,7 +111,7 @@ return array(
 Schedule a daily summary of Abuser Incidents to run every night at 00:30 through cron: 
 
 ```
-30 0 * * * cd /var/www/echofish/htdocs && /usr/local/bin/php-5.3 cron.php alert abuser --email=YOUR-EMAIL --interval=1440 --zero=1
+30 0 * * * cd /var/www/echofish/htdocs && /usr/local/bin/php-5.6 cron.php alert abuser --email=YOUR-EMAIL --interval=1440 --zero=1
 ```
 
 On the cronjob above, make sure you change the paths to match your 

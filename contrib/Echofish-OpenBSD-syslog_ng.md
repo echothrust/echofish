@@ -47,6 +47,7 @@ Run `mysql -p -u root` to connect to your mysql server as administrator and
 execute the following SQL (change {{{echofish-pass-here}}} as you see fit):
 
 ```sql
+INSTALL PLUGIN BLACKHOLE SONAME 'ha_blackhole.so';
 CREATE DATABASE ETS_echofish CHARACTER SET utf8 COLLATE utf8_unicode_ci;
 GRANT ALL PRIVILEGES ON ETS_echofish.* TO 'echofish'@'127.0.0.1' IDENTIFIED BY '{{{echofish-pass-here}}}' WITH GRANT OPTION;
 FLUSH PRIVILEGES;
