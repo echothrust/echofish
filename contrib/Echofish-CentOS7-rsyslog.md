@@ -42,20 +42,15 @@ curl -L https://github.com/echothrust/echofish/archive/master.tar.gz | tar zx
 mv echofish-master echofish
 ```
 
-#### MySQL
+#### MariaDB
 
-You may configure & start MySQL as the backend database:
+Echofish requires MariaDB builtin scheduler to be enabled, so add `event_scheduler=ON` in the `[mysqld]` section of `/etc/my.cnf.d/server.cnf`.
+
+Start MariaDB as the backend database:
 
 ```sh
 systemctl enable mariadb.service
 systemctl start mariadb.service
-```
-
-Echofish requires MySQL builtin scheduler to be enabled, so add `event_scheduler=ON` in the `[mysqld]` section of `/etc/my.cnf.d/server.cnf`.
-
-```sh
-chkconfig mysqld on
-service mysqld restart
 ```
 
 #### Create and configure a database
@@ -74,7 +69,7 @@ FLUSH PRIVILEGES;
 Import the provided schema files into the database:
 
 ```sh
-XXX: cd /usr/share/nginx/echofish
+cd /usr/share/nginx/echofish
 mysql ETS_echofish < schema/00_echofish-schema.sql
 mysql ETS_echofish < schema/echofish-dataonly.sql
 mysql ETS_echofish < schema/echofish-functions.sql
@@ -157,14 +152,6 @@ $ModLoad ommysql.so
 # Generic template
 $template dbFormat,"INSERT INTO archive_bh (host, facility, priority, level, received_ts, program, msg, tag) VALUES ( '%fromhost-ip%', '%syslogfacility%', '%syslogpriority%','%syslogseverity%', '%timereported:::date-mysql%', TRIM('%programname%'), TRIM('%msg%'), '%syslogtag%' );\n",sql
 
-# Specific template for loghost (127.0.0.1)
-# To avoid logging as 127.0.0.1 uncomment the following lines and change A.B.C.D to the loghosts IP addr.
-#$template dbFormatLocal,"INSERT INTO archive_bh (host, facility, priority, level, received_ts, program, msg, tag) VALUES ( 'A.B.C.D', '%syslogfacility%', '%syslogpriority%','%syslogseverity%', '%timereported:::date-mysql%', TRIM('%programname%'), TRIM('%msg%'), '%syslogtag%' );\n",sql
-#if $fromhost-ip != '127.0.0.1' then :ommysql:127.0.0.1,ETS_echofish,echofish,{{{echofish-pass-here}}};dbFormat
-#& ~
-#if $fromhost-ip == '127.0.0.1' then :ommysql:127.0.0.1,ETS_echofish,echofish,{{{echofish-pass-here}}};dbFormat
-
-# If you enabled loghost template above, you should comment the following line out.
 *.* :ommysql:127.0.0.1,ETS_echofish,echofish,{{{echofish-pass-here}}};dbFormat
 ```
 
@@ -232,10 +219,7 @@ setsebool httpd_can_network_connect_db on
 chcon system_u:object_r:syslog_conf_t:s0 /etc/rsyslog.d/echofish.conf
 ```
 
-
 ### Test your installation
-
-XXX: Consider running `/usr/bin/mysql_secure_installation`.
 
 Enable and restart rsyslog daemon:
 
@@ -256,6 +240,13 @@ Start php-fpm service:
 ```sh
 systemctl enable php-fpm.service
 systemctl restart php-fpm.service
+```
+
+Create a symlink for echofish:
+
+```sh
+cd /usr/share/nginx/html
+ln -s ../echofish/htdocs echofish
 ```
 
 Point your browser to `http://{{{echofish-host-here}}}/echofish/` and login with uid/pwd admin/admin.
