@@ -150,7 +150,9 @@ $InputTCPServerRun 514
 $ModLoad ommysql.so
 
 # Generic template
-$template dbFormat,"INSERT INTO archive_bh (host, facility, priority, level, received_ts, program, msg, tag) VALUES ( '%fromhost-ip%', '%syslogfacility%', '%syslogpriority%','%syslogseverity%', '%timereported:::date-mysql%', TRIM('%programname%'), TRIM('%msg%'), '%syslogtag%' );\n",sql
+template(name="dbFormat" type="string" option.sql="on"
+        string="INSERT INTO archive_bh (host, facility, priority, level, received_ts, program, msg,tag) VALUES ( '%fromhost-ip%', '%syslogfacility%', '%syslogpriority%','%syslogseverity%', '%timereported:::date-mysql%', TRIM('%programname%'), TRIM('%msg%'), '%syslogtag%' )"
+)
 
 *.* :ommysql:127.0.0.1,ETS_echofish,echofish,{{{echofish-pass-here}}};dbFormat
 ```
