@@ -76,6 +76,12 @@ reload the mysql server process, i.e. `service mysqld reload` or equivalent.
 
 ### 3.2 - Echofish frontend
 
+#### 3.2.1 - Yii assets directory
+
+The web-ui expects a directory in `htdocs/assets`, owned by the user running php-fpm.
+
+#### 3.2.2 - Database config
+
 Database credentials are expected in `htdocs/protected/config/db.php`:
 
 ```
