@@ -42,11 +42,20 @@ curl -L https://github.com/echothrust/echofish/archive/master.tar.gz | tar zx
 mv echofish-master echofish
 ```
 
-#### MariaDB event scheduler
+#### MariaDB
+
+Start MariaDB as the backend database:
+
+```sh
+systemctl enable mariadb.service
+systemctl start mariadb.service
+```
+
+##### MariaDB event scheduler
 
 Echofish requires MariaDB builtin scheduler to be enabled, so add `event_scheduler=ON` in the `[mysqld]` section of `/etc/my.cnf.d/server.cnf`.
 
-#### MariaDB BLACKHOLE Storage Engine
+##### MariaDB BLACKHOLE Storage Engine
 
 Make sure the BLACKHOLE engine is enabled in MariaDB as a plugin. Run `mysql -u root` and execute
 the following statement:
@@ -55,14 +64,7 @@ the following statement:
 INSTALL PLUGIN BLACKHOLE SONAME 'ha_blackhole.so';
 ```
 
-#### Create and configure a database
-
-Start MariaDB as the backend database:
-
-```sh
-systemctl enable mariadb.service
-systemctl start mariadb.service
-```
+##### Create and configure a database
 
 Run `mysql -p -u root` to connect to your mysql server as administrator and execute the following SQL (change {{{echofish-pass-here}}} as you see fit):
 
@@ -72,7 +74,7 @@ GRANT ALL PRIVILEGES ON ETS_echofish.* TO 'echofish'@'localhost' IDENTIFIED BY '
 FLUSH PRIVILEGES;
 ```
 
-#### Import database schema
+##### Import database schema
 
 Import the provided schema files into the database:
 
