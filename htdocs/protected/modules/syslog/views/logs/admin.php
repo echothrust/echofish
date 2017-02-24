@@ -170,7 +170,7 @@ $this->widget ( 'bootstrap.widgets.TbExtendedGridView', array (
 										)
 								),
 								'acknowledge' => array (
-										'label' => 'Acknowledge this entry and others like it',
+										'label' => 'Acknowledge this entry and others like it for this host',
 										'icon' => 'ok',
 										'url' => 'Yii::app()->createUrl("syslog/logs/acknowledge", array("id"=>$data->id))'
 								),
