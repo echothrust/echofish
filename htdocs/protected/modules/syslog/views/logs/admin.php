@@ -19,7 +19,7 @@ $('.search-form form').submit(function(){
 	});
 	return false;
 });
-$('body').on('click','#massackfilter',function(){
+$(document).on('click','#massackfilter',function(){
 	nonempty=0;
 	$('table tr.filters :input').each(function(key,value) {
 		if(value.value!='')
@@ -31,7 +31,7 @@ $('body').on('click','#massackfilter',function(){
 	}
 	data=$( 'table :input' ).serialize();
 	lnk=$(this).attr('href');
-	$.post(lnk,data,function(resp){ $.fn.yiiGridView.update('syslog-grid');window.location.href=resp;});
+	$.post(lnk,data,function(resp){window.location.href=resp;});
 	return false;
 });
 " );
@@ -170,7 +170,7 @@ $this->widget ( 'bootstrap.widgets.TbExtendedGridView', array (
 										)
 								),
 								'acknowledge' => array (
-										'label' => 'Acknowledge this entry and others like it',
+										'label' => 'Acknowledge this entry and others like it for this host',
 										'icon' => 'ok',
 										'url' => 'Yii::app()->createUrl("syslog/logs/acknowledge", array("id"=>$data->id))'
 								),
