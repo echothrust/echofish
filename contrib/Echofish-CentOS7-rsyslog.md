@@ -223,12 +223,14 @@ Set unix permissions and selinux contexts:
 # set write permissions for php-fpm
 mkdir /usr/share/nginx/echofish/htdocs/assets
 chown -R apache.apache /usr/share/nginx/echofish/htdocs/assets
-chcon -R -u system_u -r object_r -t httpd_sys_content_t /usr/share/nginx/echofish/htdocs
-chcon -R -u system_u -r object_r -t httpd_sys_content_rw_t /usr/share/nginx/echofish/htdocs/assets
-# allow mysql connections from fpm
-setsebool httpd_can_network_connect_db on
-# set correct contexts for rsyslog included config
-chcon system_u:object_r:syslog_conf_t:s0 /etc/rsyslog.d/echofish.conf
+selinuxenabled && (
+  chcon -R -u system_u -r object_r -t httpd_sys_content_t /usr/share/nginx/echofish/htdocs
+  chcon -R -u system_u -r object_r -t httpd_sys_content_rw_t /usr/share/nginx/echofish/htdocs/assets
+  # allow mysql connections from fpm
+  setsebool httpd_can_network_connect_db on
+  # set correct contexts for rsyslog included config
+  chcon system_u:object_r:syslog_conf_t:s0 /etc/rsyslog.d/echofish.conf
+)
 ```
 
 ### Test your installation
