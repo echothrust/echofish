@@ -128,12 +128,12 @@ class LogsController extends Controller {
       $model->attributes = $_POST ['Syslog'];
       $model->acknowledge = true;
       try {
-      	$model->search ()->getData ();
+      	$model->search ();
       }
       catch (Exception $e)
       {
 
-      	Yii::app()->user->setFlash('error',"<strong>".$e->getMessage()."</strong> ");
+      	Yii::app()->user->addFlash('error',"<strong>".$e->getMessage()."</strong> ");
       }
     }
     Yii::app ()->user->setState ( 'pageSize', Yii::app ()->params ['defaultPageSize'] );

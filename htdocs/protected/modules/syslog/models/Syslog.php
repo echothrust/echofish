@@ -46,7 +46,6 @@ class Syslog extends Log
 			$cmd = Yii::app()->db->createCommand("DELETE t1.* FROM syslog as t1 LEFT JOIN host ON host.id=t1.host WHERE ".$criteria->condition);
 		else
 			$cmd = Yii::app()->db->createCommand("DELETE t1.* FROM syslog as t1");
-		foreach($criteria->params as $key=>$val) $cmd->bindParam($key,$val);
-		$cmd->execute();
+		$cmd->execute($criteria->params);
 	}
 }
