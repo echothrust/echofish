@@ -26,6 +26,10 @@ reasonably recent versions too).
 
 Echofish is dependent on MariaDB 10.0.5+ for PCRE pattern matching.
 
+#### 1.2.2 - MariaDB BLACKHOLE Storage Engine
+
+Make sure the BLACKHOLE engine is enabled in MariaDB as a plugin.
+
 ### 1.3 - Syslog
 
 Echofish has been tested to work well with syslog-ng and rsyslog, but other 
@@ -72,6 +76,12 @@ reload the mysql server process, i.e. `service mysqld reload` or equivalent.
 
 ### 3.2 - Echofish frontend
 
+#### 3.2.1 - Yii assets directory
+
+The web-ui expects a directory in `htdocs/assets`, owned by the user running php-fpm.
+
+#### 3.2.2 - Database config
+
 Database credentials are expected in `htdocs/protected/config/db.php`:
 
 ```
@@ -107,7 +117,7 @@ return array(
 Schedule a daily summary of Abuser Incidents to run every night at 00:30 through cron: 
 
 ```
-30 0 * * * cd /var/www/echofish/htdocs && /usr/local/bin/php-5.3 cron.php alert abuser --email=YOUR-EMAIL --interval=1440 --zero=1
+30 0 * * * cd /var/www/echofish/htdocs && /usr/local/bin/php-5.6 cron.php alert abuser --email=YOUR-EMAIL --interval=1440 --zero=1
 ```
 
 On the cronjob above, make sure you change the paths to match your 
@@ -143,4 +153,11 @@ chown www-data /var/www/echofish/htdocs/assets
 whitelisting and abuser incident correlation will not work consistently. Make 
 sure you have `event_scheduler=ON` in the `[mysqld]` section of `/etc/my.cnf` 
 or `/etc/mysql/my.cnf`.
+
+* Recent versions of MariaDB ship the BLACKHOLE engine as separate plugin, which
+is disabled by default. To fix this issue on an existing MariaDB installation:
+```
+INSTALL PLUGIN BLACKHOLE SONAME 'ha_blackhole.so';
+ALTER TABLE ETS_echofish.archive_bh ENGINE BLACKHOLE;
+```
 

@@ -1,7 +1,7 @@
 ## Install Echofish On OpenBSD
 
 The following guide walks you through the installation of Echofish on 
-OpenBSD 6.0 with syslog-ng+nginx+php_fpm.
+OpenBSD 6.0 with syslog-ng+httpd+php_fpm.
 
 ### Requirements
 
@@ -16,7 +16,7 @@ php-fpm will be used to run Echofish:
 ```sh
 export PKG_PATH=http://ftp.openbsd.org/pub/OpenBSD/$(uname -r)/packages/$(uname -m)
 pkg_add -vvi syslog-ng libdbi-drivers-mysql mariadb-server mariadb-client 
-pkg_add -vvi nginx-1.10.1 php-5.6.23p0 php-pdo_mysql-5.6.23p0 
+pkg_add -vvi php-5.6.23p0 php-pdo_mysql-5.6.23p0 
 ```
 
 #### Echofish sources
@@ -31,10 +31,7 @@ ln -s /var/www/echofish-master/htdocs /var/www/htdocs/echofish
 install -d -g www -o www /var/www/htdocs/echofish/assets/
 ```
 
-#### Create and configure a database 
-
-Echofish requires MySQL's builtin scheduler to be enabled, so add 
-`event_scheduler=ON` in the `[mysqld]` section of `/etc/my.cnf`.
+#### MariaDB
 
 Configure MySQL to start for the first time and start the service:
 
@@ -42,6 +39,22 @@ Configure MySQL to start for the first time and start the service:
 mysql_install_db
 rcctl -f start mysqld
 ```
+
+##### MariaDB event scheduler
+
+Echofish requires MySQL's builtin scheduler to be enabled, so add 
+`event_scheduler=ON` in the `[mysqld]` section of `/etc/my.cnf`.
+
+##### MariaDB BLACKHOLE Storage Engine
+
+Make sure the BLACKHOLE engine is enabled in MariaDB as a plugin.
+Run `mysql -u root` and execute the following statement:
+
+```sql
+INSTALL PLUGIN BLACKHOLE SONAME 'ha_blackhole.so';
+```
+
+##### Create and configure a database 
 
 Run `mysql -p -u root` to connect to your mysql server as administrator and 
 execute the following SQL (change {{{echofish-pass-here}}} as you see fit):
@@ -52,7 +65,7 @@ GRANT ALL PRIVILEGES ON ETS_echofish.* TO 'echofish'@'127.0.0.1' IDENTIFIED BY '
 FLUSH PRIVILEGES;
 ```
 
-#### Import database schema
+##### Import database schema
 
 Import the provided schema files into the database:
 
@@ -84,8 +97,8 @@ Edit `/var/www/htdocs/echofish/protected/config/db.php` and change the values to
 		'db'=>array(
 			'connectionString' => 'mysql:host=localhost;dbname=ETS_echofish',
 			'emulatePrepare' => true,
-			'username' => 'dbuser',
-			'password' => 'dbpass',
+			'username' => 'echofish',
+			'password' => '{{{echofish-pass-here}}}',
 			'charset' => 'utf8',
 		),
 ```
@@ -128,26 +141,30 @@ setup learn more about Abuser on the module's help pages within the webui.
 This section described setting up all complementing services, such as a syslog 
 concentrator, a web server, etc.
 
-#### Configure nginx for php-fpm
+#### Configure httpd for php-fpm
 
-Uncomment the following section in `/etc/nginx/nginx.conf`:
-
-```
-        #location ~ \.php$ {
-        #    try_files      $uri $uri/ =404;
-        #    fastcgi_pass   unix:run/php-fpm.sock;
-        #    fastcgi_index  index.php;
-        #    fastcgi_param  SCRIPT_FILENAME  $document_root$fastcgi_script_name;
-        #    include        fastcgi_params;
-        #}
+Create `/etc/httpd.conf`:
 
 ```
+ext_addr="*"
+server "default" {
+        listen on $ext_addr port 80
 
-This will configure nginx to serve PHP pages through php-fastcgi.
+        location "*.php" { 
+                fastcgi socket "/run/php-fpm.sock" 
+        } 
+
+        location "/echofish/*" { 
+                directory index index.php 
+        } 
+}
+```
+
+This will configure httpd to serve PHP pages through php-fastcgi.
 
 #### Configure php date.timezone
 
-In the `[Date]` section of your `/etc/php-5.3.ini` set PHP’s date.timezone (a 
+In the `[Date]` section of your `/etc/php-5.6.ini` set PHP’s date.timezone (a 
 list of available timezone settings can be found 
 [here](http://uk.php.net/manual/en/timezones.php)). Replace with your server's 
 timezone:
@@ -229,7 +246,7 @@ Add the following lines to `/etc/syslog.conf`:
 Now make sure the required services are started at system boot:
 
 ```sh
-rcctl enable mysqld syslog_ng php56_fpm nginx
+rcctl enable mysqld syslog_ng php56_fpm httpd
 ```
 
 Start the remaining services
@@ -237,7 +254,7 @@ Start the remaining services
 ```sh
 rcctl start syslog_ng
 rcctl start php56_fpm
-rcctl start nginx
+rcctl start httpd
 ```
 
 Restart local syslogd:
