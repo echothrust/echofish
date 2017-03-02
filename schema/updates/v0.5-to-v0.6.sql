@@ -12,4 +12,9 @@ UPDATE `abuser_incident` SET `ip`=INET6_ATON(INET_NTOA(`ip`));
 UPDATE `host` SET `ip`=INET6_ATON(INET_NTOA(`ip`));
 UPDATE `sysconf` SET id='archive_keep_days' WHERE id='archive_delete_days';
 
+INSERT INTO `sysconf` values
+('abuser_rotate','no'),
+('abuser_keep_incident','yes'),
+('abuser_keep_days',7)
+ON DUPLICATE KEY UPDATE `val`=VALUES(`val`);
 SET FOREIGN_KEY_CHECKS=1;
