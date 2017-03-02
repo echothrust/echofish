@@ -28,7 +28,7 @@ insert into sysconf (id,val) VALUES ('archive_activated','yes'),
 									('whitelist_archived','no'),
 									('archive_rotate','yes'),
 									('archive_delete_use_mem','no'),
-									('archive_delete_days',7),
+									('archive_keep_days',7),
 									('archive_delete_limit',0)
 							 ON DUPLICATE KEY UPDATE id=VALUES(id);
 

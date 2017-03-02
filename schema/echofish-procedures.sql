@@ -167,7 +167,7 @@ DROP PROCEDURE IF EXISTS eproc_rotate_archive//
 CREATE PROCEDURE eproc_rotate_archive()
 BEGIN
   DROP TABLE IF EXISTS archive_ids;
-  SET @archive_days=IFNULL((SELECT val FROM sysconf WHERE id='archive_delete_days'),7);
+  SET @archive_days=IFNULL((SELECT val FROM sysconf WHERE id='archive_keep_days'),7);
   SET @archive_limit=IFNULL((SELECT val FROM sysconf WHERE id='archive_delete_limit'),0);
   SET @use_mem=IFNULL((SELECT val FROM sysconf WHERE id='archive_delete_use_mem'),'no');
   IF @archive_days>0 THEN

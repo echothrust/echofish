@@ -14,7 +14,7 @@ SET NAMES utf8 COLLATE 'utf8_unicode_ci';
 DELIMITER //
 
 DROP PROCEDURE IF EXISTS delete_duplicate_whitelist//
-CREATE PROCEDURE delete_duplicate_whitelist() 
+CREATE PROCEDURE delete_duplicate_whitelist()
 BEGIN
   DECLARE wid,wfacility,wlevel,done BIGINT DEFAULT 0;
   DECLARE whost,wprogram VARCHAR(255) DEFAULT '';
@@ -23,7 +23,7 @@ BEGIN
   DECLARE CONTINUE HANDLER FOR NOT FOUND SET done = -1;
   START TRANSACTION WITH CONSISTENT SNAPSHOT;
   OPEN uwp;
-  
+
   read_loop: LOOP
       FETCH uwp INTO wid,whost,wprogram,wfacility,wlevel,wpattern;
       IF done = -1 THEN
@@ -32,10 +32,10 @@ BEGIN
     delete_segment: BEGIN
       DECLARE CONTINUE HANDLER FOR NOT FOUND SET @x='OUPS';
  	    DELETE FROM whitelist WHERE
-          pattern LIKE wpattern AND 
-    		  program LIKE if(wprogram='' or wprogram is null,'%',wprogram) AND 
-      		facility like if(wfacility<0,'%',wfacility) AND  
-      		`level` like if(wlevel<0,'%',wlevel) AND  
+          pattern LIKE wpattern AND
+    		  program LIKE if(wprogram='' or wprogram is null,'%',wprogram) AND
+      		facility like if(wfacility<0,'%',wfacility) AND
+      		`level` like if(wlevel<0,'%',wlevel) AND
 		      host LIKE if(whost='0','%',whost) AND
 		      id!=wid;
  	  END delete_segment;
@@ -69,7 +69,7 @@ BEGIN
   DECLARE uwp CURSOR FOR SELECT id,name FROM archive_parser WHERE ptype=ttype ORDER BY weight,name,id;
   DECLARE CONTINUE HANDLER FOR NOT FOUND SET done = -1;
   OPEN uwp;
-  
+
   read_loop: LOOP
       FETCH uwp INTO apid,apname;
       IF done = -1 THEN
@@ -125,7 +125,7 @@ COMMIT;
 END;
 //
 
-/* 
+/*
  * Simple wrapper around the insert for the log of abuser evidence
  */
 DROP PROCEDURE IF EXISTS abuser_log_evidence//
@@ -145,9 +145,9 @@ BEGIN
     DECLARE CONTINUE HANDLER FOR NOT FOUND SET done = -1;
 
     SELECT id,pattern,grouping,capture INTO mts,@pattern,@grouping,Ccapture FROM abuser_trigger WHERE
-    amsg LIKE msg AND 
-    aprogram LIKE if(program='' or program is null,'%',program) AND 
-    afacility like if(facility<0,'%',facility) AND  
+    amsg LIKE msg AND
+    aprogram LIKE if(program='' or program is null,'%',program) AND
+    afacility like if(facility<0,'%',facility) AND
     alevel like if(`severity`<0,'%',`severity`) and active=1
     LIMIT 1;
 
@@ -176,17 +176,17 @@ END;//
 DROP PROCEDURE IF EXISTS eproc_rotate_archive//
 CREATE PROCEDURE eproc_rotate_archive()
 BEGIN
-  DROP TABLE IF EXISTS archive_ids;
-  SET @archive_days=IFNULL((SELECT val FROM sysconf WHERE id='archive_delete_days'),7);
+  SET @archive_days=IFNULL((SELECT val FROM sysconf WHERE id='archive_keep_days'),7);
   SET @archive_limit=IFNULL((SELECT val FROM sysconf WHERE id='archive_delete_limit'),0);
   SET @use_mem=IFNULL((SELECT val FROM sysconf WHERE id='archive_delete_use_mem'),'no');
+
   IF @archive_days>0 THEN
 	IF @use_mem != 'yes' THEN
   	  CREATE TEMPORARY TABLE IF NOT EXISTS archive_ids (id BIGINT UNSIGNED NOT NULL PRIMARY KEY);
   	ELSE
   	  CREATE TEMPORARY TABLE IF NOT EXISTS archive_ids (id BIGINT UNSIGNED NOT NULL PRIMARY KEY) ENGINE=MEMORY;
 	END IF;
-	
+
 	SET SESSION TRANSACTION ISOLATION LEVEL READ UNCOMMITTED;
 	START TRANSACTION;
 	IF @archive_limit > 0 THEN
@@ -205,5 +205,6 @@ BEGIN
 	DELETE t1.* FROM archive_ids as t1 LEFT JOIN abuser_evidence AS t2 ON t1.id=t2.archive_id WHERE t2.archive_id IS NOT NULL;
 	DELETE t1.* FROM `archive` AS t1 LEFT JOIN archive_ids AS t2 ON t1.id=t2.id WHERE t2.id IS NOT NULL;
 	COMMIT;
+	DROP TABLE IF EXISTS archive_ids;
   END IF;
 END;//
