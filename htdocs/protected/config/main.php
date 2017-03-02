@@ -74,7 +74,7 @@ return array(
 
 		'params'=>array(
 				'defaultPageSize'=>50,
-				'echofish_version'=>'0.5',
+				'echofish_version'=>'0.6',
 				'adminEmail'=>'info@echothrust.com',
 		),
 );
