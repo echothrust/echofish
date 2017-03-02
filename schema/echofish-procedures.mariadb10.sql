@@ -208,3 +208,36 @@ BEGIN
 	DROP TABLE IF EXISTS archive_ids;
   END IF;
 END;//
+
+
+
+/*
+ * Procedure to process old archive log entries and delete them
+ */
+DROP PROCEDURE IF EXISTS eproc_rotate_abuser//
+CREATE PROCEDURE eproc_rotate_abuser()
+BEGIN
+  SET @archive_days=IFNULL((SELECT val FROM sysconf WHERE id='abuser_keep_days'),7);
+  SET @keep_incident=IFNULL((SELECT val FROM sysconf WHERE id='abuser_keep_incident'),'yes');
+
+  IF @archive_days>0 THEN
+	CREATE TEMPORARY TABLE IF NOT EXISTS incident_ids (id BIGINT UNSIGNED NOT NULL PRIMARY KEY);
+
+	START TRANSACTION;
+   	PREPARE choose_incident_ids FROM 'INSERT INTO incident_ids SELECT id FROM `abuser_incident` WHERE `counter`=0 AND `last_occurrence` < NOW() - INTERVAL ? DAY';
+   	EXECUTE choose_incident_ids USING @archive_days;
+	DEALLOCATE PREPARE choose_incident_ids;
+	IF @debug IS NOT NULL THEN
+      SELECT t1.* FROM abuser_evidence AS t1 LEFT JOIN incident_ids AS t2 ON t2.id=t1.incident_id WHERE t2.id IS NOT NULL;
+	END IF;
+	DELETE t1.* FROM abuser_evidence AS t1 LEFT JOIN incident_ids AS t2 ON t2.id=t1.incident_id WHERE t2.id IS NOT NULL;
+	IF @keep_incident != 'yes' THEN
+	  IF @debug IS NOT NULL THEN
+	  	SELECT t1.id FROM abuser_incident AS t1 LEFT JOIN incident_ids AS t2 ON t2.id=t1.id WHERE t2.id IS NOT NULL;
+	  END IF;
+      DELETE t1.* FROM abuser_incident AS t1 LEFT JOIN incident_ids AS t2 ON t2.id=t1.id WHERE t2.id IS NOT NULL;
+	END IF;
+	COMMIT;
+	DROP TABLE IF EXISTS incident_ids;
+  END IF;
+END;//
