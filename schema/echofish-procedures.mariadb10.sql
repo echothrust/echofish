@@ -212,7 +212,7 @@ END;//
 
 
 /*
- * Procedure to process old archive log entries and delete them
+ * Procedure to process old abuser log entries and delete them
  */
 DROP PROCEDURE IF EXISTS eproc_rotate_abuser//
 CREATE PROCEDURE eproc_rotate_abuser()
