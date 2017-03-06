@@ -38,6 +38,10 @@ DROP EVENT IF EXISTS e_rotate_archive//
 CREATE EVENT e_rotate_archive
 ON SCHEDULE EVERY 1 DAY STARTS CURDATE() + INTERVAL 0 HOUR COMMENT 'ROTATE OLD ARCHIVE ENTRIES' DO
 BEGIN
+IF (SELECT count(*) FROM sysconf WHERE id='abuser_rotate' and val='yes')>0 THEN
+	CALL eproc_rotate_abuser();
+END IF;
+
 IF (SELECT count(*) FROM sysconf WHERE id='archive_rotate' and val='yes')>0 THEN
 	CALL eproc_rotate_archive();
 END IF;
