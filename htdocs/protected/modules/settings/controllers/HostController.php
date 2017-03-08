@@ -4,14 +4,14 @@ class HostController extends Controller {
    *
    * @var string the default layout for the views. Defaults to '//layouts/column2', meaning
    *      using two-column layout. See 'protected/views/layouts/column2.php'.
-   *     
+   *
    */
   public $layout = '//layouts/column2';
-  
+
   /**
    *
    * @return array action filters
-   *        
+   *
    */
   public function filters()
   {
@@ -19,13 +19,13 @@ class HostController extends Controller {
         'accessControl'  // perform access control for CRUD operations
         );
   }
-  
+
   /**
    * Specifies the access control rules.
    * This method is used by the 'accessControl' filter.
    *
    * @return array access control rules
-   *        
+   *
    */
 	public function accessRules()
 	{
@@ -42,21 +42,21 @@ class HostController extends Controller {
 				)
 		);
 	}
-  
+
   /**
    * Displays a particular model.
    *
    * @param integer $id
    *          the ID of the model to be displayed
-   *          
+   *
    */
   public function actionView($id)
   {
     $this->render ( 'view', array (
-        'model' => $this->loadModel ( $id ) 
+        'model' => $this->loadModel ( $id )
     ) );
   }
-  
+
   /**
    * Creates a new model.
    * If creation is successful, the browser will be redirected to the 'view' page.
@@ -64,10 +64,10 @@ class HostController extends Controller {
   public function actionCreate()
   {
     $model = new Host ();
-    
+
     // Uncomment the following line if AJAX validation is needed
     // $this->performAjaxValidation($model);
-    
+
     if (isset ( $_POST ['Host'] ))
     {
       $model->attributes = $_POST ['Host'];
@@ -75,70 +75,84 @@ class HostController extends Controller {
       {
         $this->redirect ( array (
             'view',
-            'id' => $model->id 
+            'id' => $model->id
         ) );
       }
     }
-    
+
     $this->render ( 'create', array (
-        'model' => $model 
+        'model' => $model
     ) );
   }
-  
+
   /**
    * Updates a particular model.
    * If update is successful, the browser will be redirected to the 'view' page.
    *
    * @param integer $id
    *          the ID of the model to be updated
-   *          
+   *
    */
   public function actionUpdate($id)
   {
     $model = $this->loadModel ( $id );
-    
+
     // Uncomment the following line if AJAX validation is needed
     // $this->performAjaxValidation($model);
-    
+
     if (isset ( $_POST ['Host'] ))
     {
       $model->attributes = $_POST ['Host'];
       if ($model->save ())
         $this->redirect ( array (
             'view',
-            'id' => $model->id 
+            'id' => $model->id
         ) );
     }
     $model->ip = $model->ipoctet;
     $this->render ( 'update', array (
-        'model' => $model 
+        'model' => $model
     ) );
   }
-  
+
   /**
    * Deletes a particular model.
    * If deletion is successful, the browser will be redirected to the 'admin' page.
    *
    * @param integer $id
    *          the ID of the model to be deleted
-   *          
+   *
    */
   public function actionDelete($id)
   {
     if (Yii::app ()->request->isPostRequest)
     {
-      // we only allow deletion via POST request
-      $this->loadModel ( $id )->delete ();
-      
+    	$trans = Yii::app ()->db->beginTransaction ();
+    	try
+    	{
+
+      		$this->loadModel ( $id )->delete ();
+      		Yii::app()->db->createCommand()->delete('syslog')->where('host=:host',array(':host'=>$id))->execute();
+      		Yii::app()->db->createCommand()->delete('archive')->where('host=:host',array(':host'=>$id))->execute();
+      		$trans->commit ();
+    		Yii::app()->user->addFlash('info',"<strong>Host deleted</strong>");
+    	}
+    	catch(Exception $e)
+    	{
+    		$trans->rollback();
+    		Yii::app()->user->addFlash('error',"<strong>Failed to delete host</strong>");
+    	}
+      	// we only allow deletion via POST request
+
       // if AJAX request (triggered by deletion via admin grid view), we should not redirect the browser
       if (! isset ( $_GET ['ajax'] ))
         $this->redirect ( isset ( $_POST ['returnUrl'] ) ? $_POST ['returnUrl'] : array (
-            'admin' 
+            'admin'
         ) );
     } else
       throw new CHttpException ( 400, 'Invalid request. Please do not repeat this request again.' );
   }
-  
+
   /**
    * Manages all models.
    */
@@ -153,12 +167,12 @@ class HostController extends Controller {
     }
     if (isset ( $_GET ['Host'] ))
       $model->attributes = $_GET ['Host'];
-    
+
     $this->render ( 'admin', array (
-        'model' => $model 
+        'model' => $model
     ) );
   }
-  
+
   /**
    * Resolve all hosts.
    */
@@ -168,12 +182,12 @@ class HostController extends Controller {
     {
       $trans = Yii::app ()->db->beginTransaction ();
       try
-      {     
+      {
         foreach ( Host::model ()->findAll () as $host )
         {
           $host->resolve ();
           $host->save();
-          
+
         }
         $trans->commit ();
         Yii::app()->user->addFlash('info',"<strong>Hosts resolved</strong>");
@@ -194,12 +208,12 @@ class HostController extends Controller {
       // if AJAX request (triggered by deletion via admin grid view), we should not redirect the browser
       if (! isset ( $_GET ['ajax'] ))
         $this->redirect ( isset ( $_POST ['returnUrl'] ) ? $_POST ['returnUrl'] : array (
-            'admin' 
+            'admin'
         ) );
     } else
       throw new CHttpException ( 400, 'Invalid request. Please do not repeat this request again.' );
   }
-  
+
   public function actionResolve($id)
   {
     if (Yii::app ()->request->isPostRequest)
@@ -207,13 +221,13 @@ class HostController extends Controller {
       // we only allow deletion via POST request
       $trans = Yii::app ()->db->beginTransaction ();
       try
-      {     
+      {
         $model=$this->loadModel ( $id );
         $model->resolve ();
         $model->save();
         $trans->commit ();
         Yii::app()->user->setFlash('info',"<strong>Host resolved.</strong>");
-        
+
       }
       catch(Exception $e)
       {
@@ -227,24 +241,24 @@ class HostController extends Controller {
          }
          Yii::app()->user->setFlash('error',"<strong>Error in resolving host</strong> ".$xtramsg);
          $trans->rollback();
-      }      
+      }
       // if AJAX request (triggered by deletion via admin grid view), we should not redirect the browser
       if (! isset ( $_GET ['ajax'] ))
         $this->redirect ( isset ( $_POST ['returnUrl'] ) ? $_POST ['returnUrl'] : array (
             'view',
-            'id' => $id 
+            'id' => $id
         ) );
     } else
       throw new CHttpException ( 400, 'Invalid request. Please do not repeat this request again.' );
   }
-  
+
   /**
    * Returns the data model based on the primary key given in the GET variable.
    * If the data model is not found, an HTTP exception will be raised.
    *
    * @param
    *          integer the ID of the model to be loaded
-   *          
+   *
    */
   public function loadModel($id)
   {
@@ -253,13 +267,13 @@ class HostController extends Controller {
       throw new CHttpException ( 404, 'The requested page does not exist.' );
     return $model;
   }
-  
+
   /**
    * Performs the AJAX validation.
    *
    * @param
    *          CModel the model to be validated
-   *          
+   *
    */
   protected function performAjaxValidation($model)
   {
