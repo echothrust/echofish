@@ -64,7 +64,7 @@ switch($section)
 
 	<p>Sorting by any of the fields is possible simply by clicking on their header titles.</p>
 	
-	<p>Searching within this view can be accomplished through the text inputs beneath each header title. You may use multiple inputs to refine your search based on any of the fields. You may optionally enter a comparison operator (<, <=, >, >=, <> or =) at the beginning of each of your search values to specify how the comparison should be done. For (Facility) and (Level) searches, the application expects RFC 5424 facility code and severity level respectively.</p>
+	<p>Searching within this view can be accomplished through the text inputs beneath each header title. You may use multiple inputs to refine your search based on any of the fields. You may optionally enter a comparison operator (&lt;, &lt;=, &gt;, &gt;=, &lt;&gt; or =) at the beginning of each of your search values to specify how the comparison should be done. For (Facility) and (Level) searches, the application expects RFC 5424 facility code and severity level respectively.</p>
 
 	<p>Search filters can also be applied by clicking on a certain hostname, facility, severity or programname from the logs listing. Pressing the keyboard Shift button while clicking on a field, will add its value on the header row filters cumulatively (that is, without clearing other filters that may be present).</p>
 	
@@ -114,7 +114,7 @@ switch($section)
 	
 	<p>Sorting by any of the fields is possible simply by clicking on their header titles.</p>
 	
-	<p>Searching within this view can be accomplished through the text inputs beneath each header title. You may use multiple inputs to refine your search based on any of the fields. You may optionally enter a comparison operator (<, <=, >, >=, <> or =) at the beginning of each of your search values to specify how the comparison should be done. For (Facility) and (Level) searches, the application expects RFC 5424 facility code and severity level respectively.</p>
+	<p>Searching within this view can be accomplished through the text inputs beneath each header title. You may use multiple inputs to refine your search based on any of the fields. You may optionally enter a comparison operator (&lt;, &lt;=, &gt;, &gt;=, &lt;&gt; or =) at the beginning of each of your search values to specify how the comparison should be done. For (Facility) and (Level) searches, the application expects RFC 5424 facility code and severity level respectively.</p>
 	
 </section>
 <hr>
