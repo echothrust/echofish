@@ -17,4 +17,7 @@ INSERT INTO `sysconf` values
 ('abuser_keep_incident','yes'),
 ('abuser_keep_days',7)
 ON DUPLICATE KEY UPDATE `val`=VALUES(`val`);
+
+DELETE FROM `archive` WHERE `host` NOT IN (SELECT id FROM `host`);
+DELETE FROM `syslog` WHERE `host` NOT IN (SELECT id FROM `host`);
 SET FOREIGN_KEY_CHECKS=1;
