@@ -48,12 +48,14 @@ switch($section)
     
 	<p>This view provides a paginated list of log entries, after all filtering takes place. Filtering rules that are defined in Lists/Whitelists will only let irregular events reach this view.</p>
 
+	<p>Live update of this view can be enabled/disabled by clicking on the (Toggle Live Feed) button, to configure whether the view will be updated as new log messages are received.</p>
+
 	<p>The number of messages displayed per page can be adjusted by choosing one of the options from the select box on the header row.</p>
 	
 	<p>Besides the message text (Msg) for each log entry, this view includes:
 		<ul>
 		<li>(Received Ts) The exact date and time the message was received by Echofish.</li>
-		<li>(Host IP) The IP address of the host that sent the message to syslog.</li>
+		<li>(Host) The IP address (or shortname) of the host that sent the message to syslog.</li>
 		<li>(Facility) Description of the RFC 5424 facility code, indicating the type of software that generated the message. Default descriptions are provided for all known codes, but they may be customized in Syslog/Facilities.</li>
 		<li>(Level) Description of the RFC 5424 severity level assigned to the message by the sending host. Default descriptions may be customized in Syslog/Severities.</li>
 		<li>(Program) The name of the application that generated the message.</li>
@@ -62,7 +64,9 @@ switch($section)
 
 	<p>Sorting by any of the fields is possible simply by clicking on their header titles.</p>
 	
-	<p>Searching within this view can be accomplished through the text inputs beneath each header title. You may use multiple inputs to refine your search based on any of the fields. You may optionally enter a comparison operator (<, <=, >, >=, <> or =) at the beginning of each of your search values to specify how the comparison should be done. For (Facility) and (Level) searches, the application expects RFC 5424 facility code and severity level respectively.</p>
+	<p>Searching within this view can be accomplished through the text inputs beneath each header title. You may use multiple inputs to refine your search based on any of the fields. You may optionally enter a comparison operator (&lt;, &lt;=, &gt;, &gt;=, &lt;&gt; or =) at the beginning of each of your search values to specify how the comparison should be done. For (Facility) and (Level) searches, the application expects RFC 5424 facility code and severity level respectively.</p>
+
+	<p>Search filters can also be applied by clicking on a certain hostname, facility, severity or programname from the logs listing. Pressing the keyboard Shift button while clicking on a field, will add its value on the header row filters cumulatively (that is, without clearing other filters that may be present).</p>
 	
 	<p>Acknowledging one or more messages will remove them from this view.
 		<ul>
@@ -110,7 +114,7 @@ switch($section)
 	
 	<p>Sorting by any of the fields is possible simply by clicking on their header titles.</p>
 	
-	<p>Searching within this view can be accomplished through the text inputs beneath each header title. You may use multiple inputs to refine your search based on any of the fields. You may optionally enter a comparison operator (<, <=, >, >=, <> or =) at the beginning of each of your search values to specify how the comparison should be done. For (Facility) and (Level) searches, the application expects RFC 5424 facility code and severity level respectively.</p>
+	<p>Searching within this view can be accomplished through the text inputs beneath each header title. You may use multiple inputs to refine your search based on any of the fields. You may optionally enter a comparison operator (&lt;, &lt;=, &gt;, &gt;=, &lt;&gt; or =) at the beginning of each of your search values to specify how the comparison should be done. For (Facility) and (Level) searches, the application expects RFC 5424 facility code and severity level respectively.</p>
 	
 </section>
 <hr>
