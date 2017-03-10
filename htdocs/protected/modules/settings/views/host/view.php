@@ -9,7 +9,7 @@ array('label'=>'Manage Host','url'=>array('admin')),
 array('label'=>'Create Host','url'=>array('create')),
 array('label'=>'Update Host','url'=>array('update','id'=>$model->id)),
 array('label'=>'Resolve Host','url'=>'#','linkOptions'=>array('submit'=>array('resolve','id'=>$model->id))),
-array('label'=>'Delete Host','url'=>'#','linkOptions'=>array('submit'=>array('delete','id'=>$model->id),'confirm'=>'Are you sure you want to delete this item?')),
+array('label'=>'Delete Host','url'=>'#','linkOptions'=>array('submit'=>array('delete','id'=>$model->id),'confirm'=>'Deleting this host will also purge its log entries. Are you sure you want to delete this item?')),
 );
 ?>
 

@@ -131,8 +131,8 @@ class HostController extends Controller {
     	try
     	{
 
-      		$this->loadModel ( $id )->delete ();
-      		Yii::app()->db->createCommand()->delete('syslog','host=:host',array(':host'=>$id));
+      		Yii::app()->db->createCommand()->delete('host','id=:host',array(':host'=>$id));
+    		Yii::app()->db->createCommand()->delete('syslog','host=:host',array(':host'=>$id));
       		Yii::app()->db->createCommand()->delete('archive','host=:host',array(':host'=>$id));
       		$trans->commit ();
     		Yii::app()->user->addFlash('info',"<strong>Host deleted</strong>");
