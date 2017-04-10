@@ -1,6 +1,6 @@
 ## Install Echofish On Ubuntu 16.04 LTS
 
-The following guide walks you through the installation of Echofish on Ubuntu 16.04 LTS with rsyslog + apache + php-fpm.
+The following guide walks you through the installation of Echofish on Ubuntu 16.04 LTS with rsyslog + apache + php7.
 
 ### Requirements
 
