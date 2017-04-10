@@ -33,25 +33,26 @@ install -d -g www -o www /var/www/htdocs/echofish/assets/
 
 #### MariaDB
 
-Configure MySQL to start for the first time and start the service:
+Configure MariaDB to start for the first time and start the service.
+
+##### MariaDB event scheduler and BLACKHOLE Storage Engine
+
+Make sure the BLACKHOLE engine is enabled in MariaDB as a plugin, and that
+the built-in Event Scheduler is started, by adding a these directives in
+the database server config, `/etc/my.cnf`:
+
+```
+[mysqld]
+event_scheduler=ON
+plugin-load=BLACKHOLE=ha_blackhole.so
+blackhole=FORCE
+```
+
+##### MariaDB first time start-up
 
 ```
 mysql_install_db
 rcctl -f start mysqld
-```
-
-##### MariaDB event scheduler
-
-Echofish requires MySQL's builtin scheduler to be enabled, so add 
-`event_scheduler=ON` in the `[mysqld]` section of `/etc/my.cnf`.
-
-##### MariaDB BLACKHOLE Storage Engine
-
-Make sure the BLACKHOLE engine is enabled in MariaDB as a plugin.
-Run `mysql -u root` and execute the following statement:
-
-```sql
-INSTALL PLUGIN BLACKHOLE SONAME 'ha_blackhole.so';
 ```
 
 ##### Create and configure a database 
