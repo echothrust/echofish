@@ -12,7 +12,7 @@ This guide will use Apache as an example but any httpd supported by php will do.
 Install required packages:
 
 ```sh
-sudo apt install php php-mysql php-mbstring php-xml php-fpm mariadb-server mariadb-client apache2 libapache2-mod-php rsyslog rsyslog-mysql curl ca-certificates
+sudo apt install php php-mysql php-mbstring php-xml mariadb-server mariadb-client apache2 libapache2-mod-php rsyslog rsyslog-mysql curl ca-certificates
 ```
 
 You can skip the rsyslog-mysql initiated database install, it won't be used.
