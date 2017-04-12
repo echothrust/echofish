@@ -27,7 +27,7 @@ example extracts into /var/www/htdocs)
 ```sh
 ftp https://github.com/echothrust/echofish/archive/master.tar.gz
 tar -zxf master.tar.gz -C /var/www/
-ln -s /var/www/echofish-master/htdocs /var/www/htdocs/echofish
+ln -s ../echofish-master/htdocs /var/www/htdocs/echofish
 install -d -g www -o www /var/www/htdocs/echofish/assets/
 ```
 
