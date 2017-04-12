@@ -17,6 +17,8 @@ php-fpm will be used to run Echofish:
 export PKG_PATH=http://ftp.openbsd.org/pub/OpenBSD/$(uname -r)/packages/$(uname -m)
 pkg_add -vvi syslog-ng libdbi-drivers-mysql mariadb-server mariadb-client 
 pkg_add -vvi php-5.6.23p0 php-pdo_mysql-5.6.23p0 
+( cd /etc/php-5.6.sample
+  for i in *; do ln -sf ../php-5.6.sample/$i ../php-5.6/; done )
 ```
 
 #### Echofish sources
@@ -27,7 +29,7 @@ example extracts into /var/www/htdocs)
 ```sh
 ftp https://github.com/echothrust/echofish/archive/master.tar.gz
 tar -zxf master.tar.gz -C /var/www/
-ln -s /var/www/echofish-master/htdocs /var/www/htdocs/echofish
+ln -s ../echofish-master/htdocs /var/www/htdocs/echofish
 install -d -g www -o www /var/www/htdocs/echofish/assets/
 ```
 
@@ -96,7 +98,7 @@ Edit `/var/www/htdocs/echofish/protected/config/db.php` and change the values to
 
 ```php
 		'db'=>array(
-			'connectionString' => 'mysql:host=localhost;dbname=ETS_echofish',
+			'connectionString' => 'mysql:host=127.0.0.1;dbname=ETS_echofish',
 			'emulatePrepare' => true,
 			'username' => 'echofish',
 			'password' => '{{{echofish-pass-here}}}',
