@@ -168,3 +168,9 @@ INSTALL PLUGIN BLACKHOLE SONAME 'ha_blackhole.so';
 ALTER TABLE ETS_echofish.archive_bh ENGINE BLACKHOLE;
 ```
 
+* It has been reported that, in some cases, archive logs are not successfully 
+rotated. This can be verified by manually invoking the rotation procedure
+with `CALL eproc_rotate_archive();` and receiving **ERROR 1665 (HY000)** from
+MariaDB. A workaround for this issue is to adjust the daemon config to include
+`binlog_format=row`, under the `[mysqld]` section of my.cnf
+
