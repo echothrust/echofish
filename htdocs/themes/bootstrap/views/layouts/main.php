@@ -15,7 +15,7 @@
 <body>
 
 <?php $this->widget('bootstrap.widgets.TbNavbar',array(
-  		'brand'=>'<img width="25px" src="' . Yii::app()->baseUrl.'/images/logo-139x98-whitebg.png' . '" />',
+  		'brand'=>'<img width="25px" src="' . Yii::app()->baseUrl.'/images/logo.png' . '" />',
   		'brandUrl'=>array('/site/index'),
 			'collapse'=>false,
       'fixed' => 'top',
@@ -55,7 +55,7 @@
                 )),
                 array('label'=>'Login', 'url'=>array('/site/login'), 'visible'=>Yii::app()->user->isGuest),
                 array('label'=>'Logout ('.Yii::app()->user->name.')', 'url'=>array('/site/logout'), 'visible'=>!Yii::app()->user->isGuest),
-                
+
                             ),
         ),
     ),
@@ -71,8 +71,8 @@
     <?php $this->widget('bootstrap.widgets.TbAlert', array(
     		'fade' => true,
     )); ?>
-	
-	
+
+
 	<?php echo $content; ?>
 
 	<div class="clear"></div>
