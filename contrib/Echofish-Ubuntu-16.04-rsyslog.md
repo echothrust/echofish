@@ -1,56 +1,39 @@
-## Install Echofish On CentOS 7.3
+## Install Echofish On Ubuntu 16.04 LTS
 
-The following guide walks you through the installation of Echofish on CentOS 7.3 with rsyslog + nginx + php_fpm.
+The following guide walks you through the installation of Echofish on Ubuntu 16.04 LTS with rsyslog + apache + php7.
 
 ### Requirements
 
-Starting from a CentOS minimal install, we need a few additions:
+Starting from a Ubuntu Server minimal install, we need a few additional dependencies.
+This guide will use Apache as an example but any httpd supported by php will do.
 
 #### Packages installation
-
-Install Extra Packages for Enterprise Linux (EPEL) for nginx:
-
-```sh
-yum -y install epel-release
-```
-
-For MariaDB 10.1 create `/etc/yum.repos.d/MariaDB.repo`:
-
-```
-# MariaDB 10.1 CentOS repository list
-# http://downloads.mariadb.org/mariadb/repositories/
-[mariadb]
-name = MariaDB
-baseurl = http://yum.mariadb.org/10.1/centos7-amd64
-gpgkey=https://yum.mariadb.org/RPM-GPG-KEY-MariaDB
-gpgcheck=1
-```
 
 Install required packages:
 
 ```sh
-yum -y install rsyslog-mysql php php-pdo php-mysqlnd php-mbstring php-fpm nginx MariaDB-server MariaDB-client
+sudo apt install php php-mysql php-mbstring php-xml mariadb-server mariadb-client apache2 libapache2-mod-php rsyslog rsyslog-mysql curl ca-certificates
 ```
+
+You can skip the rsyslog-mysql initiated database install, it won't be used.
 
 #### Echofish sources
 
 Download and extract [Echofish](https://github.com/echothrust/echofish)
 
 ```sh
-cd /usr/share/nginx
-curl -L https://github.com/echothrust/echofish/archive/master.tar.gz | tar zx
-mv echofish-master echofish
+cd /var/www
+curl -L https://github.com/echothrust/echofish/archive/master.tar.gz | sudo tar zx
+sudo mv echofish-master echofish
 ```
 
 #### MariaDB
 
-Configure MariaDB to start for the first time and start the service.
-
 ##### MariaDB event scheduler and BLACKHOLE Storage Engine
 
 Make sure the BLACKHOLE engine is enabled in MariaDB as a plugin, and that
-the built-in Event Scheduler is started, by adding a these directives in
-the database server config, `/etc/my.cnf.d/server.cnf`:
+the built-in Event Scheduler is started, by adding these directives in
+the database server config, `/etc/mysql/mariadb.conf.d/50-server.cnf`:
 
 ```
 [mysqld]
@@ -61,11 +44,16 @@ blackhole=FORCE
 
 ##### MariaDB first time start-up
 
-Start MariaDB as the backend database:
+Restart MariaDB to apply the storage engine changes:
 
 ```sh
-systemctl enable mariadb.service
-systemctl start mariadb.service
+sudo systemctl restart mysql.service
+```
+
+##### Set up MariaDB root password
+By default there is no root password, execute the following, changing {{{root-pass-here}}}:
+```sh
+mysqladmin -u root password '{{{root-pass-here}}}'
 ```
 
 ##### Create and configure a database
@@ -83,7 +71,7 @@ FLUSH PRIVILEGES;
 Import the provided schema files into the database:
 
 ```sh
-cd /usr/share/nginx/echofish
+cd /var/www/echofish
 mysql ETS_echofish < schema/00_echofish-schema.sql
 mysql ETS_echofish < schema/echofish-dataonly.sql
 mysql ETS_echofish < schema/echofish-functions.sql
@@ -102,7 +90,7 @@ This section describes how to configure Echofish for your setup.
 Copy the echofish configuration sample file located in `echofish/htdocs/protected/config` and change the values to reflect your setup (change {{{echofish-pass-here}}} to match):
 
 ```sh
-cd /usr/share/nginx/echofish/htdocs/protected/config/
+cd /var/www/echofish/htdocs/protected/config/
 cp db-sample.php db.php
 vi db.php
 ```
@@ -146,7 +134,13 @@ If you are unsure, leave 'localhost' to deliver to the local MTA. Configuring cr
 
 #### rsyslog-mysql
 
-We are going to use rsyslog as a collector; Create the file `/etc/rsyslog.d/echofish.conf` as follows (change {{{echofish-pass-here}}} to match your setup): 
+We are going to use rsyslog as a collector.
+Remove the standard rsyslog-mysql config:
+```sh
+sudo rm /etc/rsyslog.d/mysql.conf
+```
+
+Create the file `/etc/rsyslog.d/echofish.conf` as follows (change {{{echofish-pass-here}}} to match your setup):
 
 ```
 # /etc/rsyslog.d/echofish.conf
@@ -173,68 +167,22 @@ template(name="dbFormat" type="string" option.sql="on"
 
 This will load the mysql shared object that was installed with the "rsyslog-mysql" package and will log syslog in table 'archive_bh' of mysql database 'ETS_echofish'.
 
-#### nginx
+#### php
 
-Create the file `/etc/nginx/default.d/echofish.conf`:
-
-```
-location /echofish {
-        index index.php;
-        # First attempt to serve request as file, then
-        # as directory, then fall back to displaying a 404.
-        try_files $uri $uri/ =404;
-}
-
-location ~ \.php$ {
-        try_files $uri =404;
-        fastcgi_pass 127.0.0.1:9000;
-        fastcgi_index index.php;
-        fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
-        include fastcgi_params;
-}
-```
-
-This will configure nginx to serve php content through the php-fastcgi.
-
-#### php-fpm
-
-In the `[Date]` section of your `/etc/php.ini` set PHP date.timezone (a list of available timezone settings can be found [here](http://uk.php.net/manual/en/timezones.php)). Replace with your server timezone:
+In the `[Date]` section of `/etc/php/7.0/apache2/php.ini` set PHP date.timezone (a list of available timezone settings can be found [here](http://uk.php.net/manual/en/timezones.php)). Replace with your server timezone:
 
 ```
 date.timezone = Europe/Athens
 ```
 
-#### iptables
+### Permissions
 
-Below will open access to HTTP port 80 via local firewall:
-
-```
-# allow incoming connections to port 80
-firewall-cmd --zone=public --add-port=80/tcp --permanent
-```
-
-Then reload the new rules for changes to take effect:
+Set unix permissions:
 
 ```sh
-firewall-cmd --reload
-```
-
-### Permissions & SELinux
-
-Set unix permissions and selinux contexts:
-
-```sh
-# set write permissions for php-fpm
-mkdir /usr/share/nginx/echofish/htdocs/assets
-chown -R apache.apache /usr/share/nginx/echofish/htdocs/assets
-selinuxenabled && (
-  chcon -R -u system_u -r object_r -t httpd_sys_content_t /usr/share/nginx/echofish/htdocs
-  chcon -R -u system_u -r object_r -t httpd_sys_content_rw_t /usr/share/nginx/echofish/htdocs/assets
-  # allow mysql connections from fpm
-  setsebool httpd_can_network_connect_db on
-  # set correct contexts for rsyslog included config
-  chcon system_u:object_r:syslog_conf_t:s0 /etc/rsyslog.d/echofish.conf
-)
+# set write permissions for php
+mkdir /var/www/echofish/htdocs/assets
+chown -R www-data:www-data /var/www/echofish/htdocs/assets
 ```
 
 ### Test your installation
@@ -242,28 +190,21 @@ selinuxenabled && (
 Enable and restart rsyslog daemon:
 
 ```sh
-systemctl enable rsyslog.service
-systemctl restart rsyslog.service
+sudo systemctl enable rsyslog.service
+sudo systemctl restart rsyslog.service
 ```
 
-Start nginx service:
+Start apache service:
 
 ```sh
-systemctl enable nginx.service
-systemctl restart nginx.service
-```
-
-Start php-fpm service:
-
-```sh
-systemctl enable php-fpm.service
-systemctl restart php-fpm.service
+sudo systemctl enable apache2.service
+sudo systemctl restart apache2.service
 ```
 
 Create a symlink for echofish:
 
 ```sh
-cd /usr/share/nginx/html
+cd /var/www/html
 ln -s ../echofish/htdocs echofish
 ```
 

@@ -26,9 +26,21 @@ reasonably recent versions too).
 
 Echofish is dependent on MariaDB 10.0.5+ for PCRE pattern matching.
 
-#### 1.2.2 - MariaDB BLACKHOLE Storage Engine
+#### 1.2.2 - MariaDB Event Scheduler and BLACKHOLE Storage Engine
 
-Make sure the BLACKHOLE engine is enabled in MariaDB as a plugin.
+Make sure the BLACKHOLE engine is enabled in MariaDB as a plugin, and that
+the built-in Event Scheduler is started, by adding a these directives in
+the database server config, usually `/etc/my.cnf` or `/etc/mysql/my.cnf`:
+
+```
+[mysqld]
+event_scheduler=ON
+plugin-load=BLACKHOLE=ha_blackhole.so
+blackhole=FORCE
+```
+
+After setting up the event_scheduler you should also reload the mysql server
+process, i.e. `service mysqld reload` or equivalent.
 
 ### 1.3 - Syslog
 
@@ -68,11 +80,6 @@ mysql -u root -p ETS_echofish < schema/echofish-procedures.mariadb10.sql
 mysql -u root -p ETS_echofish < schema/echofish-triggers.sql
 mysql -u root -p ETS_echofish < schema/echofish-events.sql
 ```
-
-For events to run, make sure you set `event_scheduler=on` somewhere under the 
-`[mysqld]` section in the default mysql config file, usually `/etc/my.cnf` or 
-`/etc/mysql/my.cnf`. After setting up the event_scheduler you should also 
-reload the mysql server process, i.e. `service mysqld reload` or equivalent.
 
 ### 3.2 - Echofish frontend
 
@@ -160,4 +167,10 @@ is disabled by default. To fix this issue on an existing MariaDB installation:
 INSTALL PLUGIN BLACKHOLE SONAME 'ha_blackhole.so';
 ALTER TABLE ETS_echofish.archive_bh ENGINE BLACKHOLE;
 ```
+
+* It has been reported that, in some cases, archive logs are not successfully 
+rotated. This can be verified by manually invoking the rotation procedure
+with `CALL eproc_rotate_archive();` and receiving **ERROR 1665 (HY000)** from
+MariaDB. A workaround for this issue is to adjust the daemon config to include
+`binlog_format=row`, under the `[mysqld]` section of my.cnf
 

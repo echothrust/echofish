@@ -17,6 +17,8 @@ php-fpm will be used to run Echofish:
 export PKG_PATH=http://ftp.openbsd.org/pub/OpenBSD/$(uname -r)/packages/$(uname -m)
 pkg_add -vvi syslog-ng libdbi-drivers-mysql mariadb-server mariadb-client 
 pkg_add -vvi php-5.6.23p0 php-pdo_mysql-5.6.23p0 
+( cd /etc/php-5.6.sample
+  for i in *; do ln -sf ../php-5.6.sample/$i ../php-5.6/; done )
 ```
 
 #### Echofish sources
@@ -27,31 +29,32 @@ example extracts into /var/www/htdocs)
 ```sh
 ftp https://github.com/echothrust/echofish/archive/master.tar.gz
 tar -zxf master.tar.gz -C /var/www/
-ln -s /var/www/echofish-master/htdocs /var/www/htdocs/echofish
+ln -s ../echofish-master/htdocs /var/www/htdocs/echofish
 install -d -g www -o www /var/www/htdocs/echofish/assets/
 ```
 
 #### MariaDB
 
-Configure MySQL to start for the first time and start the service:
+Configure MariaDB to start for the first time and start the service.
+
+##### MariaDB event scheduler and BLACKHOLE Storage Engine
+
+Make sure the BLACKHOLE engine is enabled in MariaDB as a plugin, and that
+the built-in Event Scheduler is started, by adding a these directives in
+the database server config, `/etc/my.cnf`:
+
+```
+[mysqld]
+event_scheduler=ON
+plugin-load=BLACKHOLE=ha_blackhole.so
+blackhole=FORCE
+```
+
+##### MariaDB first time start-up
 
 ```
 mysql_install_db
 rcctl -f start mysqld
-```
-
-##### MariaDB event scheduler
-
-Echofish requires MySQL's builtin scheduler to be enabled, so add 
-`event_scheduler=ON` in the `[mysqld]` section of `/etc/my.cnf`.
-
-##### MariaDB BLACKHOLE Storage Engine
-
-Make sure the BLACKHOLE engine is enabled in MariaDB as a plugin.
-Run `mysql -u root` and execute the following statement:
-
-```sql
-INSTALL PLUGIN BLACKHOLE SONAME 'ha_blackhole.so';
 ```
 
 ##### Create and configure a database 
@@ -95,7 +98,7 @@ Edit `/var/www/htdocs/echofish/protected/config/db.php` and change the values to
 
 ```php
 		'db'=>array(
-			'connectionString' => 'mysql:host=localhost;dbname=ETS_echofish',
+			'connectionString' => 'mysql:host=127.0.0.1;dbname=ETS_echofish',
 			'emulatePrepare' => true,
 			'username' => 'echofish',
 			'password' => '{{{echofish-pass-here}}}',
