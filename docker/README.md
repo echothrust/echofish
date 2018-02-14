@@ -18,7 +18,7 @@ or with plain docker:
 
 ```sh
 # Note: build context directory is .. (echofish project root)
-docker build -t ETS_echofish-web -f Dockerfile-web ..
+docker build -t echofish-web -f Dockerfile-web ..
 docker run --name echofish-db \
   -p 127.0.0.1:3306:3306 \
   -e MYSQL_ROOT_PASSWORD=root \
@@ -39,6 +39,6 @@ docker run --name echofish-web \
   -v `pwd`/php-timezone.ini:/usr/local/etc/php/conf.d/php-timezone.ini \
   -v /etc/timezone:/etc/timezone:ro \
   -v /etc/localtime:/etc/localtime:ro \
-  -d ETS_echofish-web
+  -d echofish-web
 ```
 
