@@ -15,13 +15,24 @@ services:
       - /etc/localtime:/etc/localtime:ro
 
   db:
-    build:
-      context: ..
-      dockerfile: ./docker/Dockerfile-db
+#    build:
+#      context: ..
+#      dockerfile: ./docker/Dockerfile-db
+    image: mariadb:10.1
     container_name: echofish-db
     environment:
       MYSQL_ROOT_PASSWORD: "root"
+      MYSQL_DATABASE: "ETS_echofish"
+      MYSQL_USER: "echofish"
+      MYSQL_PASSWORD: "dbpass"
     ports:
       - "127.0.0.1:3306:3306"
-#    volumes:
+    volumes:
+      - ./mycnf-event-scheduler.conf:/etc/mysql/conf.d/event-scheduler.conf
+      - ../schema/00_echofish-schema.sql:/docker-entrypoint-initdb.d/00-schema.sql
+      - ../schema/echofish-dataonly.sql:/docker-entrypoint-initdb.d/01-data.sql
+      - ../schema/echofish-functions.sql:/docker-entrypoint-initdb.d/02-function.sql
+      - ../schema/echofish-triggers.sql:/docker-entrypoint-initdb.d/03-trigger.sql
+      - ../schema/echofish-events.sql:/docker-entrypoint-initdb.d/04-event.sql
+      - ../schema/echofish-procedures.mariadb10.sql:/docker-entrypoint-initdb.d/05-mariadb-proc.sql
 #      - ./database:/var/lib/mysql
