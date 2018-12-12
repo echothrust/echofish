@@ -101,7 +101,10 @@ class WhiteController extends Controller {
 		$entry = Syslog::model ()->findByPk ( $syslog_id );
 		if($entry){
 			$model = new Whitelist ();
-			$model->host = $entry->hostip;
+			if($entry->hostip===null)
+				$model->host = $entry->lHost->short;
+			else
+				$model->host = $entry->hostip;
 			$model->facility = $entry->facility;
 			$model->level = $entry->level;
 			$model->program = $entry->program;
