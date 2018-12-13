@@ -105,7 +105,7 @@ $this->widget ( 'bootstrap.widgets.TbExtendedGridView', array (
 				array (
 						'name' => 'hostip',
 						'type' => 'raw',
-						'value' => 'CHtml::link($data->lHost->DisplayName,array("admin","Syslog[hostip]"=>"=".$data->hostip),array("data-filter-value"=>"=".$data->hostip,"title"=>$data->lHost->FullDisplayName,"class"=>"Filter-hostip"))',
+						'value' => 'CHtml::link($data->lHost->DisplayName,array("admin","Syslog[hostip]"=>"=".$data->lHost->DisplayName),array("data-filter-value"=>"=".$data->hostip,"title"=>$data->lHost->FullDisplayName,"class"=>"Filter-hostip"))',
 						'cssClassExpression' => '"hostip"',
 						'htmlOptions' => array (
 								'width' => '55px'
