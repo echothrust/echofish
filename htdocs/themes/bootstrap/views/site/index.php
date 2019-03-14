@@ -11,10 +11,10 @@ $this->pageTitle=Yii::app()->name;
 <h3>Syslog filtering simplified.</h3>
 
 <?php $this->endWidget(); ?>
-<?php 
+<?php
 if (Yii::app()->user->isGuest) {
 ?>
-<h4>Please <?php echo CHtml::link('login', array('site/login')); ?> to access Echofish UI.</h4>
+<h4>Please <?php echo CHtml::link('login', array('site/login')); ?> to access Echofish.</h4>
 <?php
 }
 else {
@@ -29,6 +29,6 @@ else {
 	<li>Whitelist rules may be modified through the <?php echo CHtml::link('Lists module', array('lists/white/admin')); ?>.</li>
 	<li>Let Echofish filter all the noise for you!</li>
 </ol>
-<?php 
+<?php
 }
 ?>

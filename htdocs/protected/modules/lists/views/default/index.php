@@ -6,11 +6,11 @@ $this->breadcrumbs=array(
 );
 ?>
 <?php $this->beginWidget('bootstrap.widgets.TbHeroUnit',array(
-    'heading'=>CHtml::encode(Yii::app()->name).' Settings',
+    'heading'=>CHtml::encode(Yii::app()->name).' Lists',
 )); ?>
 
 
 <p>
-Manage your Echofish White/Black/Red lists. 
+Manage your Echofish White/Black/Red lists.
 </p>
 <?php $this->endWidget(); ?>

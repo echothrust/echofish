@@ -6,7 +6,7 @@ class TriggerController extends Controller {
    *      using two-column layout. See 'protected/views/layouts/column2.php'.
    */
   public $layout = '//layouts/column2';
-  
+
   /**
    *
    * @return array action filters
@@ -18,7 +18,7 @@ class TriggerController extends Controller {
         'postOnly + delete'  // we only allow deletion via POST request
         );
   }
-  
+
   /**
    * Specifies the access control rules.
    * This method is used by the 'accessControl' filter.
@@ -31,18 +31,18 @@ class TriggerController extends Controller {
         array (
             'allow', // allow authenticated user to perform 'create' and 'update' actions
             'users' => array (
-                '@' 
-            ) 
+                '@'
+            )
         ),
         array (
             'deny', // deny all users
             'users' => array (
-                '*' 
-            ) 
-        ) 
+                '*'
+            )
+        )
     );
   }
-  
+
   /**
    * Displays a particular model.
    *
@@ -52,10 +52,10 @@ class TriggerController extends Controller {
   public function actionView($id)
   {
     $this->render ( 'view', array (
-        'model' => $this->loadModel ( $id ) 
+        'model' => $this->loadModel ( $id )
     ) );
   }
-  
+
   /**
    * Creates a new model.
    * If creation is successful, the browser will be redirected to the 'view' page.
@@ -63,25 +63,25 @@ class TriggerController extends Controller {
   public function actionCreate()
   {
     $model = new AbuserTrigger ();
-    
+
     // Uncomment the following line if AJAX validation is needed
     // $this->performAjaxValidation($model);
-    
+
     if (isset ( $_POST ['AbuserTrigger'] ))
     {
       $model->attributes = $_POST ['AbuserTrigger'];
       if ($model->save ())
         $this->redirect ( array (
             'view',
-            'id' => $model->id 
+            'id' => $model->id
         ) );
     }
-    
+
     $this->render ( 'create', array (
-        'model' => $model 
+        'model' => $model
     ) );
   }
-  
+
   /**
    * Creates a new model based on a specific message from Syslog.
    * If creation is successful, the browser will be redirected to the 'view' page.
@@ -89,7 +89,7 @@ class TriggerController extends Controller {
   public function actionFromsyslog($syslog_id)
   {
   	$entry = Syslog::model ()->findByPk ( $syslog_id );
-  
+
   	$model = new AbuserTrigger ();
   	$model->facility = $entry->facility;
   	$model->severity = $entry->level;
@@ -102,7 +102,7 @@ class TriggerController extends Controller {
   	$model->priority = 1;
   	// Uncomment the following line if AJAX validation is needed
   	// $this->performAjaxValidation($model);
-  
+
   	if (isset ( $_POST ['AbuserTrigger'] ))
   	{
   		$model->attributes = $_POST ['AbuserTrigger'];
@@ -115,7 +115,7 @@ class TriggerController extends Controller {
   			'model' => $model
   	) );
   }
-  
+
   /**
    * Updates a particular model.
    * If update is successful, the browser will be redirected to the 'view' page.
@@ -126,25 +126,25 @@ class TriggerController extends Controller {
   public function actionUpdate($id)
   {
     $model = $this->loadModel ( $id );
-    
+
     // Uncomment the following line if AJAX validation is needed
     // $this->performAjaxValidation($model);
-    
+
     if (isset ( $_POST ['AbuserTrigger'] ))
     {
       $model->attributes = $_POST ['AbuserTrigger'];
       if ($model->save ())
         $this->redirect ( array (
             'view',
-            'id' => $model->id 
+            'id' => $model->id
         ) );
     }
-    
+
     $this->render ( 'update', array (
-        'model' => $model 
+        'model' => $model
     ) );
   }
-  
+
   /**
    * Deletes a particular model.
    * If deletion is successful, the browser will be redirected to the 'admin' page.
@@ -155,25 +155,14 @@ class TriggerController extends Controller {
   public function actionDelete($id)
   {
     $this->loadModel ( $id )->delete ();
-    
+
     // if AJAX request (triggered by deletion via admin grid view), we should not redirect the browser
     if (! isset ( $_GET ['ajax'] ))
       $this->redirect ( isset ( $_POST ['returnUrl'] ) ? $_POST ['returnUrl'] : array (
-          'admin' 
+          'admin'
       ) );
   }
-  
-  /**
-   * Lists all models.
-   */
-  public function actionIndex()
-  {
-    $dataProvider = new CActiveDataProvider ( 'AbuserTrigger' );
-    $this->render ( 'index', array (
-        'dataProvider' => $dataProvider 
-    ) );
-  }
-  
+
   /**
    * Manages all models.
    */
@@ -181,7 +170,7 @@ class TriggerController extends Controller {
   {
     $model = new AbuserTrigger ( 'search' );
     $model->unsetAttributes (); // clear any default values
-  	  if (isset($_GET['pageSize'])) 
+  	  if (isset($_GET['pageSize']))
   	{
       Yii::app()->user->setState('pageSize',(int)$_GET['pageSize']);
       unset($_GET['pageSize']);  // would interfere with pager and repetitive page size change
@@ -190,14 +179,14 @@ class TriggerController extends Controller {
       $model->attributes = $_GET ['AbuserTrigger'];
     if (isset ( $_GET ['ajax'] ))
       $this->renderPartial ( '_grid', array (
-          'model' => $model 
+          'model' => $model
       ) );
     else
       $this->render ( 'admin', array (
-          'model' => $model 
+          'model' => $model
       ) );
   }
-  
+
   /**
    * Returns the data model based on the primary key given in the GET variable.
    * If the data model is not found, an HTTP exception will be raised.
@@ -212,7 +201,7 @@ class TriggerController extends Controller {
       throw new CHttpException ( 404, 'The requested page does not exist.' );
     return $model;
   }
-  
+
   /**
    * Performs the AJAX validation.
    *
@@ -268,15 +257,15 @@ class TriggerController extends Controller {
                 $tr->save();
           }
         }
-          
+
       }
       Yii::app ()->user->setFlash ( 'success', 'File Uploaded' );
       $this->redirect ( array (
-          'upload' 
+          'upload'
       ) );
     }
     $this->render ( 'upload', array (
-        'form' => $form 
+        'form' => $form
     ) );
   }
 }
