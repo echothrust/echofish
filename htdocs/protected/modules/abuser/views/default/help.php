@@ -23,15 +23,19 @@ $this->beginWidget('bootstrap.widgets.TbHeroUnit',array(
     <li><b>ID:</b> The id of the record.</li>
     <li>Trigger Criteria / MySQL LIKE expressions that determine whether a trigger should take action for a message.
     <ul>
-	    <li><b>Facility:</b> The facility code that enables this trigger to take action. Use an RFC 5424 facility number (0-23), or "%" for any.</li>
-	    <li><b>Severity:</b> The severity level that enables this trigger to take action. Use an RFC 5424 severity level number (0-7), or "%" for any.</li>
+	    <li><b>Facility:</b> The facility code that enables this trigger to take action. Use an RFC 5424 facility number (0-23), or "-1" for any.</li>
+	    <li><b>Severity:</b> The severity level that enables this trigger to take action. Use an RFC 5424 severity level number (0-7), or "-1" for any.</li>
 	    <li><b>Program:</b> The program name that enables this trigger to take action. Use "%" for any, "smtp%" for pattern or "dhcpd" for exact match.</li>
 	    <li><b>Msg:</b> The message pattern that enables this trigger to take action. Use regular MySQL LIKE wildcards to specify those parts of the message that change (e.g. use "%]:%SASL%LOGIN authentication fail%" to trigger IP extraction for failed SASL login attempts)</li>
 	</ul></li>
-	<li>Trigger Action / Perl compatible regular expression that extracts the IP from the (Msg). These are the parameters passed to PREG_CAPTURE() function from <a href="https://github.com/mysqludf/lib_mysqludf_preg">lib_mysqludf_preg</a>.
+  <li>Trigger Action / Perl compatible regular expression that extracts the IP from the (Msg). These are the parameters passed to REGEXP_REPLACE() function from <a href="https://mariadb.com/kb/en/library/regexp_replace/">MariaDB REGEXP_REPLACE</a>.
 	<ul>
-	    <li><b>Pattern:</b> The PCRE to capture (extract) the offending IP. The PCRE pattern should have delimiters and include a parenthesized subexpression to indicate the location of the IP in the message (e.g. "/\[(.*?)\]/" to catch IP addresses from messages like "warning: unknown[95.211.100.141]: SASL LOGIN authentication failed: UGFzc3dvcmQ6"). If needed, this expression can contain the standard perl modifiers after the ending delimiter (e.g. "/i" for case insensitive matches).
-	    <li><b>Grouping:</b> Which grouping are we referring to (e.g. "1").</li>
+	    <li><b>Pattern:</b> The PCRE to capture (extract) the offending IP.
+      The PCRE pattern should have delimiters and include a parenthesized
+      subexpression to match the location of the IP in the message. For instance,
+      to extract the IP address from the following message <code>warning: unknown[95.211.100.141]: SASL LOGIN authentication failed</code>
+      the pattern would look something like <code>"^.*\[(.*?)\].*$"</code>.
+	    <li><b>Grouping:</b> Which grouping (number) from the pattern above are we referring to, in case multiple groupings exist withn the pattern. In most cases 1 .</li>
 	    <li><b>Capture:</b> What capture are we refering to (e.g. "1").</li>
 	</ul></li>
     <li><b>Description:</b> A short description (describing the policy violation e.g. "SASL brute force").</li>
@@ -49,7 +53,7 @@ $this->beginWidget('bootstrap.widgets.TbHeroUnit',array(
 <p>You can configure cron jobs to schedule the generation and sending of email reports about incidents that hit their occurrence thresholds. <a href="https://github.com/echothrust/echofish/blob/master/INSTALL.md">INSTALL.md</a> shows how to configure a daily report, but of course the cronjob may be easily adjusted to a different schedule.</p>
 <p>Example usage of cron.php is demonstrated bellow:</p>
 <pre>
-php echofish/htdocs/cron.php alert abuser --email=YOUR-EMAIL # Mail report with incidents that hit their threshold within the last minute. 
+php echofish/htdocs/cron.php alert abuser --email=YOUR-EMAIL # Mail report with incidents that hit their threshold within the last minute.
 php echofish/htdocs/cron.php alert abuser --email=YOUR-EMAIL --interval=5 # Same, but within the last 5 minutes
 php echofish/htdocs/cron.php alert abuser --email=YOUR-EMAIL --interval=5 --zero=1 # same, but also zero out their counters
 </pre>
