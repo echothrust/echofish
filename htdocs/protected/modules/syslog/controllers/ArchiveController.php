@@ -69,9 +69,9 @@ class ArchiveController extends Controller {
 	public function actionAdmin($from = null, $to = null, $divider = 1) {
 		$model = new Archive ( 'search' );
 		$model->unsetAttributes (); // clear any default values
-		if (isset ( $_GET ['pageSize'] )) {
-			Yii::app ()->user->setState ( 'pageSize', ( int ) $_GET ['pageSize'] );
-			unset ( $_GET ['pageSize'] ); // would interfere with pager and repetitive page size change
+		if (isset ( $_GET ['archivePageSize'] )) {
+			Yii::app ()->user->setState ( 'archivePageSize', ( int ) $_GET ['archivePageSize'] );
+			unset ( $_GET ['archivePageSize'] ); // would interfere with pager and repetitive page size change
 		}
 		if (isset ( $_GET ['Archive'] ))
 			$model->attributes = $_GET ['Archive'];

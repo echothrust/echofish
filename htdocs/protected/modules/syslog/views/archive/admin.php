@@ -30,7 +30,7 @@ or <b>=</b>) at the beginning of each of your search values to specify how the c
 <?php echo CHtml::link('Help!',$this->createUrl('/'.Yii::app()->controller->module->id.'/default/help'/*,array('section'=>Yii::app()->controller->id)*/));?>
 
 </p>
-<?php $pageSize=Yii::app()->user->getState('pageSize',Yii::app()->params['defaultPageSize']); ?>
+<?php $pageSize=Yii::app()->user->getState('archivePageSize',Yii::app()->params['defaultPageSize']); ?>
 
 <?php $this->widget('bootstrap.widgets.TbExtendedGridView', array(
   'id'=>'archive-grid',
@@ -83,7 +83,7 @@ or <b>=</b>) at the beginning of each of your search values to specify how the c
     array(
 			'class'=>'bootstrap.widgets.TbButtonColumn',
       'header'=>CHtml::dropDownList(
-                'pageSize',
+                'archivePageSize',
                 $pageSize,
                 array(0=>'All',5=>5,10=>10,20=>20,50=>50,100=>100),
                 array('class'=>'change-pagesize','style'=>'width:80px;')
@@ -95,7 +95,7 @@ or <b>=</b>) at the beginning of each of your search values to specify how the c
 )); ?>
 <?php Yii::app()->clientScript->registerScript('initPageSize',<<<EOD
     $('body').on('change','.change-pagesize', function() {
-		$.fn.yiiGridView.update('archive-grid',{ data:{ pageSize: $(this).val() }})
+		$.fn.yiiGridView.update('archive-grid',{ data:{ archivePageSize: $(this).val() }})
     });
 EOD
 ,CClientScript::POS_READY); ?>
