@@ -9,7 +9,7 @@
 	<?php echo $form->errorSummary($model); ?>
 
 
-	<?php echo $form->textFieldRow($model,'host',array('class'=>'span5'),array('maxlength'=>20,'hint'=>'e.g. "%" for any, "172.20.%.%" for partial, "172.20.20.20" for exact match.')); ?>
+	<?php echo $form->textFieldRow($model,'host',array('class'=>'span5'),array('maxlength'=>40,'hint'=>'e.g. "%" for any, "172.20.%.%" for partial, "172.20.20.20" for exact match.')); ?>
 
 	<?php echo $form->textFieldRow($model,'facility',array('class'=>'span5','maxlength'=>20),array('hint'=>'Use "%" for any or RFC 5424 facility number (0-23).')); ?>
 

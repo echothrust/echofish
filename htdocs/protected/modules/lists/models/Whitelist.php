@@ -41,7 +41,8 @@ class Whitelist extends CActiveRecord
 		// will receive user inputs.
 		return array(
 			array('host', 'required'),
-			array('host, facility, level', 'length', 'max'=>20),
+			array('facility, level', 'length', 'max'=>20),
+			array('host', 'length', 'max'=>40),
 			array('program', 'length', 'max'=>50),
 			array('pattern', 'length', 'max'=>512),
 			array('description', 'safe'),
@@ -100,11 +101,11 @@ class Whitelist extends CActiveRecord
     $pagination=false;
   else
 	 $pagination=array('pageSize'=>Yii::app()->user->getState('pageSize',Yii::app()->params['defaultPageSize']));
-      
+
 		return new CActiveDataProvider($this, array(
 			'criteria'=>$criteria,
-		   'pagination'=>$pagination, 
-		    
+		   'pagination'=>$pagination,
+
 		));
 	}
 }
