@@ -64,7 +64,7 @@ and grant privileges to a user connecting from your web server's IP:
 
 ```sql
 CREATE DATABASE ETS_echofish CHARACTER SET utf8 COLLATE utf8_unicode_ci;
-GRANT ALL PRIVILEGES ON ETS_echofish.* TO 'echofish'@'127.0.0.1' IDENTIFIED BY 'place-your-passwd-here' WITH GRANT OPTION;
+GRANT ALL PRIVILEGES ON ETS_echofish.* TO 'echofish'@'localhost' IDENTIFIED BY 'place-your-passwd-here' WITH GRANT OPTION;
 FLUSH PRIVILEGES;
 ```
 
